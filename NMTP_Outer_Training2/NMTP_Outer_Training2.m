@@ -92,27 +92,7 @@ for currentTrial = 1:MaxTrials
     WrongPortsOutChoice = setdiff(AllPortsOut, WhichChoiceOut);
     
     
-    %Adding a trial repeat contingency for bad performance
-    if currentTrial > 17
-        LocalOutcomes = zeros(1,17);
-        fillno = 0;
-        for x = currentTrial-16:currentTrial
-            fillno = fillno+1;
-            if ~isnan(BpodSystem.Data.RawEvents.Trial{x}.States.Punish(1))
-                LocalOutcomes(fillno) = 0;
-            elseif ~isnan(BpodSystem.Data.RawEvents.Trial{x}.States.ChoiceOn(1))
-                LocalOutcomes(fillno) = 1;
-            end
-        end
-        LocalTrials = find(TrialTypes(currentTrial-14:currentTrial) == TrialTypes(currentTrial));
-        Results = LocalOutcomes(LocalTrials);
-        Percent = numel(find(Results))/numel(Results);
-        if Percent <= 0.5
-            RepeatTrial = 1;
-        else
-            RepeatTrial = 0;
-        end
-    end
+    
     sma = NewStateMatrix(); % Assemble state matrix
     sma = SetGlobalTimer(sma, 1, S.GUI.DelayHoldTime);
     
@@ -224,6 +204,28 @@ for currentTrial = 1:MaxTrials
     HandlePauseCondition; % Checks to see if the protocol is paused. If so, waits until user resumes.
     if BpodSystem.Status.BeingUsed == 0
         return
+    end
+    
+    %Adding a trial repeat contingency for bad performance
+    if currentTrial > 17
+        LocalOutcomes = zeros(1,17);
+        fillno = 0;
+        for x = currentTrial-16:currentTrial
+            fillno = fillno+1;
+            if ~isnan(BpodSystem.Data.RawEvents.Trial{x}.States.Punish(1))
+                LocalOutcomes(fillno) = 0;
+            elseif ~isnan(BpodSystem.Data.RawEvents.Trial{x}.States.ChoiceOn(1))
+                LocalOutcomes(fillno) = 1;
+            end
+        end
+        LocalTrials = find(TrialTypes(currentTrial-16:currentTrial) == TrialTypes(currentTrial+1));
+        Results = LocalOutcomes(LocalTrials);
+        Percent = numel(find(Results))/numel(Results);
+        if Percent <= 0.5
+            RepeatTrial = 1;
+        else
+            RepeatTrial = 0;
+        end
     end
 end
 
