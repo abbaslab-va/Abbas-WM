@@ -40,6 +40,7 @@ BpodNotebook('init');
 BpodParameterGUI('init', S); % Initialize parameter GUI plugin
 
 TimeTaken = zeros(1, 1000);
+RepeatTrial = 0;
 %% Main trial loop
 for currentTrial = 1:MaxTrials
     if S.GUI.DelayHoldTime < 5
@@ -90,6 +91,28 @@ for currentTrial = 1:MaxTrials
     WrongPortsInChoice = setdiff(AllPortsIn, WhichChoiceIn);
     WrongPortsOutChoice = setdiff(AllPortsOut, WhichChoiceOut);
     
+    
+    %Adding a trial repeat contingency for bad performance
+    if currentTrial > 15
+        LocalOutcomes = zeros(1,15);
+        fillno = 0;
+        for x = currentTrial-14:currentTrial
+            fillno = fillno+1;
+            if ~isnan(BpodSystem.Data.RawEvents.Trial{x}.States.Punish(1))
+                LocalOutcomes(fillno) = 0;
+            elseif ~isnan(BpodSystem.Data.RawEvents.Trial{x}.States.ChoiceOn(1))
+                LocalOutcomes(fillno) = 1;
+            end
+        end
+        LocalTrials = find(TrialTypes(currentTrial-14:currentTrial) == TrialTypes(currentTrial));
+        Results = LocalOutcomes(LocalTrials);
+        Percent = numel(find(Results))/numel(Results);
+        if Percent <= 0.5
+            RepeatTrial = 1;
+        else
+            RepeatTrial = 0;
+        end
+    end
     sma = NewStateMatrix(); % Assemble state matrix
     sma = SetGlobalTimer(sma, 1, S.GUI.DelayHoldTime);
     
@@ -170,9 +193,18 @@ for currentTrial = 1:MaxTrials
         'StateChangeConditions', {'Tup', 'ITI2'},...
         'OutputActions', {'Valve6', 1});
     
-    sma = AddState(sma, 'Name', 'Punish', 'Timer', S.GUI.PunishTime,...
-        'StateChangeConditions', {'Tup', 'exit'},...
-        'OutputActions', {'Valve6', 1});
+    if RepeatTrial
+    
+        sma = AddState(sma, 'Name', 'Punish', 'Timer', S.GUI.PunishTime,...
+            'StateChangeConditions', {'Tup', 'ITI2'},...
+            'OutputActions', {'Valve6', 1});
+    else
+        
+        sma = AddState(sma, 'Name', 'Punish', 'Timer', S.GUI.PunishTime,...
+            'StateChangeConditions', {'Tup', 'exit'},...
+            'OutputActions', {'Valve6', 1});
+        
+    end
     
     sma = AddState(sma, 'Name', 'EarlyWithdrawal', 'Timer', 3,...
         'StateChangeConditions', {'Tup', 'ITI2'},...
@@ -199,7 +231,10 @@ function UpdateTrialTypeOutcomePlot(TrialTypes, Data)
 global BpodSystem
 Outcomes = zeros(1,Data.nTrials);
 for x = 1:Data.nTrials
-    if ~isnan(Data.RawEvents.Trial{x}.States.Punish(1))
+    
+    if ~isnan(Data.RawEvents.Trial{x}.States.Punish(1)) && ~isnan(Data.RawEvents.Trial{x}.States.ChoiceOn(1))
+        Outcomes(x) = 2;
+    elseif ~isnan(Data.RawEvents.Trial{x}.States.Punish(1))
         Outcomes(x) = 0;
     elseif ~isnan(Data.RawEvents.Trial{x}.States.ChoiceOn(1))
         Outcomes(x) = 1;
