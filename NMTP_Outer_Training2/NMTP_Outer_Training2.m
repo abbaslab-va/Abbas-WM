@@ -93,10 +93,10 @@ for currentTrial = 1:MaxTrials
     
     
     %Adding a trial repeat contingency for bad performance
-    if currentTrial > 15
-        LocalOutcomes = zeros(1,15);
+    if currentTrial > 17
+        LocalOutcomes = zeros(1,17);
         fillno = 0;
-        for x = currentTrial-14:currentTrial
+        for x = currentTrial-16:currentTrial
             fillno = fillno+1;
             if ~isnan(BpodSystem.Data.RawEvents.Trial{x}.States.Punish(1))
                 LocalOutcomes(fillno) = 0;
