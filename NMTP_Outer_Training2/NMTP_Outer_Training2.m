@@ -65,16 +65,7 @@ for currentTrial = 1:MaxTrials
             SampleValve = {'Valve1', 1}; SampleValveTime = GetValveTimes(S.GUI.SampleReward, 1);
             ChoiceLight = {'PWM5', 50}; WhichChoiceIn = {'Port5In'}; WhichChoiceOut = {'Port5Out'};
             ChoiceValve = {'Valve5', 1}; ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 5);
-%         case 3 
-%             SampleLight = {'PWM3', 50}; WhichSampleIn = {'Port3In'}; WhichSampleOut = {'Port3Out'};
-%             SampleValve = {'Valve3', 1}; SampleValveTime = GetValveTimes(S.GUI.SampleReward, 3);
-%             ChoiceLight = {'PWM1', 50}; WhichChoiceIn = {'Port1In'}; WhichChoiceOut = {'Port1Out'};
-%             ChoiceValve = {'Valve1', 1}; ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 1);
-%         case 4
-%             SampleLight = {'PWM3', 50}; WhichSampleIn = {'Port3In'}; WhichSampleOut = {'Port3Out'};
-%             SampleValve = {'Valve3', 1}; SampleValveTime = GetValveTimes(S.GUI.SampleReward, 3);
-%             ChoiceLight = {'PWM5', 50}; WhichChoiceIn = {'Port5In'}; WhichChoiceOut = {'Port5Out'};
-%             ChoiceValve = {'Valve5', 1}; ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 5);
+
         case 3
             SampleLight = {'PWM5', 50}; WhichSampleIn = {'Port5In'}; WhichSampleOut = {'Port5Out'};
             SampleValve = {'Valve5', 1}; SampleValveTime = GetValveTimes(S.GUI.SampleReward, 5);
@@ -127,9 +118,9 @@ for currentTrial = 1:MaxTrials
         WrongPortsOutSample(2), 'WaitForSamplePoke', WrongPortsOutSample(3), 'WaitForSamplePoke',... 
         WrongPortsOutSample(4), 'WaitForSamplePoke'], 'OutputActions', SampleLight);
     
-    sma = AddState(sma, 'Name', 'SampleOn', 'Timer', SampleValveTime,...
+    sma = AddState(sma, 'Name', 'SampleOn', 'Timer', 0,...
         'StateChangeConditions', {'Tup', 'WaitForDelayPoke'},...
-        'OutputActions', [SampleLight, SampleValve]);
+        'OutputActions', SampleLight);
     
     sma = AddState(sma, 'Name', 'WaitForDelayPoke', 'Timer', 0,...
         'StateChangeConditions', {'Port7In', 'DelayTimer'},...
@@ -207,10 +198,10 @@ for currentTrial = 1:MaxTrials
     end
     
     %Adding a trial repeat contingency for bad performance
-    if currentTrial > 17
-        LocalOutcomes = zeros(1,17);
+    if currentTrial > 8
+        LocalOutcomes = zeros(1,8);
         fillno = 0;
-        for x = currentTrial-16:currentTrial
+        for x = currentTrial-7:currentTrial
             fillno = fillno+1;
             if ~isnan(BpodSystem.Data.RawEvents.Trial{x}.States.Punish(1))
                 LocalOutcomes(fillno) = 0;
@@ -218,7 +209,7 @@ for currentTrial = 1:MaxTrials
                 LocalOutcomes(fillno) = 1;
             end
         end
-        LocalTrials = find(TrialTypes(currentTrial-16:currentTrial) == TrialTypes(currentTrial+1));
+        LocalTrials = find(TrialTypes(currentTrial-8:currentTrial) == TrialTypes(currentTrial+1));
         Results = LocalOutcomes(LocalTrials);
         Percent = numel(find(Results))/numel(Results);
         if Percent <= 0.5
