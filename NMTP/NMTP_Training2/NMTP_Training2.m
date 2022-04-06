@@ -1,4 +1,4 @@
-function NMTP_Outer_Training2
+function NMTP_Training2
 
 
 %The Second training in a series of protocols for a 6 port
@@ -8,10 +8,18 @@ function NMTP_Outer_Training2
 
 global BpodSystem
 
+%% Resolve AudioPlayer USB port
+if (isfield(BpodSystem.ModuleUSB, 'TeensyAudio1'))
+    TeensyAudioUSB = BpodSystem.ModuleUSB.TeensyAudio1;
+else
+    error('Error: To run this protocol, you must first pair the TeensyAudio1 module with its USB port. Click the USB config button on the Bpod console.')
+end
 
 S = BpodSystem.ProtocolSettings; % Load settings chosen in launch manager into current workspace as a struct called S
 if isempty(fieldnames(S))  % If settings file was an empty struct, populate struct with default settings
-    S.GUI.SampleReward = 1; %μl
+    S.GUI.SamplingFreq = 44100; %Sampling rate of wave player module (using max supported frequency)
+    S.GUI.SoundDuration = .25; % Duration of sound (s)
+    S.GUI.SinePitch = 16000; % Frequency of test tone
     S.GUI.SampleHoldTime = .1; %Start this value at .1 and increase to .2
     S.GUI.DelayReward = 1; %μl
 %     S.GUI.DelayHoldTime = 2.3;    
@@ -26,9 +34,9 @@ end
 
 MaxTrials = 600;
 TrialTypes = zeros(1, 600);
-for fill = 1:150
-    block = randperm(4);
-    TrialTypes(fill*4-3:fill*4) = block;
+for fill = 1:100
+    block = randperm(6);
+    TrialTypes(fill*6-5:fill*6) = block;
 end
 BpodSystem.Data.TrialTypes = []; 
 
@@ -41,6 +49,18 @@ BpodParameterGUI('init', S); % Initialize parameter GUI plugin
 
 TimeTaken = zeros(1, 1000);
 RepeatTrial = 0;
+
+%% Create an instance of the TeensyAudioPlayer module
+T = TeensyAudioPlayer(TeensyAudioUSB);
+%% Define stimuli and send to Teensy
+SF = S.GUI.SamplingFreq;
+SampleTone = GenerateSineWave(SF, S.GUI.SinePitch, S.GUI.SoundDuration)*.3; % Sampling freq (hz), Sine frequency (hz), duration (s)
+% Program sound server
+T.load(1, TestTone);
+analogPortIndex = find(strcmp(BpodSystem.Modules.Name, 'TeensyAudio1'));
+if isempty(analogPortIndex)
+    error('Error: Bpod TeensyAudio module not found. If you just plugged it in, please restart Bpod.')
+end
 %% Main trial loop
 for currentTrial = 1:MaxTrials
     if S.GUI.DelayHoldTime < 5
@@ -57,23 +77,26 @@ for currentTrial = 1:MaxTrials
     switch TrialTypes(currentTrial)
         case 1
             SampleLight = {'PWM1', 50}; WhichSampleIn = {'Port1In'}; WhichSampleOut = {'Port1Out'};
-            SampleValve = {'Valve1', 1}; SampleValveTime = GetValveTimes(S.GUI.SampleReward, 1);
             ChoiceLight = {'PWM3', 50}; WhichChoiceIn = {'Port3In'}; WhichChoiceOut = {'Port3Out'};
             ChoiceValve = {'Valve3', 1}; ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 3);
         case 2
             SampleLight = {'PWM1', 50}; WhichSampleIn = {'Port1In'}; WhichSampleOut = {'Port1Out'};
-            SampleValve = {'Valve1', 1}; SampleValveTime = GetValveTimes(S.GUI.SampleReward, 1);
             ChoiceLight = {'PWM5', 50}; WhichChoiceIn = {'Port5In'}; WhichChoiceOut = {'Port5Out'};
             ChoiceValve = {'Valve5', 1}; ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 5);
-
-        case 3
-            SampleLight = {'PWM5', 50}; WhichSampleIn = {'Port5In'}; WhichSampleOut = {'Port5Out'};
-            SampleValve = {'Valve5', 1}; SampleValveTime = GetValveTimes(S.GUI.SampleReward, 5);
+        case 3 
+            SampleLight = {'PWM3', 50}; WhichSampleIn = {'Port3In'}; WhichSampleOut = {'Port3Out'};
             ChoiceLight = {'PWM1', 50}; WhichChoiceIn = {'Port1In'}; WhichChoiceOut = {'Port1Out'};
             ChoiceValve = {'Valve1', 1}; ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 1);
         case 4
+            SampleLight = {'PWM3', 50}; WhichSampleIn = {'Port3In'}; WhichSampleOut = {'Port3Out'};
+            ChoiceLight = {'PWM5', 50}; WhichChoiceIn = {'Port5In'}; WhichChoiceOut = {'Port5Out'};
+            ChoiceValve = {'Valve5', 1}; ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 5);
+        case 5
             SampleLight = {'PWM5', 50}; WhichSampleIn = {'Port5In'}; WhichSampleOut = {'Port5Out'};
-            SampleValve = {'Valve5', 1}; SampleValveTime = GetValveTimes(S.GUI.SampleReward, 5);
+            ChoiceLight = {'PWM1', 50}; WhichChoiceIn = {'Port1In'}; WhichChoiceOut = {'Port1Out'};
+            ChoiceValve = {'Valve1', 1}; ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 1);
+        case 6
+            SampleLight = {'PWM5', 50}; WhichSampleIn = {'Port5In'}; WhichSampleOut = {'Port5Out'};
             ChoiceLight = {'PWM3', 50}; WhichChoiceIn = {'Port3In'}; WhichChoiceOut = {'Port3Out'};
             ChoiceValve = {'Valve3', 1}; ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 3);
     end
@@ -120,7 +143,7 @@ for currentTrial = 1:MaxTrials
     
     sma = AddState(sma, 'Name', 'SampleOn', 'Timer', 0,...
         'StateChangeConditions', {'Tup', 'WaitForDelayPoke'},...
-        'OutputActions', SampleLight);
+        'OutputActions', SampleLight, 'TeensyAudio1', 1);
     
     sma = AddState(sma, 'Name', 'WaitForDelayPoke', 'Timer', 0,...
         'StateChangeConditions', {'Port7In', 'DelayTimer'},...
@@ -184,7 +207,6 @@ for currentTrial = 1:MaxTrials
     sma = AddState(sma, 'Name', 'EarlyWithdrawalTimeout', 'Timer', 20,...
         'StateChangeConditions', {'Tup', 'ITI2'},...
         'OutputActions', {});
-    
     
     SendStateMatrix(sma);
     
