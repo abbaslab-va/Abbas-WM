@@ -47,9 +47,9 @@ BpodParameterGUI('init', S); % Initialize parameter GUI plugin
 T = TeensyAudioPlayer(TeensyAudioUSB);
 %% Define stimuli and send to Teensy
 SF = S.GUI.SamplingFreq;
-SampleTone = GenerateSineWave(SF, S.GUI.SinePitch, S.GUI.SoundDuration)*.3; % Sampling freq (hz), Sine frequency (hz), duration (s)
+SampleTone = GenerateSineWave(SF, S.GUI.SinePitch, S.GUI.SoundDuration)*.6; % Sampling freq (hz), Sine frequency (hz), duration (s)
 % Program sound server
-T.load(1, TestTone);
+T.load(1, SampleTone);
 analogPortIndex = find(strcmp(BpodSystem.Modules.Name, 'TeensyAudio1'));
 if isempty(analogPortIndex)
     error('Error: Bpod TeensyAudio module not found. If you just plugged it in, please restart Bpod.')
