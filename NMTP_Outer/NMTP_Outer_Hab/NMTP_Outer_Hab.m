@@ -49,6 +49,16 @@ for currentTrial = 1:MaxTrials
             SampleValve = {'Valve1', 1}; SampleValveTime = GetValveTimes(S.GUI.SampleReward, 1);
             ChoiceLight = {'PWM5', 50}; WhichChoiceIn = {'Port5In'};
             ChoiceValve = {'Valve5', 1}; ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 5);
+%         case 3 
+%             SampleLight = {'PWM3', 50}; WhichSampleIn = {'Port3In'};
+%             SampleValve = {'Valve3', 1}; SampleValveTime = GetValveTimes(S.GUI.SampleReward, 3);
+%             ChoiceLight = {'PWM1', 50}; WhichChoiceIn = {'Port1In'};
+%             ChoiceValve = {'Valve1', 1}; ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 1);
+%         case 4
+%             SampleLight = {'PWM3', 50}; WhichSampleIn = {'Port3In'};
+%             SampleValve = {'Valve3', 1}; SampleValveTime = GetValveTimes(S.GUI.SampleReward, 3);
+%             ChoiceLight = {'PWM5', 50}; WhichChoiceIn = {'Port5In'};
+%             ChoiceValve = {'Valve5', 1}; ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 5);
         case 3
             SampleLight = {'PWM5', 50}; WhichSampleIn = {'Port5In'};
             SampleValve = {'Valve5', 1}; SampleValveTime = GetValveTimes(S.GUI.SampleReward, 5);
