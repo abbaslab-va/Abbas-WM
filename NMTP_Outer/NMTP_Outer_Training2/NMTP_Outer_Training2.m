@@ -67,16 +67,6 @@ for currentTrial = 1:MaxTrials
             SampleValve = {'Valve1', 1}; SampleValveTime = GetValveTimes(S.GUI.SampleReward, 1);
             ChoiceLight = {'PWM5', 50}; WhichChoiceIn = {'Port5In'}; WhichChoiceOut = {'Port5Out'};
             ChoiceValve = {'Valve5', 1}; ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 5);
-%         case 3 
-%             SampleLight = {'PWM3', 50}; WhichSampleIn = {'Port3In'}; WhichSampleOut = {'Port3Out'};
-%             SampleValve = {'Valve3', 1}; SampleValveTime = GetValveTimes(S.GUI.SampleReward, 3);
-%             ChoiceLight = {'PWM1', 50}; WhichChoiceIn = {'Port1In'}; WhichChoiceOut = {'Port1Out'};
-%             ChoiceValve = {'Valve1', 1}; ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 1);
-%         case 4
-%             SampleLight = {'PWM3', 50}; WhichSampleIn = {'Port3In'}; WhichSampleOut = {'Port3Out'};
-%             SampleValve = {'Valve3', 1}; SampleValveTime = GetValveTimes(S.GUI.SampleReward, 3);
-%             ChoiceLight = {'PWM5', 50}; WhichChoiceIn = {'Port5In'}; WhichChoiceOut = {'Port5Out'};
-%             ChoiceValve = {'Valve5', 1}; ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 5);
         case 3
             SampleLight = {'PWM5', 50}; WhichSampleIn = {'Port5In'}; WhichSampleOut = {'Port5Out'};
             SampleValve = {'Valve5', 1}; SampleValveTime = GetValveTimes(S.GUI.SampleReward, 5);
@@ -150,10 +140,7 @@ for currentTrial = 1:MaxTrials
 %     
     sma = AddState(sma, 'Name', 'SampleOnEW', 'Timer', 0,...
         'StateChangeConditions', {'Tup', 'WaitForDelayPoke'},...
-        'OutputActions', SampleLight);    
-%     sma = AddState(sma, 'Name', 'SampleOn', 'Timer', 0,...
-%         'StateChangeConditions', {'Tup', 'WaitForDelayPoke'},...
-%         'OutputActions', {});
+        'OutputActions', SampleLight); 
     
     sma = AddState(sma, 'Name', 'WaitForDelayPoke', 'Timer', 0,...
         'StateChangeConditions', {'Port7In', 'DelayTimer'},...
