@@ -23,3 +23,10 @@ This script is designed to be used while recording neural data. The following ch
 * TTL pulses are sent from the wire-out terminals on the Bpod State Machine to timestamp behavioral points of interest
 * Trials will not be repeated regardless of performance
 
+## Intelligent Features
+Desired automation:
+
+1) Progress Tracking
+```
+The current session should be able to automatically set the values for the increment that the delay increases every trial, based on some metric of the individual's performance in delay periods. Furthermore, it should be able to enable trial repeats on trials that the subject is biased against. This could be done using bpod_performance for each session file and loading a settings file into the current session.
+```
