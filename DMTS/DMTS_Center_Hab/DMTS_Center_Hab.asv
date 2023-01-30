@@ -1,4 +1,4 @@
-function DMTS_Hab
+function DMTS_Center_Hab
 
 
 %The habituation script for a 4 port spatial working memory task. This task
@@ -59,20 +59,20 @@ BpodParameterGUI('init', S); % Initialize parameter GUI plugin
 for currentTrial = 1:MaxTrials
     
     S = BpodParameterGUI('sync', S);
-    sampleGroup = ceil(TrialTypes(currentTrial)*3/numTT);
-    switch sampleGroup
+    switch TrialTypes(currentTrial)
         case 1
-            SampleLight = {'PWM1', 50}; WhichSampleIn = {'Port1In'}; SampleValve = {'Valve1', 1}; 
-            SampleValveTime = GetValveTimes(S.GUI.SampleReward, 1);
-            ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 1);
+            SampleLight = {'PWM3', 50}; WhichSampleIn = {'Port3In'}; SampleValve = {'Valve3', 1}; 
+            SampleValveTime = GetValveTimes(S.GUI.SampleReward, 3);
+            ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 3);
+            DelayLight = 
         case 2
             SampleLight = {'PWM3', 50}; WhichSampleIn = {'Port3In'}; SampleValve = {'Valve3', 1}; 
             SampleValveTime = GetValveTimes(S.GUI.SampleReward, 3);
             ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 3);
         case 3
-            SampleLight = {'PWM5', 50}; WhichSampleIn = {'Port5In'}; SampleValve = {'Valve5', 1}; 
-            SampleValveTime = GetValveTimes(S.GUI.SampleReward, 5);
-            ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 5);
+            SampleLight = {'PWM7', 50}; WhichSampleIn = {'Port7In'}; SampleValve = {'Valve7', 1}; 
+            SampleValveTime = GetValveTimes(S.GUI.SampleReward, 7);
+            ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 7);
         case 4
             SampleLight = {'PWM7', 50}; WhichSampleIn = {'Port7In'}; SampleValve = {'Valve7', 1}; 
             SampleValveTime = GetValveTimes(S.GUI.SampleReward, 7);

@@ -1,4 +1,4 @@
-function DMTS_Hab
+function DMTS_Center_Hab
 
 
 %The habituation script for a 4 port spatial working memory task. This task
@@ -21,8 +21,8 @@ end
 
 %% Define trials
 ports = [1 3 5 7];
-numTT = 12;
-trialsPerType = 20;
+numTT = 4;
+trialsPerType = 50;
 MaxTrials = numTT * trialsPerType;
 TrialTypes = zeros(1, MaxTrials);
 for fill = 1:trialsPerType
@@ -59,35 +59,32 @@ BpodParameterGUI('init', S); % Initialize parameter GUI plugin
 for currentTrial = 1:MaxTrials
     
     S = BpodParameterGUI('sync', S);
-    sampleGroup = ceil(TrialTypes(currentTrial)*3/numTT);
-    switch sampleGroup
+    switch TrialTypes(currentTrial)
         case 1
-            SampleLight = {'PWM1', 50}; WhichSampleIn = {'Port1In'}; SampleValve = {'Valve1', 1}; 
-            SampleValveTime = GetValveTimes(S.GUI.SampleReward, 1);
-            ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 1);
+            SampleLight = {'PWM3', 50}; WhichSampleIn = {'Port3In'}; SampleValve = {'Valve3', 1}; 
+            SampleValveTime = GetValveTimes(S.GUI.SampleReward, 3);
+            ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 3);
+            DelayLight = {'PWM1', 50}; WhichDelayIn = {'Port1In'}; DelayValve = {'Valve1', 1};
+            DelayValveTime = GetValveTimes(S.GUI.DelayReward, 1);
         case 2
             SampleLight = {'PWM3', 50}; WhichSampleIn = {'Port3In'}; SampleValve = {'Valve3', 1}; 
             SampleValveTime = GetValveTimes(S.GUI.SampleReward, 3);
             ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 3);
+            DelayLight = {'PWM5', 50}; WhichDelayIn = {'Port5In'}; DelayValve = {'Valve5', 1};
+            DelayValveTime = GetValveTimes(S.GUI.DelayReward, 5);
         case 3
-            SampleLight = {'PWM5', 50}; WhichSampleIn = {'Port5In'}; SampleValve = {'Valve5', 1}; 
-            SampleValveTime = GetValveTimes(S.GUI.SampleReward, 5);
-            ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 5);
+            SampleLight = {'PWM7', 50}; WhichSampleIn = {'Port7In'}; SampleValve = {'Valve7', 1}; 
+            SampleValveTime = GetValveTimes(S.GUI.SampleReward, 7);
+            ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 7);
+            DelayLight = {'PWM1', 50}; WhichDelayIn = {'Port1In'}; DelayValve = {'Valve1', 1};
+            DelayValveTime = GetValveTimes(S.GUI.DelayReward, 1);
         case 4
             SampleLight = {'PWM7', 50}; WhichSampleIn = {'Port7In'}; SampleValve = {'Valve7', 1}; 
             SampleValveTime = GetValveTimes(S.GUI.SampleReward, 7);
             ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 7);
+            DelayLight = {'PWM5', 50}; WhichDelayIn = {'Port5In'}; DelayValve = {'Valve5', 1};
+            DelayValveTime = GetValveTimes(S.GUI.DelayReward, 5);
     end
-    
-    notDelay = ports(sampleGroup);
-    activeDelayPorts = ports(ports ~= notDelay);
-    DelayPortIdx = mod(TrialTypes(currentTrial), 3) + 1;
-    DelayPort = activeDelayPorts(DelayPortIdx);
-    DelayLight = {sprintf('PWM%s', string(DelayPort)), 50}; 
-    WhichDelayIn = {sprintf('Port%sIn', string(DelayPort))};
-    DelayValve = {sprintf('Valve%s', string(DelayPort)), 1}; 
-    DelayValveTime = GetValveTimes(S.GUI.DelayReward, DelayPort);
-    
     
     sma = NewStateMatrix(); % Assemble state matrix
     

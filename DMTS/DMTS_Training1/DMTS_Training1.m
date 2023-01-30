@@ -1,4 +1,4 @@
-function DMTS_Training
+function DMTS_Training1
 
 %The training protocol for a 4 port spatial working memory task. This
 %script introduces punishments, extended delay period and early
@@ -26,9 +26,13 @@ AllPortsOut = {'Port1Out', 'Port3Out', 'Port5Out', 'Port7Out'};
 numTT = 12;
 trialsPerType = 20;
 MaxTrials = numTT * trialsPerType;
-TrialTypes = zeros(1, maxTrials);
+TrialTypes = zeros(1, MaxTrials);
 for fill = 1:trialsPerType
-    block = randperm(numTT);
+    block = zeros(1, 40);
+    choiceOn = randperm(numTT);
+    choiceOff = choiceOn + 20;
+    block(1:2:39) = choiceOn;
+    block(2:2:40) = choiceOff;
     TrialTypes(fill*numTT-(numTT-1):fill*numTT) = block;
 end
 BpodSystem.Data.TrialTypes = []; 
@@ -43,25 +47,53 @@ BpodParameterGUI('init', S); % Initialize parameter GUI plugin
 for currentTrial = 1:MaxTrials
         
     S = BpodParameterGUI('sync', S);
-    sampleGroup = ceil(trialTypes(currentTrial)*3/numTT);
+    sampleGroup = ceil(TrialTypes(currentTrial)*3/numTT);
     switch sampleGroup
         case 1
             SampleLight = {'PWM1', 50}; SampleValve = {'Valve1', 1};
+            ChoiceLight = SampleLight;
             WhichSampleIn = {'Port1In'}; WhichSampleOut = {'Port1Out'};
             SampleValveTime = GetValveTimes(S.GUI.SampleReward, 1);
             ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 1);
         case 2
             SampleLight = {'PWM3', 50}; SampleValve = {'Valve3', 1};
+            ChoiceLight = SampleLight;
             WhichSampleIn = {'Port3In'}; WhichSampleOut = {'Port3Out'};
             SampleValveTime = GetValveTimes(S.GUI.SampleReward, 3);
             ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 3);
         case 3
             SampleLight = {'PWM5', 50}; SampleValve = {'Valve5', 1};
+            ChoiceLight = SampleLight;
             WhichSampleIn = {'Port5In'}; WhichSampleOut = {'Port5Out'};
             SampleValveTime = GetValveTimes(S.GUI.SampleReward, 5);
             ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 5);
         case 4
             SampleLight = {'PWM7', 50}; SampleValve = {'Valve7', 1};
+            ChoiceLight = SampleLight;
+            WhichSampleIn = {'Port7In'}; WhichSampleOut = {'Port7Out'};
+            SampleValveTime = GetValveTimes(S.GUI.SampleReward, 7);
+            ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 7);
+        case 5
+            SampleLight = {'PWM1', 50}; SampleValve = {'Valve1', 1};
+            ChoiceLight = {};
+            WhichSampleIn = {'Port1In'}; WhichSampleOut = {'Port1Out'};
+            SampleValveTime = GetValveTimes(S.GUI.SampleReward, 1);
+            ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 1);
+        case 6
+            SampleLight = {'PWM3', 50}; SampleValve = {'Valve3', 1};
+            ChoiceLight = {};
+            WhichSampleIn = {'Port3In'}; WhichSampleOut = {'Port3Out'};
+            SampleValveTime = GetValveTimes(S.GUI.SampleReward, 3);
+            ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 3);
+        case 7
+            SampleLight = {'PWM5', 50}; SampleValve = {'Valve5', 1};
+            ChoiceLight = {};
+            WhichSampleIn = {'Port5In'}; WhichSampleOut = {'Port5Out'};
+            SampleValveTime = GetValveTimes(S.GUI.SampleReward, 5);
+            ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 5);
+        case 8
+            SampleLight = {'PWM7', 50}; SampleValve = {'Valve7', 1};
+            ChoiceLight = {};
             WhichSampleIn = {'Port7In'}; WhichSampleOut = {'Port7Out'};
             SampleValveTime = GetValveTimes(S.GUI.SampleReward, 7);
             ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 7);
@@ -104,11 +136,11 @@ for currentTrial = 1:MaxTrials
         WrongPortsInSample(2), 'SampleOnHoldPunish', WrongPortsInSample(3), 'SampleOnHoldPunish'],...
         'OutputActions', SampleLight);
     
-    sma = AddState(sma, 'Name', 'SampleOnHold', 'Timer', .1,...
+    sma = AddState(sma, 'Name', 'SampleOnHold', 'Timer', .05,...
         'StateChangeConditions', ['Tup', 'SampleOn', WhichSampleOut, 'WaitForSamplePoke'],...
         'OutputActions', SampleLight);
     
-    sma = AddState(sma, 'Name', 'SampleOnHoldPunish', 'Timer', .1,...
+    sma = AddState(sma, 'Name', 'SampleOnHoldPunish', 'Timer', .05,...
         'StateChangeConditions', ['Tup', 'SamplePunish', WrongPortsOutSample(1), 'WaitForSamplePoke',...
         WrongPortsOutSample(2), 'WaitForSamplePoke', WrongPortsOutSample(3), 'WaitForSamplePoke'],...
         'OutputActions', SampleLight);
@@ -123,13 +155,13 @@ for currentTrial = 1:MaxTrials
         WrongPortsInSample(2), 'SampleOnHoldPunishEW', WrongPortsInSample(3), 'SampleOnHoldPunishEW'],...
         'OutputActions', SampleLight);
     
-    sma = AddState(sma, 'Name', 'SampleOnHoldEW', 'Timer', 0.1,...
+    sma = AddState(sma, 'Name', 'SampleOnHoldEW', 'Timer', 0.05,...
         'StateChangeConditions', ['Tup', 'SampleOnEW', WhichSampleOut, 'WaitForSamplePokeEW'],...
         'OutputActions', SampleLight);
     
-    sma = AddState(sma, 'Name', 'SampleOnHoldPunishEW', 'Timer', 0.1,...
-        'StateChangeConditions', ['Tup', 'SamplePunishEW', WrongPortsOutSample(1), 'WaitForSamplePoke',...
-        WrongPortsOutSample(2), 'WaitForSamplePoke', WrongPortsOutSample(3), 'WaitForSamplePoke',...
+    sma = AddState(sma, 'Name', 'SampleOnHoldPunishEW', 'Timer', 0.05,...
+        'StateChangeConditions', ['Tup', 'SamplePunishEW', WrongPortsOutSample(1), 'WaitForSamplePokeEW',...
+        WrongPortsOutSample(2), 'WaitForSamplePokeEW', WrongPortsOutSample(3), 'WaitForSamplePokeEW'],...
         'OutputActions', SampleLight);
     
     sma = AddState(sma, 'Name', 'SampleOnEW', 'Timer', 0,...
@@ -138,41 +170,41 @@ for currentTrial = 1:MaxTrials
 
     sma = AddState(sma, 'Name', 'WaitForDelayPoke', 'Timer', 0,...
         'StateChangeConditions', [WhichDelayIn, 'DelayTimer'],...
-        'OutputActions', [DelayLight, 50]);
+        'OutputActions', DelayLight);
     
     sma = AddState(sma, 'Name', 'DelayTimer', 'Timer', 0,...
         'StateChangeConditions', {'Tup', 'DelayOnHold'},...
-        'OutputActions', ['GlobalTimerTrig', 1, DelayLight, 50]);
+        'OutputActions', ['GlobalTimerTrig', 1, DelayLight]);
     
     sma = AddState(sma, 'Name', 'DelayOnHold', 'Timer', S.GUI.DelayHoldTime,...
         'StateChangeConditions', ['Tup', 'DelayOn', 'GlobalTimer1_End', 'DelayOn', WhichDelayOut, 'DelayWaitForReentry'],...
-        'OutputActions', [DelayLight, 50]);
+        'OutputActions', DelayLight);
     
     sma = AddState(sma, 'Name', 'DelayWaitForReentry', 'Timer', 0.75,...
         'StateChangeConditions', ['Tup', 'EarlyWithdrawal', 'GlobalTimer1_End', 'DelayOn', WhichDelayIn, 'DelayOnHold'],...
-        'OutputActions', [DelayLight, 50]);
+        'OutputActions', DelayLight);
     
     sma = AddState(sma, 'Name', 'DelayOn', 'Timer', DelayValveTime,...
         'StateChangeConditions', {'Tup', 'WaitForChoicePoke'},...
-        'OutputActions', [DelayLight, 50, DelayValve, 1]);
+        'OutputActions', [DelayLight, DelayValve]);
     
     sma = AddState(sma, 'Name', 'WaitForChoicePoke', 'Timer', 0,...
         'StateChangeConditions', [WhichSampleIn, 'ChoiceOnHold', WrongPortsInSample(1), 'ChoiceOnHoldPunish',...
         WrongPortsInSample(2), 'ChoiceOnHoldPunish', WrongPortsInSample(3), 'ChoiceOnHoldPunish'],...
-        'OutputActions', {});
+        'OutputActions', ChoiceLight);
     
-    sma = AddState(sma, 'Name', 'ChoiceOnHold', 'Timer', .1,...
-        'StateChangeConditions', ['Tup', 'ChoiceOn', WhichChoiceOut, 'WaitForChoicePoke'],...
-        'OutputActions', {});
+    sma = AddState(sma, 'Name', 'ChoiceOnHold', 'Timer', .05,...
+        'StateChangeConditions', ['Tup', 'ChoiceOn', WhichSampleOut, 'WaitForChoicePoke'],...
+        'OutputActions', ChoiceLight);
     
     sma = AddState(sma, 'Name', 'ChoiceOnHoldPunish', 'Timer', .1,...
         'StateChangeConditions', ['Tup', 'Punish', WrongPortsOutSample(1), 'WaitForChoicePoke',...
         WrongPortsOutSample(2), 'WaitForChoicePoke', WrongPortsOutSample(3), 'WaitForChoicePoke'],...
-        'OutputActions', {});
+        'OutputActions', ChoiceLight);
     
     sma = AddState(sma, 'Name', 'ChoiceOn', 'Timer', ChoiceValveTime,...
         'StateChangeConditions', {'Tup', 'exit'},...
-        'OutputActions', [ChoiceLight, ChoiceValve]);
+        'OutputActions', [ChoiceLight, SampleValve]);
     
     sma = AddState(sma, 'Name', 'SamplePunish', 'Timer', 3,...
         'StateChangeConditions', {'Tup', 'WaitForSamplePoke'},...
@@ -182,18 +214,18 @@ for currentTrial = 1:MaxTrials
         'StateChangeConditions', {'Tup', 'WaitForSamplePokeEW'},...
         'OutputActions', {'Valve6', 1});
     
-    if RepeatTrial
-    
-        sma = AddState(sma, 'Name', 'Punish', 'Timer', S.GUI.PunishTime,...
-            'StateChangeConditions', {'Tup', 'ITI2'},...
-            'OutputActions', {'Valve6', 1});
-    else
-        
+%     if RepeatTrial
+%     
+%         sma = AddState(sma, 'Name', 'Punish', 'Timer', S.GUI.PunishTime,...
+%             'StateChangeConditions', {'Tup', 'ITI2'},...
+%             'OutputActions', {'Valve6', 1});
+%     else
+%         
         sma = AddState(sma, 'Name', 'Punish', 'Timer', S.GUI.PunishTime,...
             'StateChangeConditions', {'Tup', 'exit'},...
             'OutputActions', {'Valve6', 1});
         
-    end
+%     end
     
     sma = AddState(sma, 'Name', 'EarlyWithdrawal', 'Timer', 3,...
         'StateChangeConditions', {'Tup', 'EarlyWithdrawalTimeout'},...
