@@ -1,4 +1,4 @@
-function DMTS_Training1
+function DMTS_Center_Training2
 
 %The training protocol for a 4 port spatial working memory task. This
 %script introduces punishments, extended delay period and early
@@ -26,8 +26,8 @@ end
 ports = [1 3 5 7];
 AllPortsIn = {'Port1In', 'Port3In', 'Port5In', 'Port7In'};
 AllPortsOut = {'Port1Out', 'Port3Out', 'Port5Out', 'Port7Out'};
-numTT = 12;
-trialsPerType = 20;
+numTT = 4;
+trialsPerType = 50;
 MaxTrials = numTT * 2 * trialsPerType;
 TrialTypes = zeros(1, MaxTrials);
 for fill = 1:trialsPerType
@@ -66,76 +66,95 @@ BpodParameterGUI('init', S); % Initialize parameter GUI plugin
 %% Main trial loop
 for currentTrial = 1:MaxTrials
         
+    if S.GUI.DelayHoldTime < 3
+        S.GUI.DelayHoldTime = S.GUI.DelayHoldTime + S.GUI.TimeIncrement;
+    end
     S = BpodParameterGUI('sync', S);
-    sampleGroup = ceil(TrialTypes(currentTrial)*4/numTT);
-    switch sampleGroup
+    switch TrialTypes(currentTrial)
         case 1
-            SampleLight = {'PWM1', 50}; SampleValve = {'Valve1', 1};
-            ChoiceLight = SampleLight;
-            WhichSampleIn = {'Port1In'}; WhichSampleOut = {'Port1Out'};
-            SampleValveTime = GetValveTimes(S.GUI.SampleReward, 1);
-            ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 1);
-        case 2
-            SampleLight = {'PWM3', 50}; SampleValve = {'Valve3', 1};
-            ChoiceLight = SampleLight;
+            SampleLight = {'PWM3', 50}; SampleValve = {'Valve3', 1}; 
             WhichSampleIn = {'Port3In'}; WhichSampleOut = {'Port3Out'};
             SampleValveTime = GetValveTimes(S.GUI.SampleReward, 3);
+            ChoiceLight = SampleLight;
             ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 3);
+            DelayLight = {'PWM1', 50}; DelayValve = {'Valve1', 1};
+            WhichDelayIn = {'Port1In'}; WhichDelayOut = {'Port1Out'};
+            DelayValveTime = GetValveTimes(S.GUI.DelayReward, 1);
+        case 2
+            SampleLight = {'PWM3', 50}; SampleValve = {'Valve3', 1}; 
+            WhichSampleIn = {'Port3In'}; WhichSampleOut = {'Port3Out'};
+            SampleValveTime = GetValveTimes(S.GUI.SampleReward, 3);
+            ChoiceLight = SampleLight;
+            ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 3);
+            DelayLight = {'PWM5', 50}; DelayValve = {'Valve5', 1};
+            WhichDelayIn = {'Port5In'}; WhichDelayOut = {'Port5Out'};
+            DelayValveTime = GetValveTimes(S.GUI.DelayReward, 5);
         case 3
-            SampleLight = {'PWM5', 50}; SampleValve = {'Valve5', 1};
-            ChoiceLight = SampleLight;
-            WhichSampleIn = {'Port5In'}; WhichSampleOut = {'Port5Out'};
-            SampleValveTime = GetValveTimes(S.GUI.SampleReward, 5);
-            ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 5);
-        case 4
-            SampleLight = {'PWM7', 50}; SampleValve = {'Valve7', 1};
-            ChoiceLight = SampleLight;
+            SampleLight = {'PWM7', 50}; SampleValve = {'Valve7', 1}; 
             WhichSampleIn = {'Port7In'}; WhichSampleOut = {'Port7Out'};
             SampleValveTime = GetValveTimes(S.GUI.SampleReward, 7);
+            ChoiceLight = SampleLight;
             ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 7);
+            DelayLight = {'PWM1', 50}; DelayValve = {'Valve1', 1};
+            WhichDelayIn = {'Port1In'}; WhichDelayOut = {'Port1Out'};
+            DelayValveTime = GetValveTimes(S.GUI.DelayReward, 1);
+        case 4
+            SampleLight = {'PWM7', 50}; SampleValve = {'Valve7', 1}; 
+            WhichSampleIn = {'Port7In'}; WhichSampleOut = {'Port7Out'};
+            SampleValveTime = GetValveTimes(S.GUI.SampleReward, 7);
+            ChoiceLight = SampleLight;
+            ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 7);
+            DelayLight = {'PWM5', 50}; DelayValve = {'Valve5', 1};
+            WhichDelayIn = {'Port5In'}; WhichDelayOut = {'Port5Out'};
+            DelayValveTime = GetValveTimes(S.GUI.DelayReward, 5);
         case 5
-            SampleLight = {'PWM1', 50}; SampleValve = {'Valve1', 1};
+            SampleLight = {'PWM3', 50}; SampleValve = {'Valve3', 1}; 
+            WhichSampleIn = {'Port3In'}; WhichSampleOut = {'Port3Out'};
+            SampleValveTime = GetValveTimes(S.GUI.SampleReward, 3);
             ChoiceLight = {};
-            WhichSampleIn = {'Port1In'}; WhichSampleOut = {'Port1Out'};
-            SampleValveTime = GetValveTimes(S.GUI.SampleReward, 1);
-            ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 1);
+            ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 3);
+            DelayLight = {'PWM1', 50}; DelayValve = {'Valve1', 1};
+            WhichDelayIn = {'Port1In'}; WhichDelayOut = {'Port1Out'};
+            DelayValveTime = GetValveTimes(S.GUI.DelayReward, 1);
         case 6
             SampleLight = {'PWM3', 50}; SampleValve = {'Valve3', 1};
-            ChoiceLight = {};
-            WhichSampleIn = {'Port3In'}; WhichSampleOut = {'Port3Out'};
+            WhichSampleIn = {'Port3In'}; WhichSampleOut = {'Port3Out'}; 
             SampleValveTime = GetValveTimes(S.GUI.SampleReward, 3);
+            ChoiceLight = {};
             ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 3);
+            DelayLight = {'PWM5', 50}; DelayValve = {'Valve5', 1};
+            WhichDelayIn = {'Port5In'}; WhichDelayOut = {'Port5Out'};
+            DelayValveTime = GetValveTimes(S.GUI.DelayReward, 5);
         case 7
-            SampleLight = {'PWM5', 50}; SampleValve = {'Valve5', 1};
-            ChoiceLight = {};
-            WhichSampleIn = {'Port5In'}; WhichSampleOut = {'Port5Out'};
-            SampleValveTime = GetValveTimes(S.GUI.SampleReward, 5);
-            ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 5);
-        case 8
-            SampleLight = {'PWM7', 50}; SampleValve = {'Valve7', 1};
-            ChoiceLight = {};
-            WhichSampleIn = {'Port7In'}; WhichSampleOut = {'Port7Out'};
+            SampleLight = {'PWM7', 50}; SampleValve = {'Valve7', 1}; 
             SampleValveTime = GetValveTimes(S.GUI.SampleReward, 7);
+            WhichSampleIn = {'Port7In'}; WhichSampleOut = {'Port7Out'};
+            ChoiceLight = {};
             ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 7);
+            DelayLight = {'PWM1', 50}; DelayValve = {'Valve1', 1};
+            WhichDelayIn = {'Port1In'}; WhichDelayOut = {'Port1Out'};
+            DelayValveTime = GetValveTimes(S.GUI.DelayReward, 1);
+        case 8
+            SampleLight = {'PWM7', 50}; SampleValve = {'Valve7', 1}; 
+            SampleValveTime = GetValveTimes(S.GUI.SampleReward, 7);
+            WhichSampleIn = {'Port7In'}; WhichSampleOut = {'Port7Out'};
+            ChoiceLight = {};
+            ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 7);
+            DelayLight = {'PWM5', 50}; DelayValve = {'Valve5', 1};
+            WhichDelayIn = {'Port5In'}; WhichDelayOut = {'Port5Out'};
+            DelayValveTime = GetValveTimes(S.GUI.DelayReward, 5);
     end
-    if sampleGroup > 4
-        sampleGroup = sampleGroup - 4;
-    end
-    notDelay = ports(sampleGroup);
-    activeDelayPorts = ports(ports ~= notDelay);
-    DelayPortIdx = mod(TrialTypes(currentTrial), 3) + 1;
-    DelayPort = activeDelayPorts(DelayPortIdx);
-    DelayLight = {sprintf('PWM%s', string(DelayPort)), 50}; 
-    WhichDelayIn = {sprintf('Port%sIn', string(DelayPort))};
-    WhichDelayOut = {sprintf('Port%sOut', string(DelayPort))};
-    DelayValve = {sprintf('Valve%s', string(DelayPort)), 1}; 
-    DelayValveTime = GetValveTimes(S.GUI.DelayReward, DelayPort);
     
     WrongPortsInSample = setdiff(AllPortsIn, WhichSampleIn);
     WrongPortsOutSample = setdiff(AllPortsOut, WhichSampleOut);
-    WrongPortsInDelay = setdiff(AllPortsIn, WhichDelayIn);
-    WrongPortsOutDelay = setdiff(AllPortsOut, WhichDelayOut);
+    WrongPortsInDelay = setdiff(WrongPortsInSample, WhichDelayIn);
+    WrongPortsOutDelay = setdiff(WrongPortsOutSample, WhichDelayOut);
     
+    if TrialTypes(currentTrial) > 4
+        RepeatTrial = 0;
+    else
+        RepeatTrial = 1;
+    end
     sma = NewStateMatrix(); % Assemble state matrix
         
     sma = AddState(sma, 'Name', 'ITI', 'Timer', S.GUI.ITI,...
@@ -211,13 +230,18 @@ for currentTrial = 1:MaxTrials
         'OutputActions', [DelayLight, DelayValve]);
     
     sma = AddState(sma, 'Name', 'WaitForChoicePoke', 'Timer', 0,...
-        'StateChangeConditions', [WhichSampleIn, 'ChoiceOnHold'],...
+        'StateChangeConditions', [WhichSampleIn, 'ChoiceOnHold', WrongPortsInDelay(1), 'ChoiceOnHoldPunish',...
+        WrongPortsInDelay(2), 'ChoiceOnHoldPunish'],...
         'OutputActions', ChoiceLight);
     
     sma = AddState(sma, 'Name', 'ChoiceOnHold', 'Timer', .05,...
         'StateChangeConditions', ['Tup', 'ChoiceOn', WhichSampleOut, 'WaitForChoicePoke'],...
         'OutputActions', ChoiceLight);
     
+    sma = AddState(sma, 'Name', 'ChoiceOnHoldPunish', 'Timer', .1,...
+        'StateChangeConditions', ['Tup', 'Punish', WrongPortsOutDelay(1), 'WaitForChoicePoke',...
+        WrongPortsOutDelay(2), 'WaitForChoicePoke'],...
+        'OutputActions', ChoiceLight);
     
     sma = AddState(sma, 'Name', 'ChoiceOn', 'Timer', ChoiceValveTime,...
         'StateChangeConditions', {'Tup', 'exit'},...
@@ -231,18 +255,18 @@ for currentTrial = 1:MaxTrials
         'StateChangeConditions', {'Tup', 'WaitForSamplePokeEW'},...
         'OutputActions', {'Valve6', 1});
     
-%     if RepeatTrial
-%     
-%         sma = AddState(sma, 'Name', 'Punish', 'Timer', S.GUI.PunishTime,...
-%             'StateChangeConditions', {'Tup', 'ITI2'},...
-%             'OutputActions', {'Valve6', 1});
-%     else
-%         
+    if RepeatTrial
+    
+        sma = AddState(sma, 'Name', 'Punish', 'Timer', S.GUI.PunishTime,...
+            'StateChangeConditions', {'Tup', 'ITI2'},...
+            'OutputActions', {'Valve6', 1});
+    else
+        
         sma = AddState(sma, 'Name', 'Punish', 'Timer', S.GUI.PunishTime,...
             'StateChangeConditions', {'Tup', 'exit'},...
             'OutputActions', {'Valve6', 1});
         
-%     end
+    end
     
     sma = AddState(sma, 'Name', 'EarlyWithdrawal', 'Timer', 3,...
         'StateChangeConditions', {'Tup', 'EarlyWithdrawalTimeout'},...
