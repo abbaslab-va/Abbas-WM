@@ -38,6 +38,29 @@ end
 RepeatTrial = 0;
 
 BpodSystem.Data.TrialTypes = []; 
+
+%% Lookback at previous 3 sessions for trial repeats
+dataPath = fileparts(BpodSystem.Path.CurrentDataFile);
+cd(dataPath)
+matDir = dir('*.mat');
+numSessions = numel(matDir);
+allTrials = [];
+allCorrect = [];
+if numSessions < 3
+    doRepeat = zeros(1, numTT);
+else
+    for sess = numSessions-2:numSessions
+        load(matDir(sess).name);
+        [nTrials, nCorrect] = bpod_performance(SessionData, 1);
+        if numel(nTrials) == numTT
+            allTrials(end+1, :) = nTrials;
+            allCorrect(end+1, :) = nCorrect;
+        end
+    end
+    allTrials = sum(allTrials, 1);
+    allCorrect = sum(allCorrect, 1);
+    doRepeat = allCorrect./allTrials <= 0.5;
+end
 %% Initialize teensy audio module and load sound
 
 if (isfield(BpodSystem.ModuleUSB, 'TeensyAudio1'))
@@ -64,7 +87,8 @@ BpodNotebook('init');
 BpodParameterGUI('init', S); % Initialize parameter GUI plugin
 %% Main trial loop
 for currentTrial = 1:MaxTrials
-        
+    repeated = 0;
+    RepeatTrial = doRepeat(TrialTypes(currentTrial));
     if S.GUI.DelayHoldTime < 3
         S.GUI.DelayHoldTime = S.GUI.DelayHoldTime + S.GUI.TimeIncrement;
     end
@@ -214,7 +238,6 @@ for currentTrial = 1:MaxTrials
         'OutputActions', {'Valve6', 1});
     
     if RepeatTrial
-    
         sma = AddState(sma, 'Name', 'Punish', 'Timer', S.GUI.PunishTime,...
             'StateChangeConditions', {'Tup', 'ITI2'},...
             'OutputActions', {'Valve6', 1});
