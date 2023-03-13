@@ -14,7 +14,7 @@ if isempty(fieldnames(S))  % If settings file was an empty struct, populate stru
     S.GUI.ChoiceReward = 5;     
     S.GUI.ITI = 10;             %seconds
     S.GUI.DelayHoldTime = 0;    
-    S.GUI.TimeIncrement = 0.05; %Start this value at .05 and increase up to 1
+    S.GUI.TimeIncrement = 0.2; %Start this value at .05 and increase up to 1
     S.GUI.EarlyWithdrawalTimeout = 10;
     S.GUI.PunishTime = 20;
     S.GUI.SamplingFreq = 44100; %Sampling rate of wave player module (using max supported frequency)
@@ -90,7 +90,7 @@ BpodParameterGUI('init', S); % Initialize parameter GUI plugin
 for currentTrial = 1:MaxTrials
 % %     repeated = 0;
     RepeatTrial = doRepeat(TrialTypes(currentTrial));
-    if S.GUI.DelayHoldTime < 3
+    if S.GUI.DelayHoldTime < 5
         S.GUI.DelayHoldTime = S.GUI.DelayHoldTime + S.GUI.TimeIncrement;
     end
     S = BpodParameterGUI('sync', S);
