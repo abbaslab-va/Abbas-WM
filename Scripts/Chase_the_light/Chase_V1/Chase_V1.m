@@ -29,7 +29,7 @@ end
 BpodSystem.Data.TrialTypes = []; 
 %% Initialize plots
 
-BpodSystem.ProtocolFigures.OutcomePlotFig = figure('Position', [153 857 1000 400],'name','Duration plot','numbertitle','off', 'MenuBar', 'none', 'Resize', 'off');
+BpodSystem.ProtocolFigures.OutcomePlotFig = figure('Position', [50 340 1000 400],'name','Duration plot','numbertitle','off', 'MenuBar', 'none', 'Resize', 'off');
 BpodSystem.GUIHandles.TrialDurationPlot = axes('Position', [.075 .3 .89 .6]);
 xlabel(BpodSystem.GUIHandles.TrialDurationPlot,'Trial number')
 ylabel(BpodSystem.GUIHandles.TrialDurationPlot,'Time to port (s)')
