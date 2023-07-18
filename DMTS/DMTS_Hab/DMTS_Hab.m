@@ -13,7 +13,10 @@ if isempty(fieldnames(S))  % If settings file was an empty struct, populate stru
     S.GUI.SampleReward = 1; %μl
     S.GUI.DelayReward = 1; %μl
     S.GUI.ChoiceReward = 5; %μl
-    S.GUI.ITI = 10; %seconds
+    S.GUI.ITI = 10; %seconds   
+    S.GUI.SamplingFreq = 44100; %Sampling rate of wave player module (using max supported frequency)
+    S.GUI.SoundDuration = .5; % Duration of sound (s)
+    S.GUI.SinePitch = 10000; % Frequency of test tone
 end
 
 %% Define trials
@@ -21,13 +24,31 @@ ports = [1 3 5 7];
 numTT = 12;
 trialsPerType = 20;
 MaxTrials = numTT * trialsPerType;
-TrialTypes = zeros(1, maxTrials);
+TrialTypes = zeros(1, MaxTrials);
 for fill = 1:trialsPerType
     block = randperm(numTT);
     TrialTypes(fill*numTT-(numTT-1):fill*numTT) = block;
 end
 BpodSystem.Data.TrialTypes = []; 
 
+%% Initialize teensy audio module and load sound
+
+if (isfield(BpodSystem.ModuleUSB, 'TeensyAudio1'))
+    TeensyAudioUSB = BpodSystem.ModuleUSB.TeensyAudio1;
+else
+    error('Error: To run this protocol, you must first pair the TeensyAudio1 module with its USB port. Click the USB config button on the Bpod console.')
+end
+
+T = TeensyAudioPlayer(TeensyAudioUSB);
+
+SF = S.GUI.SamplingFreq;
+SampleTone = GenerateSineWave(SF, S.GUI.SinePitch, S.GUI.SoundDuration)*.6; % Sampling freq (hz), Sine frequency (hz), duration (s)
+% Program sound server
+T.load(1, SampleTone);
+analogPortIndex = find(strcmp(BpodSystem.Modules.Name, 'TeensyAudio1'));
+if isempty(analogPortIndex)
+    error('Error: Bpod TeensyAudio module not found. If you just plugged it in, please restart Bpod.')
+end
 %% Initialize plots
 BpodSystem.ProtocolFigures.OutcomePlotFig = figure('Position', [50 340 1000 400],'name','Outcome plot','numbertitle','off', 'MenuBar', 'none', 'Resize', 'off');
 BpodSystem.GUIHandles.TrialTypeOutcomePlot = axes('Position', [.075 .3 .89 .6]);
@@ -38,7 +59,7 @@ BpodParameterGUI('init', S); % Initialize parameter GUI plugin
 for currentTrial = 1:MaxTrials
     
     S = BpodParameterGUI('sync', S);
-    sampleGroup = ceil(trialTypes(currentTrial)*3/numTT);
+    sampleGroup = ceil(TrialTypes(currentTrial)*3/numTT);
     switch sampleGroup
         case 1
             SampleLight = {'PWM1', 50}; WhichSampleIn = {'Port1In'}; SampleValve = {'Valve1', 1}; 
@@ -86,11 +107,11 @@ for currentTrial = 1:MaxTrials
     
     sma = AddState(sma, 'Name', 'DelayOn', 'Timer', DelayValveTime,...
         'StateChangeConditions', [WhichDelayIn, 'ChoiceOn', 'Tup', 'WaitForDelayPoke'],...
-        'OutputActions', [DelayLight, 50, DelayValve, 1]);
+        'OutputActions', [DelayLight, DelayValve, 'TeensyAudio1', 1]);
     
     sma = AddState(sma, 'Name', 'WaitForDelayPoke', 'Timer', 0,...
         'StateChangeConditions', [WhichDelayIn, 'ChoiceOn'],...
-        'OutputActions', [DelayLight, 50]);
+        'OutputActions', DelayLight);
     
     sma = AddState(sma, 'Name', 'ChoiceOn', 'Timer', ChoiceValveTime,...
         'StateChangeConditions', [WhichSampleIn, 'exit', 'Tup', 'WaitForChoicePoke'],...

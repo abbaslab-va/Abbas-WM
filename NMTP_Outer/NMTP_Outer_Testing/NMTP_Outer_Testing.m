@@ -17,16 +17,16 @@ global BpodSystem
 repeatsEnabled = 1;
 S = BpodSystem.ProtocolSettings; % Load settings chosen in launch manager into current workspace as a struct called S
 if isempty(fieldnames(S))  % If settings file was an empty struct, populate struct with default settings
-    S.GUI.SampleReward = 1; %μl
+    S.GUI.SampleReward = 0; %μl
     S.GUI.SampleHoldTime = .2;
-    S.GUI.DelayReward = 1; %μl
+    S.GUI.DelayReward = 0; %μl
 %     S.GUI.DelayHoldTime = 2.3;    
     S.GUI.DelayHoldTime = 0;
-    S.GUI.ChoiceReward = 5; %μl
+    S.GUI.ChoiceReward = 7; %μl
     S.GUI.ChoiceHoldTime = 0.2;
     S.GUI.PunishTime = 10;
     S.GUI.ITI = 5; 
-    S.GUI.EarlyWithdrawalTimeout = 45;
+    S.GUI.EarlyWithdrawalTimeout = 1;
 end
 
 %% Define trials
@@ -52,7 +52,7 @@ RepeatTrial = 1;
 %% Main trial loop
 for currentTrial = 1:MaxTrials
     if S.GUI.DelayHoldTime < 5
-        S.GUI.DelayHoldTime = S.GUI.DelayHoldTime + 1;
+        S.GUI.DelayHoldTime = S.GUI.DelayHoldTime + .5;
     elseif S.GUI.DelayHoldTime > 5
         S.GUI.DelayHoldTime = 5;
     end
