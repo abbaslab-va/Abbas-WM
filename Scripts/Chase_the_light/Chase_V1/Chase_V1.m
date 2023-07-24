@@ -133,9 +133,9 @@ t3Scatter = scatter(BpodSystem.GUIHandles.TrialDurationPlot, T3_inds, Outcomes(T
 end
 if exist('t1Scatter', 'var') && exist ('t2Scatter', 'var') && exist('t3Scatter', 'var')
     legend(BpodSystem.GUIHandles.TrialDurationPlot, [timePlot, t1Scatter, t2Scatter, t3Scatter],"", "Back (high)", "Right", "Left")
-    if BpodSystem.GUIHandles.TrialDurationPlot.YLim(2) >30
-        BpodSystem.GUIHandles.TrialDurationPlot.YLim(2)= 30;
-    end
+%     if BpodSystem.GUIHandles.TrialDurationPlot.YLim(2) >30
+%         BpodSystem.GUIHandles.TrialDurationPlot.YLim(2)= 30;
+%     end
 end
 
 

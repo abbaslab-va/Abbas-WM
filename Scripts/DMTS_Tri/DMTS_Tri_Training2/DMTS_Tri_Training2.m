@@ -10,8 +10,8 @@ global BpodSystem
 S = BpodSystem.ProtocolSettings; % Load settings chosen in launch manager into current workspace as a struct called S
 if isempty(fieldnames(S))  % If settings file was an empty struct, populate struct with default settings
     S.GUI.SampleReward = 1;     %μl
-    S.GUI.DelayReward = 3;      
-    S.GUI.ChoiceReward = 7;     
+    S.GUI.DelayReward = 2;      
+    S.GUI.ChoiceReward = 6;     
     S.GUI.ITI = 5;             %seconds
     S.GUI.DelayHoldTime = 0;    
     S.GUI.DelayMaxHold = 0;
