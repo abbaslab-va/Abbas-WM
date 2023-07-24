@@ -8,9 +8,10 @@ global BpodSystem
 
 S = BpodSystem.ProtocolSettings; % Load settings chosen in launch manager into current workspace as a struct called S
 if isempty(fieldnames(S))  % If settings file was an empty struct, populate struct with default settings
-    S.GUI.ITI = 5;
+    S.GUI.ITI = 1;
     S.GUI.SmallReward = 1;  %ul
-    S.GUI.MainReward = 8;   %ul
+    S.GUI.MainReward = 5; 
+    S.GUI.PunishTime= 5 %ul
 end
 
 %% Check previous sessions for starting reward size
@@ -18,16 +19,17 @@ dataPath = fileparts(BpodSystem.Path.CurrentDataFile);
 cd(dataPath)
 matDir = dir('*.mat');
 numSessions = numel(matDir);
-possibileTT = [1 2];
-if numSessions
-    load(matDir(numSessions).name);
-    tt = SessionData.TrialTypes;
-    lastStart = tt(1);
-    startingTT = possibleTT(possibleTT ~= lastStart);
-else
+possibleTT = [1 2];
+ttCounter=0;
+% if numSessions
+%     load(matDir(numSessions).name);
+%     tt = SessionData.TrialTypes;
+%     lastStart = tt(1);
+%     startingTT = possibleTT(possibleTT ~= lastStart);
+% else
     % Set this value manually during the first session
     startingTT = input('Enter a starting trial type, bitch (1 or 2):\n')
-end
+% end
 
 %% Define trials
 numTrialTypes = 1;
@@ -45,7 +47,7 @@ BpodParameterGUI('init', S); % Initialize parameter GUI plugin
 
 %% Main trial loop
 for currentTrial = 1:MaxTrials
-    
+    ttCounter=ttCounter+1;
     S = BpodParameterGUI('sync', S);
  
     sma = NewStateMatrix(); % Assemble state matrix
@@ -74,6 +76,8 @@ for currentTrial = 1:MaxTrials
     sma = AddState(sma, 'Name', 'WaitForOuterPoke', 'Timer', 0,... 
         'StateChangeConditions', {'Port1In', 'LeftCode', 'Port5In', 'RightReward'},...
         'OutputActions', {'PWM1', 40, 'PWM5', 40});
+    
+    % mabye put a Tup in here? 
 
     sma = AddState(sma, 'Name', 'LeftCode', 'Timer', 0,...
         'StateChangeConditions', {'Tup', 'SetRewardSize'},...
@@ -98,6 +102,12 @@ for currentTrial = 1:MaxTrials
     sma = AddState(sma, 'Name', 'WaitForBackUnrewarded', 'Timer', 0,...
         'StateChangeConditions', {'Port7In', 'exit'},...
         'OutputActions', {'PWM7', 40});
+    
+%     sma = AddState(sma, 'Name', 'Punish', 'Timer',S.GUI.PunishTime,...
+%         'StateChangeConditions', {'Tup','exit'},...
+%         'OutputActions', {'Valve6', 1});
+    
+    
 
     SendStateMatrix(sma);
     
@@ -113,11 +123,12 @@ for currentTrial = 1:MaxTrials
     if BpodSystem.Status.BeingUsed == 0
         return
     end
-    if currentTrial > 10
+    if ttCounter > 10
         LocalOutcomes = BpodSystem.Data.SessionPerformance(currentTrial-9:currentTrial);
-        if all(LocalOutcomes)
-            disp('10 in a row!')
+        if numel(find(LocalOutcomes)) >= 8
+            disp('80%!')
             TrialTypes(currentTrial+1:end) = possibleTT(possibleTT ~= TrialTypes(currentTrial));
+            ttCounter=0;
         end
 
     end
