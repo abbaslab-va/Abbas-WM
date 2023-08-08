@@ -59,7 +59,7 @@ else
             allTrials(end+1, :) = nTrials;
             allCorrect(end+1, :) = nCorrect;
         end
-        ewData = adaptive_early_withdrawal(sess);
+        ewData = adaptive_early_withdrawal(SessionData);
     end
     allTrials = sum(allTrials, 1);
     allCorrect = sum(allCorrect, 1);
