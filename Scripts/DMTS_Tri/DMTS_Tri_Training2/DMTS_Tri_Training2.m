@@ -15,7 +15,7 @@ if isempty(fieldnames(S))  % If settings file was an empty struct, populate stru
     S.GUI.ITI = 5;             %seconds
     S.GUI.DelayHoldTime = 0;    
     S.GUI.DelayMaxHold = 0;
-    S.GUI.TimeIncrement = 0.1; %Start this value at .05 and increase up to 1
+    S.GUI.TimeIncrement = 0.5; %Start this value at .05 and increase up to 1
     S.GUI.EarlyWithdrawalTimeout = 5;
     S.GUI.PunishTime = 10;
     S.GUI.SamplingFreq = 44100; %Sampling rate of wave player module (using max supported frequency)
@@ -58,6 +58,7 @@ else
             allTrials(end+1, :) = nTrials;
             allCorrect(end+1, :) = nCorrect;
         end
+        ewData = adaptive_early_withdrawal(sess);
     end
     allTrials = sum(allTrials, 1)
     allCorrect = sum(allCorrect, 1)
@@ -295,6 +296,7 @@ for currentTrial = 1:MaxTrials
         BpodSystem.Data = AddTrialEvents(BpodSystem.Data,RawEvents); % Computes trial events from raw data
         BpodSystem.Data = BpodNotebook('sync', BpodSystem.Data); % Sync with Bpod notebook plugin
         BpodSystem.Data.TrialTypes(currentTrial) = TrialTypes(currentTrial);
+        BpodSystem.Data.GUI(currentTrial) = S.GUI;
         UpdateTrialTypeOutcomePlot(TrialTypes, BpodSystem.Data);
         SaveBpodSessionData; % Saves the field BpodSystem.Data to the current data file
     end
