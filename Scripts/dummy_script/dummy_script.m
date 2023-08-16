@@ -1,4 +1,4 @@
-function trigger
+function dummy_script
 
 
 %%Template script -- used to build new bpod behavior scripts
@@ -8,15 +8,17 @@ global BpodSystem
 
 S = BpodSystem.ProtocolSettings; % Load settings chosen in launch manager into current workspace as a struct called S
 if isempty(fieldnames(S))  % If settings file was an empty struct, populate struct with default settings
-    S.GUI.ITI = 5;
-    S.GUI.SmallReward = 1;  %ul
-    S.GUI.MainReward = 8;   %ul
+    S.GUI.ITI = 1; 
 end
 
 %% Define trials
 numTrialTypes = 1;
-MaxTrials = 500;
-TrialTypes = ones(1, MaxTrials);
+MaxTrials = numTrialTypes*100;
+TrialTypes = zeros(1, MaxTrials);
+for fill = 1:MaxTrials/numTrialTypes
+    block = randperm(numTrialTypes);
+    TrialTypes(fill*1:fill*numTrialTypes) = block;
+end
 BpodSystem.Data.TrialTypes = []; 
 
 %% Initialize plots
@@ -30,24 +32,20 @@ BpodParameterGUI('init', S); % Initialize parameter GUI plugin
 for currentTrial = 1:MaxTrials
     
     S = BpodParameterGUI('sync', S);
- 
+
+    switch TrialTypes(currentTrial)
+        case 1
+           
+    end
+   
     sma = NewStateMatrix(); % Assemble state matrix
     
     %Waiting for first choice, sample start (needs valve calibration)
     
-         sma = AddState(sma, 'Name', 'WaitForTrigger', ...
-            'Timer',0,...
-            'StateChangeConditions', {'Port1In','ITI'},...
-            'OutputActions',{});
+    sma = AddState(sma, 'Name', 'ITI', 'Timer', S.GUI.ITI,...
+        'StateChangeConditions', {'Tup', 'exit'},...
+        'OutputActions', {});
     
-        sma = AddState(sma, 'Name', 'ITI', ...
-            'Timer',1,...
-            'StateChangeConditions', {'Tup','exit'},...
-            'OutputActions',{'Wire1',1});
-          
-   
-        
-
     SendStateMatrix(sma);
     
     RawEvents = RunStateMatrix;
@@ -55,6 +53,7 @@ for currentTrial = 1:MaxTrials
         BpodSystem.Data = AddTrialEvents(BpodSystem.Data,RawEvents); % Computes trial events from raw data
         BpodSystem.Data = BpodNotebook('sync', BpodSystem.Data); % Sync with Bpod notebook plugin
         BpodSystem.Data.TrialTypes(currentTrial) = TrialTypes(currentTrial);
+        BpodSystem.Data.GuiVals(currentTrial) = S.GUI;
         UpdateTrialTypeOutcomePlot(TrialTypes, BpodSystem.Data);
         SaveBpodSessionData; % Saves the field BpodSystem.Data to the current data file
     end
@@ -67,7 +66,8 @@ end
 function UpdateTrialTypeOutcomePlot(TrialTypes, Data)
 global BpodSystem
 Outcomes = zeros(1,Data.nTrials);
-for x = 1:Data.nTrials    
+for x = 1:Data.nTrials
+    
     if ~isnan(Data.RawEvents.Trial{x}.States.ITI(1))
         Outcomes(x) = 1;
     end

@@ -1,6 +1,6 @@
 
 
-function CLAS_testing_V1
+function CLAS_testing_OG
 
 %%% 3/23 for males I took out the tup in chirp1 state. It now once again
 %%% waites for a port out, I also added punish light and tine out of 5
@@ -24,18 +24,19 @@ global BpodSystem
 %% Define parameters
 S = BpodSystem.ProtocolSettings; % Load settings chosen in launch manager into current workspace as a struct called S
 if isempty(fieldnames(S))  % If settings file was an empty struct, populate struct with default settings
-    S.GUI.ForageReward = 1; %ul
+    S.GUI.ForageReward = 1.5; %ul
     S.GUI.ChirpReward = 8; 
     S.GUI.ITI = 5; % How long the mouse must poke in the center to activate the goal portngjhg
     S.GUI.ResponseTime = 5; % How long until the mouse must make a choice, or forefeit the trial
-    S.GUI.SweepUpLow=10000;
-    S.GUI.SweepUpHigh=14000;
-    S.GUI.SoundDuration = 1;
+    %S.GUI.SweepUpLow=10000;
+    %S.GUI.SweepUpHigh=14000;
+    S.GUI.SinePitch = 12000; % Frequency of test tone
+    S.GUI.SoundDuration = 0.5;
     S.GUI.SamplingFreq = 44100;
-    S.GUI.PunishTime=1;
+    S.GUI.PunishTime=0;
     S.GUI.PuffTime=0.25; 
     S.GUI.DrinkGrace=0.5;
-    S.GUI.TrialTime=30;
+    S.GUI.TrialTime=60;
  
 end
 %%
@@ -79,8 +80,6 @@ BpodParameterGUI('init', S); % Initialize parameter GUI plugin
 T = TeensyAudioPlayer(TeensyAudioUSB);
 %LoadSerialMessages('ValveModule1',{['O' 3],['C' 3]})
 %% Define stimuli and send to Teensy
-
-
 SF = S.GUI.SamplingFreq;
 Chirp = GenerateSineWave(SF, S.GUI.SinePitch, S.GUI.SoundDuration)*0.5; % Sampling freq (hz), Sine frequency (hz), duration (s)
 % Program sound server
@@ -89,35 +88,28 @@ analogPortIndex = find(strcmp(BpodSystem.Modules.Name, 'TeensyAudio1'));
 if isempty(analogPortIndex)
     error('Error: Bpod TeensyAudio module not found. If you just plugged it in, please restart Bpod.')
 end
-% SF = S.GUI.SamplingFreq;
-% t = linspace(0, S.GUI.SoundDuration, S.GUI.SoundDuration*S.GUI.SamplingFreq);
-% UpSweep = chirp(t, S.GUI.SweepUpLow, t(end), S.GUI.SweepUpHigh);
 
 
-% Set Noise in audacity to 0.03
-% chirp 20to1= 0.3
-%Chiro1to5 = 0.005
- % Chirp20to1=audioread('SNR_03102022_0.5s.wav');
- %Chirp20to1=audioread('SNR_03102022_0.5s.wav');
- %Chirp20to1=audioread('newCHIRP_SNR20to1_4X_2SEC.wav');
- %Chirp1to1=audioread('newCHIRP_SNR1to1.wav');
- %Noise=audioread('NOISE_03102022.wav');
-% Noise1to5=audioread('Noise_1to5.wav');
+%%% Set Noise in audacity to 0.03
+%%% chirp 20to1= 0.3
+%%%Chiro1to5 = 0.005
+%%% 
+ %%Chirp20to1=audioread('SNR_03102022_0.5s.wav');
+ %%%Chirp20to1=audioread('newCHIRP_SNR20to1_4X_2SEC.wav');
+ %%%Chirp1to1=audioread('newCHIRP_SNR1to1.wav');
+ %%Noise=audioread('NOISE_03102022.wav');
+%%% Noise1to5=audioread('Noise_1to5.wav');
  Silence=zeros(1,44100);
-% 
-% 
-%T.load(1, Noise);
-%T.load(2, Chirp20to1);
-T.load(3, Silence);
-%T.load(4,  Chirp1to1);
-%T.load(5,   Noise1to5);
+%%%% 
+%%% 
+%%%T.load(1, Noise);
+%%%T.load(2, Chirp20to1);
+T.load(2, Silence);
+%%%T.load(4,  Chirp1to1);
+%%%T.load(5,   Noise1to5);
 
 
 
-analogPortIndex = find(strcmp(BpodSystem.Modules.Name, 'TeensyAudio1'));
-if isempty(analogPortIndex)
-    error('Error: Bpod TeensyAudio module not found. If you just plugged it in, please restart Bpod.')
-end
 
 %% Main trial loop
 
@@ -179,230 +171,224 @@ end
 switch TrialTypes(currentTrial)
     %case 1:6 Chirp with laser ON
     case 1 
-      PickDur=7
-      PickDur2=2
-      %PickNoise=1
-      PickChirp=1
-      LazerON={'BNC1',1}
-      time1=1
+        PickDur=7
+        PickDur2=2
+        PickChirp=1
+        LazerON={'BNC1',1}
+        time1=2
         time2=1
-       time3=1
-      chirptrial='Abort'
-      rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
-      rtime=1
+        time3=1
+        chirptrial='Abort'
+        rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
+        rtime=1
       
     case 2
-      PickDur=8
-      PickDur2=3
-      %PickNoise=1
-      PickChirp=1
-      LazerON={'BNC1',1}
-       time1=1
-    time2=1
-      time3=1
-      chirptrial='Abort'
-      rtime=1
-       rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
-      
+        PickDur=8
+        PickDur2=3
+     
+        PickChirp=1
+        LazerON={'BNC1',1}
+        time1=2
+        time2=1
+        time3=1
+        chirptrial='Abort'
+        rtime=1
+        rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
+        
    
     case 3
-      PickDur=10
-      PickDur2=5
-      %PickNoise=1
-      PickChirp=1
-      LazerON={'BNC1',1}
-       time1=1
-    time2=1
-       time3=1
-      chirptrial='Abort'
-       rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
-       rtime=1
+        PickDur=10
+        PickDur2=5
+  
+        PickChirp=1
+        LazerON={'BNC1',1}
+        time1=2
+        time2=1
+        time3=1
+        chirptrial='Abort'
+        rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
+        rtime=1
       
       
     
     case 4
-      PickDur=12
-      PickDur2=4
-      %PickNoise=1
-      PickChirp=1
-      LazerON={'BNC1',1}
-      time1=1
-    time2=1
-       time3=1
-      chirptrial='Abort'
-       rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
-       rtime=1
+        PickDur=12
+        PickDur2=4
+       % PickNoise=1
+        PickChirp=1
+        LazerON={'BNC1',1}
+        time1=2
+        time2=1
+        time3=1
+        chirptrial='Abort'
+        rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
+        rtime=1
       
       
     case 5 
-      PickDur=7
-      PickDur2=3
-     %PickNoise=1
-      PickChirp=1
-      LazerON={'BNC1',1}
-      time1=1
-    time2=1
-       time3=1
-      chirptrial='Abort'
-       rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
-       rtime=1
-      
+        PickDur=7
+        PickDur2=3
+        %PickNoise=1
+        PickChirp=1
+        LazerON={'BNC1',1}
+        time1=2
+        time2=1
+        time3=1
+        chirptrial='Abort'
+        rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
+        rtime=1
+        
       
     case 6
-      PickDur=8
-      PickDur2=5
-      %PickNoise=1
-      PickChirp=1
-      LazerON={'BNC1',1}
-       time1=1
-    time2=1
-       time3=1
-      chirptrial='Abort'
-       rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
-       rtime=1
-      
+        PickDur=8
+        PickDur2=5
+       % PickNoise=1
+        PickChirp=1
+        LazerON={'BNC1',1}
+        time1=2
+        time2=1
+        time3=1
+        chirptrial='Abort'
+        rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
+        rtime=1
+        
     
      
      
      % case 7:12 Chirp with laser OFF
     case 7
-      PickDur= 7
-      PickDur2=2
-      %PickNoise=1
-      PickChirp=1
-      LazerON={}
-        time1=1
-    time2=1
-       time3=1
-      chirptrial='Abort'
-       rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
-       rtime=1
-      
+        PickDur= 7
+        PickDur2=2
+        %PickNoise=1
+        PickChirp=1
+        LazerON={}
+        time1=2
+        time2=1
+        time3=1
+        chirptrial='Abort'
+        rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
+        rtime=1
+        
     
     case 8
-      PickDur=8
-      PickDur2=3
-      %PickNoise=1
-      PickChirp=1
-      LazerON={}
-        time1=1
-    time2=1
-       time3=1
-      chirptrial='Abort'
-       rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
-       rtime=1
-      
+        PickDur=8
+        PickDur2=3
+       % PickNoise=1
+        PickChirp=1
+        LazerON={}
+        time1=2
+        time2=1
+        time3=1
+        chirptrial='Abort'
+        rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
+        rtime=1
+        
       
       
     case 9
-      PickDur=10
-      PickDur2=1
-     % PickNoise=1
-      PickChirp=1
-      LazerON={}
-      time1=1
-    time2=1
-       time3=1
-      chirptrial='Abort'
-       rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
-       rtime=1
+        PickDur=10
+        PickDur2=1
+        %PickNoise=1
+        PickChirp=1
+        LazerON={}
+        time1=2
+        time2=1
+        time3=1
+        chirptrial='Abort'
+        rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
+        rtime=1
       
     
     case 10
-      PickDur=12
-      PickDur2=5
-      %PickNoise=1
-      PickChirp=1
-      LazerON={}
-      time1=1
-    time2=1
-       time3=1
-      chirptrial='Abort'
-       rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
-       rtime=1
-      
+        PickDur=12
+        PickDur2=5
+        %PickNoise=1
+        PickChirp=1
+        LazerON={}
+        time1=2
+        time2=1
+        time3=1
+        chirptrial='Abort'
+        rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
+        rtime=1
+        
         
     case 11
-      PickDur=7
-      PickDur2=4
-      %PickNoise=1
-      PickChirp=1
-      LazerON={}
-        time1=1
-    time2=1
-       time3=1
-      chirptrial='Abort'
-       rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
-       rtime=1
+        PickDur=7
+        PickDur2=4
+        %PickNoise=1
+        PickChirp=1
+        LazerON={}
+        time1=2
+        time2=1
+        time3=1
+        chirptrial='Abort'
+        rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
+        rtime=1
       
             
     case 12
-       PickDur=8
-     
-       %PickNoise=1
-       PickChirp=1
-       LazerON={}
-         time1=1
-    time2=1
-       time3=1
-      chirptrial='Abort'
-       rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
-       rtime=1
+        PickDur=8
+        %PickNoise=1
+        PickChirp=1
+        LazerON={}
+        time1=2
+        time2=1
+        time3=1
+        chirptrial='Abort'
+        rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
+        rtime=1
       
     
        % Case 13 &14 NO CHIRP LASER ON 
     case 13
-       
-       PickDur=8
-      % PickNoise=3
-       PickChirp=3
-       LazerON={'BNC1',1}
-      time1=.1
-      time2=.1
-       time3=.1
-      chirptrial='Reward'
-       rewardtime1=0
-       rtime=0
+        PickDur=8
+       % PickNoise=1
+        PickChirp=2
+        LazerON={'BNC1',1}
+        time1=.1
+        time2=.1
+        time3=.1
+        chirptrial='Reward'
+        rewardtime1=0
+        rtime=0
       
 
     case 14
-      
-       PickDur=10
-       %PickNoise=3
-       PickChirp=3
-       LazerON={'BNC1',1}
-       time1=0.1
-      time2=0.1
-         time3=.1
-      chirptrial='Reward'
-       rewardtime1=0
+        PickDur=10
+       % PickNoise=1
+        PickChirp=2
+        LazerON={'BNC1',1}
+        time1=0.1
+        time2=0.1
+        time3=.1
+        chirptrial='Reward'
+        rewardtime1=0
         rtime=0
-      
+        
    % case 15 and 16 No chirp LASER OFF      
     case 15
-       
-       PickDur=8
-       %PickNoise=3
-       PickChirp=3
-       LazerON={}
-       time1=.1
-      time2=.1
-         time3=.1
-      chirptrial='Reward'
-       rewardtime1=0
+        PickDur=8
+        %PickNoise=1
+        PickChirp=2
+        LazerON={}
+        time1=.1
+        time2=.1
+        time3=.1
+        chirptrial='Reward'
+        rewardtime1=0
         rtime=0
        
     case 16
-      
-       PickDur=10
-       %PickNoise=3
-       PickChirp=3
-       LazerON={}
-       time1=.1
-      time2=.1
-         time3=.1
-      chirptrial='Reward'
-       rewardtime1=0
+        PickDur=10
+       % PickNoise=1
+        PickChirp=2
+        LazerON={}
+        time1=.1
+        time2=.1
+        time3=.1
+        chirptrial='Reward'
+        rewardtime1=0
         rtime=0
       
         
@@ -418,13 +404,8 @@ end
 %First Wire (65529) Stamps begining on Trial Start (Start of ITI)
          sma = AddState(sma, 'Name', 'ITI', ...
             'Timer',S.GUI.ITI,...
-            'StateChangeConditions', {'Tup','WaitForAPoke'},...
+            'StateChangeConditions', {'Tup','TriggerTimers1'},...
             'OutputActions',{'Wire1',1});
-        
-         sma = AddState(sma, 'Name', 'WaitForAPoke', ...
-            'Timer',0,...
-            'StateChangeConditions', {'Port1In','TriggerTimers1','Port2In','TriggerTimers1','Port3In','TriggerTimers1','Port4In','TriggerTimers1','Port5In','TriggerTimers1'},...
-            'OutputActions',{'PWM1', 20,'PWM2', 20,'PWM3', 20,'PWM4', 20,'PWM5', 20, 'PWM7', 20});
         
          sma = AddState(sma, 'Name', 'TriggerTimers1', ...
             'Timer',0,...
@@ -433,83 +414,90 @@ end
         
         sma = AddState(sma, 'Name', 'TriggerTimers2', ...
             'Timer',0,...
-            'StateChangeConditions', {'Tup','WaitForFirstPoke'},...
+            'StateChangeConditions', {'Tup','StartSound'},...
             'OutputActions',{'GlobalTimerTrig',1});
         
         %     
-% sma = AddState(sma, 'Name', 'Prime1', ...
-%     'Timer',GetValveTimes(S.GUI.ForageReward,1),...
-%     'StateChangeConditions', {'Tup','Prime2'},...
-%     'OutputActions',{'Valve1',1});
-%     
-% sma = AddState(sma, 'Name', 'Prime2', ...
-%     'Timer',GetValveTimes(S.GUI.ForageReward,2),...
-%     'StateChangeConditions', {'Tup','Prime3'},...
-%     'OutputActions',{'Valve2',1});
-% 
-% sma = AddState(sma, 'Name', 'Prime3', ...
-%    'Timer',GetValveTimes(S.GUI.ForageReward,3),...
-%     'StateChangeConditions', {'Tup','Prime4'},...
-%     'OutputActions',{'Valve3',1});
-% 
-% sma = AddState(sma, 'Name', 'Prime4', ...
-%     'Timer',GetValveTimes(S.GUI.ForageReward,4),...
-%     'StateChangeConditions', {'Tup','Prime5'},...
-%     'OutputActions',{'Valve4',1});
-% 
-% sma = AddState(sma, 'Name', 'Prime5', ...
-%     'Timer',GetValveTimes(S.GUI.ForageReward,5),...
-%     'StateChangeConditions', {'Tup','WaitForFirstPoke'},...
-%     'OutputActions',{'Valve5',1});
 
-  %Start of Start of Trial wire 2 and Wire3 ( 65534)        
-%         sma = AddState(sma, 'Name', 'StartSound', ...
-%             'Timer',0,...
-%             'StateChangeConditions', {'Tup','WaitForFirstPoke'},...
-%             'OutputActions',{'TeensyAudio1',PickNoise,'Wire2',1,'Wire3',1});            
+  %Start of Noise/Start of Trial wire 2 and Wire3 ( 65534)        
+        sma = AddState(sma, 'Name', 'StartSound', ...
+            'Timer',0,...
+            'StateChangeConditions', {'Tup','WaitForFirstPoke'},...
+            'OutputActions',{'Wire2',1,'Wire3',1});            
         
 
-          sma = AddState(sma, 'Name', 'WaitForFirstPoke', ...
+        sma = AddState(sma, 'Name', 'WaitForFirstPoke', ...
             'Timer',0,...
-            'StateChangeConditions', {'Port1In','Port1InMark','Port2In','Port2InMark','Port3In','Port3InMark','Port4In','Port4InMark','Port5In','Port5InMark','GlobalTimer2_End','exit','GlobalTimer1_End','Chirp1'},...
-            'OutputActions',{'PWM1', 20,'PWM2', 20,'PWM3', 20,'PWM4', 20,'PWM5', 20, 'PWM7', 20});
-     
+            'StateChangeConditions', {'Port1In','SetTime1','Port2In','SetTime2','Port3In','SetTime3','Port4In','SetTime4','Port5In','SetTime5','GlobalTimer2_End','exit','GlobalTimer1_End','Chirp1'},...
+            'OutputActions',{'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50});
         
-        
-        sma = AddState(sma, 'Name', 'WaitForFirstPokeAfter', ...
+           sma = AddState(sma, 'Name', 'SetTime1', ...
             'Timer',0,...
-            'StateChangeConditions', {'Port1In','Port1InMark','Port2In','Port2InMark','Port3In','Port3InMark','Port4In','Port4InMark','Port5In','Port5InMark','GlobalTimer2_End','exit','GlobalTimer1_End','Chirp1'},...
-            'OutputActions',{'PWM1', 20,'PWM2', 20,'PWM3', 20,'PWM4', 20,'PWM5', 20, 'PWM7', 20});
-        
-        sma = AddState(sma, 'Name', 'Port1InMark', ...
-            'Timer',0,...
-            'StateChangeConditions', {'GlobalTimer1_End','Chirp1','Tup','WaitForPoke','GlobalTimer2_End','exit','GlobalTimer1_End','Chirp1'},...
+            'StateChangeConditions', {'Tup','WaitForPoke'},...
             'OutputActions',{'SoftCode',1});
+        
+        
+        sma = AddState(sma, 'Name', 'SetTime2', ...
+            'Timer',0,...
+            'StateChangeConditions', {'Tup','WaitForPoke'},...
+            'OutputActions',{'SoftCode',2});
+        
+        sma = AddState(sma, 'Name', 'SetTime3', ...
+            'Timer',0,...
+            'StateChangeConditions', {'Tup','WaitForPoke'},...
+            'OutputActions',{'SoftCode',3});
+        
+        sma = AddState(sma, 'Name', 'SetTime4', ...
+            'Timer',0,...
+            'StateChangeConditions', {'Tup','WaitForPoke'},...
+            'OutputActions',{'SoftCode',4});
+        
+        sma = AddState(sma, 'Name', 'SetTime5', ...
+            'Timer',0,...
+            'StateChangeConditions', {'Tup','WaitForPoke'},...
+            'OutputActions',{'SoftCode',5});
+        
+         sma = AddState(sma, 'Name', 'SetTime6', ...
+            'Timer',0,...
+            'StateChangeConditions', {'Tup','WaitForPoke'},...
+            'OutputActions',{'SoftCode',6});
+        
+        
+         sma = AddState(sma, 'Name', 'Port1InMark', ...
+            'Timer',0,...
+            'StateChangeConditions', {'GlobalTimer1_End','Chirp1','Tup','WaitForPoke','GlobalTimer2_End','exit'},...
+            'OutputActions',{'SoftCode',1});
+        
+        
+
         
         sma = AddState(sma, 'Name', 'Port2InMark', ...
             'Timer',0,...
-            'StateChangeConditions', {'GlobalTimer1_End','Chirp1','Tup','WaitForPoke','GlobalTimer2_End','exit','GlobalTimer1_End','Chirp1'},...
+            'StateChangeConditions', {'GlobalTimer1_End','Chirp1','Tup','WaitForPoke','GlobalTimer2_End','exit'},...
             'OutputActions',{'SoftCode',2});
-
+        
+        
+     
+        
         sma = AddState(sma, 'Name', 'Port3InMark', ...
             'Timer',0,...
-            'StateChangeConditions', {'GlobalTimer1_End','Chirp1','Tup','WaitForPoke','GlobalTimer2_End','exit','GlobalTimer1_End','Chirp1'},...
+            'StateChangeConditions', {'GlobalTimer1_End','Chirp1','Tup','WaitForPoke','GlobalTimer2_End','exit'},...
             'OutputActions',{'SoftCode',3});
-
+        
+      
+        
         sma = AddState(sma, 'Name', 'Port4InMark', ...
             'Timer',0,...
-            'StateChangeConditions', {'GlobalTimer1_End','Chirp1','Tup','WaitForPoke','GlobalTimer2_End','exit','GlobalTimer1_End','Chirp1'},...
+            'StateChangeConditions', {'GlobalTimer1_End','Chirp1','Tup','WaitForPoke','GlobalTimer2_End','exit'},...
             'OutputActions',{'SoftCode',4});
-
+        
+   
+        
         sma = AddState(sma, 'Name', 'Port5InMark', ...
             'Timer',0,...
-            'StateChangeConditions', {'GlobalTimer1_End','Chirp1','Tup','WaitForPoke','GlobalTimer2_End','exit','GlobalTimer1_End','Chirp1'},...
+            'StateChangeConditions', {'GlobalTimer1_End','Chirp1','Tup','WaitForPoke','GlobalTimer2_End','exit'},...
             'OutputActions',{'SoftCode',5});
-
-        sma = AddState(sma, 'Name', 'WaitForPoke', ...
-            'Timer',0,...
-            'StateChangeConditions', {'GlobalTimer1_End','Chirp1','SoftCode1', 'Reward1','SoftCode2', 'Reward2','SoftCode3', 'Reward3','SoftCode4', 'Reward4','SoftCode5', 'Reward5','GlobalTimer2_End','exit'},...
-            'OutputActions',{'PWM1', 20,'PWM2', 20,'PWM3', 20,'PWM4', 20,'PWM5', 20, 'PWM7', 20});
+        
           
 %         sma = AddState(sma, 'Name', 'Port6InMark', ...
 %             'Timer',0,...
@@ -519,40 +507,44 @@ end
         
  %Wire 1 & 2=65531= Reward Forage Port        
 
+        sma = AddState(sma, 'Name', 'WaitForPoke', ...
+            'Timer',0,...
+            'StateChangeConditions', {'GlobalTimer1_End','Chirp1','SoftCode1', 'Reward1','SoftCode2', 'Reward2','SoftCode3', 'Reward3','SoftCode4', 'Reward4','SoftCode5', 'Reward5','GlobalTimer2_End','exit'},...
+            'OutputActions',{'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50});
 
         sma = AddState(sma, 'Name', 'Reward1', ...
                 'Timer',0,...
                 'StateChangeConditions', {'GlobalTimer1_End','Chirp1','Port1In','Reward1_1','GlobalTimer2_End','exit','Port7In','Punish'},...
-                'OutputActions',{'PWM1', 20,'PWM2', 20,'PWM3', 20,'PWM4', 20,'PWM5', 20, 'PWM7', 20});
+                'OutputActions',{'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50});
 
         sma = AddState(sma, 'Name', 'Reward1_1', ...
                 'Timer',GetValveTimes(S.GUI.ForageReward,1),...
                 'StateChangeConditions', {'GlobalTimer1_End','Chirp1','Tup','DrinkGrace1','GlobalTimer2_End','exit','Port7In','Punish'},...
-                'OutputActions',{'Valve1',1,'PWM1', 20,'PWM2', 20,'PWM3', 20,'PWM4', 20,'PWM5', 20, 'PWM7', 20,'Wire1',1,'Wire2',1});  
+                'OutputActions',{'Valve1',1,'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50,'Wire1',1,'Wire2',1});  
 
          sma = AddState(sma, 'Name', 'Reward2', ...
                 'Timer',0,...
                 'StateChangeConditions', {'GlobalTimer1_End','Chirp1','Port2In','Reward2_1','GlobalTimer2_End','exit','Port7In','Punish'},...
-                'OutputActions',{'PWM1', 20,'PWM2', 20,'PWM3', 20,'PWM4', 20,'PWM5', 20, 'PWM7', 20});
+                'OutputActions',{'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50,'PWM7', 50});
 
 
          sma = AddState(sma, 'Name', 'Reward2_1', ...
                 'Timer',GetValveTimes(S.GUI.ForageReward,2),...
                 'StateChangeConditions', {'GlobalTimer1_End','Chirp1','Tup','DrinkGrace2','GlobalTimer2_End','exit','Port7In','Punish'},...
-                'OutputActions',{'Valve2',1,'PWM1', 20,'PWM2', 20,'PWM3', 20,'PWM4', 20,'PWM5', 20, 'PWM7', 20,'Wire1',1,'Wire2',1});
+                'OutputActions',{'Valve2',1,'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50,'Wire1',1,'Wire2',1});
 
 
 
          sma = AddState(sma, 'Name', 'Reward3', ...
                 'Timer',0,...
                 'StateChangeConditions', {'GlobalTimer1_End','Chirp1','Port3In','Reward3_1','GlobalTimer2_End','exit','Port7In','Punish'},...
-                'OutputActions',{'PWM1', 20,'PWM2', 20,'PWM3', 20,'PWM4', 20,'PWM5', 20, 'PWM7', 20});
+                'OutputActions',{'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50});
 
 
             sma = AddState(sma, 'Name', 'Reward3_1', ...
                 'Timer',GetValveTimes(S.GUI.ForageReward,3),...
                 'StateChangeConditions', {'GlobalTimer1_End','Chirp1','Tup','DrinkGrace3','GlobalTimer2_End','exit','Port7In','Punish'},...
-                'OutputActions',{'Valve3',1,'PWM1', 20,'PWM2', 20,'PWM3', 20,'PWM4', 20,'PWM5', 20, 'PWM7', 20,'Wire1',1,'Wire2',1});
+                'OutputActions',{'Valve3',1,'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50,'Wire1',1,'Wire2',1});
 
 
 
@@ -560,25 +552,25 @@ end
          sma = AddState(sma, 'Name', 'Reward4', ...
                 'Timer',0,...
                 'StateChangeConditions', {'GlobalTimer1_End','Chirp1','Port4In','Reward4_1','GlobalTimer2_End','exit','Port7In','Punish'},...
-                'OutputActions',{'PWM1', 20,'PWM2', 20,'PWM3', 20,'PWM4', 20,'PWM5', 20, 'PWM7', 20});
+                'OutputActions',{'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50});
 
 
             sma = AddState(sma, 'Name', 'Reward4_1', ...
                 'Timer',GetValveTimes(S.GUI.ForageReward,4),...
                 'StateChangeConditions', {'GlobalTimer1_End','Chirp1','Tup','DrinkGrace4','GlobalTimer2_End','exit','Port7In','Punish'},...
-                'OutputActions',{'Valve4',1,'PWM1', 20,'PWM2', 20,'PWM3', 20,'PWM4', 20,'PWM5', 20, 'PWM7', 20,'Wire1',1,'Wire2',1});
+                'OutputActions',{'Valve4',1,'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50,'Wire1',1,'Wire2',1});
            
 
            sma = AddState(sma, 'Name', 'Reward5', ...
                 'Timer',0,...
                 'StateChangeConditions', {'GlobalTimer1_End','Chirp1','Port5In','Reward5_1','GlobalTimer2_End','exit','Port7In','Punish'},...
-                'OutputActions',{'PWM1', 20,'PWM2', 20,'PWM3', 20,'PWM4', 20,'PWM5', 20, 'PWM7', 20});
+                'OutputActions',{'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50});
 
 
             sma = AddState(sma, 'Name', 'Reward5_1', ...
                 'Timer',GetValveTimes(S.GUI.ForageReward,5),...
                 'StateChangeConditions', {'GlobalTimer1_End','Chirp1','Tup','DrinkGrace5','GlobalTimer2_End','exit','Port7In','Punish'},...
-                'OutputActions',{'Valve5',1,'PWM1', 20,'PWM2', 20,'PWM3', 20,'PWM4', 20,'PWM5', 20, 'PWM7', 20,'Wire1',1,'Wire2',1});
+                'OutputActions',{'Valve5',1,'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50,'Wire1',1,'Wire2',1});
             
 %                   sma = AddState(sma, 'Name', 'Reward6', ...
 %                 'Timer',0,...
@@ -590,34 +582,32 @@ end
 %                 'Timer',GetValveTimes(S.GUI.ForageReward,7),...
 %                 'StateChangeConditions', {'Tup','DrinkGrace6','GlobalTimer2_End','exit'},...
 %                 'OutputActions',{'Valve7',1,'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50});
-            
-            
-            
+
         
             sma = AddState(sma, 'Name', 'DrinkGrace1', ...
                 'Timer',S.GUI.DrinkGrace,...
                 'StateChangeConditions', {'GlobalTimer1_End','Chirp1','Tup','Port1InMark','GlobalTimer2_End','exit','Port7In','Punish'},...
-                'OutputActions',{'PWM1', 20,'PWM2', 20,'PWM3', 20,'PWM4', 20,'PWM5', 20, 'PWM7', 20}); 
+                'OutputActions',{'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50}); 
             
               sma = AddState(sma, 'Name', 'DrinkGrace2', ...
                 'Timer',S.GUI.DrinkGrace,...
                 'StateChangeConditions', {'GlobalTimer1_End','Chirp1','Tup','Port2InMark','GlobalTimer2_End','exit','Port7In','Punish'},...
-                'OutputActions',{'PWM1', 20,'PWM2', 20,'PWM3', 20,'PWM4', 20,'PWM5', 20, 'PWM7', 20}); 
+                'OutputActions',{'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50}); 
               
             sma = AddState(sma, 'Name', 'DrinkGrace3', ...
                 'Timer',S.GUI.DrinkGrace,...
                 'StateChangeConditions', {'GlobalTimer1_End','Chirp1','Tup','Port3InMark','GlobalTimer2_End','exit','Port7In','Punish'},...
-                'OutputActions',{'PWM1', 20,'PWM2', 20,'PWM3', 20,'PWM4', 20,'PWM5', 20, 'PWM7', 20}); 
+                'OutputActions',{'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50}); 
               
             sma = AddState(sma, 'Name', 'DrinkGrace4', ...
                 'Timer',S.GUI.DrinkGrace,...
                 'StateChangeConditions', {'GlobalTimer1_End','Chirp1','Tup','Port4InMark','GlobalTimer2_End','exit','Port7In','Punish'},...
-                'OutputActions',{'PWM1', 20,'PWM2', 20,'PWM3', 20,'PWM4', 20,'PWM5', 20, 'PWM7', 20}); 
+                'OutputActions',{'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50}); 
             
             sma = AddState(sma, 'Name', 'DrinkGrace5', ...
                 'Timer',S.GUI.DrinkGrace,...
                 'StateChangeConditions', {'GlobalTimer1_End','Chirp1','Tup','Port5InMark','GlobalTimer2_End','exit','Port7In','Punish'},...
-                'OutputActions',{'PWM1', 20,'PWM2', 20,'PWM3', 20,'PWM4', 20,'PWM5', 20, 'PWM7', 20}); 
+                'OutputActions',{'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50}); 
             
 %              sma = AddState(sma, 'Name', 'DrinkGrace6', ...
 %                 'Timer',S.GUI.DrinkGrace,...
@@ -630,124 +620,79 @@ end
              sma = AddState(sma, 'Name', 'Chirp1', ...
                 'Timer',0,...
                 'StateChangeConditions', {'Port1Out','Laser','Port2Out','Laser','Port3Out','Laser','Port4Out','Laser','Port5Out','Laser','GlobalTimer2_End','exit'},...
-                'OutputActions',{'PWM1', 20,'PWM2', 20,'PWM3', 20,'PWM4', 20,'PWM5', 20, 'PWM7', 20});
-% % % Wire 2 denotes the Playing of the Chirp (65530)            
+                'OutputActions',{'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50 'PWM7', 50});
+         
             
 
              sma = AddState(sma, 'Name', 'Laser', ...
                 'Timer',0.5,...
                 'StateChangeConditions', {'Tup','ChirpPlay','GlobalTimer2_End','exit'},...
-                'OutputActions',[LazerON,'PWM1', 20,'PWM2', 20,'PWM3', 20,'PWM4', 20,'PWM5', 20, 'PWM7', 20]);
+                'OutputActions',[LazerON,'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50]);
 
-
+% % % Wire 2 denotes the Playing of the Chirp (65530)   
 
              sma = AddState(sma, 'Name', 'ChirpPlay', ...
                 'Timer',0.5,...
                 'StateChangeConditions', {'Tup','Laser2','GlobalTimer2_End','exit','Port7In','Reward'},...
-                'OutputActions',['TeensyAudio1',PickChirp,LazerON,'Wire2',1,'PWM1', 20,'PWM2', 20,'PWM3', 20,'PWM4', 20,'PWM5', 20, 'PWM7', 20]);
+                'OutputActions',['TeensyAudio1',PickChirp,LazerON,'Wire2',1,'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50]);
             
              sma = AddState(sma, 'Name', 'Laser2', ...
                 'Timer',0.5,...
                 'StateChangeConditions', {'Tup','WaitForChirp1','Port7In','Reward','GlobalTimer2_End','exit'},...
-                'OutputActions',[LazerON,'PWM1', 20,'PWM2', 20,'PWM3', 20,'PWM4', 20,'PWM5', 20, 'PWM7', 20]);
+                'OutputActions',[LazerON,'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50]);
             
              
              sma = AddState(sma, 'Name', 'WaitForChirp1', ...
                'Timer',time1,...
                 'StateChangeConditions', {'Tup','WaitForChirp2','Port7In','Reward','GlobalTimer2_End','exit'},...
-                'OutputActions',{'PWM1', 20,'PWM2', 20,'PWM3', 20,'PWM4', 20,'PWM5', 20, 'PWM7', 20});          
+                'OutputActions',{'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50});          
               
             
             sma = AddState(sma, 'Name', 'WaitForChirp2', ...
                'Timer',time2,...
                 'StateChangeConditions', {'Tup',chirptrial,'Port7In','Reward','GlobalTimer2_End','exit', PortIn, 'ExtraFrontIn'},...
-                'OutputActions',{'PWM1', 20,'PWM2', 20,'PWM3', 20,'PWM4', 20,'PWM5', 20, 'PWM7', 20});          
+                'OutputActions',{'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50});          
              
             sma = AddState(sma, 'Name', 'ExtraFrontIn', ...
                 'Timer',GetValveTimes(S.GUI.ForageReward,Port),...
                 'StateChangeConditions', {'Tup','ExtraFrontGrace','GlobalTimer2_End','exit'},...
-                'OutputActions',{Valve,1,'PWM1', 20,'PWM2', 20,'PWM3', 20,'PWM4', 20,'PWM5', 20, 'PWM7', 20,'Wire1',1,'Wire2',1});
+                'OutputActions',{Valve,1,'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50,'Wire1',1,'Wire2',1});
             
             
              sma = AddState(sma, 'Name', 'ExtraFrontGrace', ...
                 'Timer',S.GUI.DrinkGrace,...
                 'StateChangeConditions', {'Tup','WaitForChirp3','GlobalTimer2_End','exit','Port7In','Reward'},...
-                'OutputActions',{'PWM1', 20,'PWM2', 20,'PWM3', 20,'PWM4', 20,'PWM5', 20, 'PWM7', 20}); 
+                'OutputActions',{'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50}); 
             
            
             
              sma = AddState(sma, 'Name', 'WaitForChirp3', ...
                'Timer',time3,...
                 'StateChangeConditions', {'Tup',chirptrial,'Port7In','Reward','GlobalTimer2_End','exit', PortIn2,'ExtraFrontIn2'},...
-                'OutputActions',{'PWM1', 20,'PWM2', 20,'PWM3', 20,'PWM4', 20,'PWM5', 20, 'PWM7', 20});    
+                'OutputActions',{'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50});    
             
              sma = AddState(sma, 'Name', 'ExtraFrontIn2', ...
                 'Timer',GetValveTimes(S.GUI.ForageReward,Port2),...
                 'StateChangeConditions', {'Tup','ExtraFrontGrace2','GlobalTimer2_End','exit'},...
-                'OutputActions',{Valve2,1,'PWM1', 20,'PWM2', 20,'PWM3', 20,'PWM4', 20,'PWM5', 20, 'PWM7', 20,'Wire1',1,'Wire2',1});
+                'OutputActions',{Valve2,1,'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50,'Wire1',1,'Wire2',1});
             
              sma = AddState(sma, 'Name', 'ExtraFrontGrace2', ...
                 'Timer',S.GUI.DrinkGrace,...
                 'StateChangeConditions', {'Tup','Abort','GlobalTimer2_End','exit','Port7In','Reward'},...
-                'OutputActions',{'PWM1', 20,'PWM2', 20,'PWM3', 20,'PWM4', 20,'PWM5', 20, 'PWM7', 20}); 
+                'OutputActions',{'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50}); 
             
-
- 
-%             sma = AddState(sma, 'Name', 'Chirp2', ...
-%                 'Timer',0.5,...
-%                 'StateChangeConditions', {'Tup','WaitForChirp2','Port7In','Reward','GlobalTimer2_End','exit'},...
-%                 'OutputActions',{'TeensyAudio1',PickChirp,'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50});
-%             
-%                         
-%              sma = AddState(sma, 'Name', 'WaitForChirp2', ...
-%                 'Timer',0.5,...
-%                 'StateChangeConditions', {'Tup','Chirp3','Port7In','Reward','GlobalTimer2_End','exit'},...
-%                 'OutputActions',{'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50});
-% %           
-%           
-%             sma = AddState(sma, 'Name', 'Chirp3', ...
-%                 'Timer',0.5,...
-%                 'StateChangeConditions', {'Tup','WaitForChirp3','Port7In','Reward','GlobalTimer2_End','exit'},...
-%                 'OutputActions',{'TeensyAudio1',PickChirp,'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50});
-%             
-%             sma = AddState(sma, 'Name', 'WaitForChirp3', ...
-%                 'Timer',0.5,...
-%                 'StateChangeConditions', {'Tup','Chirp4','Port7In','Reward','GlobalTimer2_End','exit'},...
-%                 'OutputActions',{'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50});
-% %           
-%           
-%             sma = AddState(sma, 'Name', 'Chirp4', ...
-%                 'Timer',0.5,...
-%                 'StateChangeConditions', {'Tup','WaitForChirp4','Port7In','Reward','GlobalTimer2_End','exit'},...
-%                 'OutputActions',{'TeensyAudio1',PickChirp,'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50});
-%             
-%             sma = AddState(sma, 'Name', 'WaitForChirp4', ...
-%                 'Timer',3,...
-%                 'StateChangeConditions', {'Tup','Abort','Port7In','Reward','GlobalTimer2_End','exit'},...
-%                 'OutputActions',{'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50})
 % % % Wire 3 denotes the Reward Back Port(65532)                       
 %         
             sma = AddState(sma, 'Name', 'Reward', ...
                 'Timer',rewardtime1,...
                 'StateChangeConditions', {'Tup','DrinkGrace7','GlobalTimer2_End','exit'},...
-                'OutputActions',{'Valve7',1,'Wire3',1,'PWM1', 20,'PWM2', 20,'PWM3', 20,'PWM4', 20,'PWM5', 20, 'PWM7', 20});
+                'OutputActions',{'Valve7',1,'Wire3',1,'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50});
 %             
              sma = AddState(sma, 'Name', 'DrinkGrace7', ...
                 'Timer',rtime,...
                 'StateChangeConditions', {'Tup','WaitForFirstPoke','GlobalTimer2_End','exit'},...
-                'OutputActions',{'PWM1', 20,'PWM2', 20,'PWM3', 20,'PWM4', 20,'PWM5', 20, 'PWM7', 20});
-%             
-%             
-%                 
-%             sma = AddState(sma, 'Name', 'PunishBackVisit', ...
-%                 'Timer',S.GUI.PuffTime,...
-%                 'StateChangeConditions', {'Tup','Punish','GlobalTimer2_End','exit'},...
-%                 'OutputActions',{'TeensyAudio1',3,'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50 'PWM7', 50});  %'ValveModule1',1,'Valve6'
-%             
-% %              sma = AddState(sma, 'Name', 'PuffClose', ...
-% %                 'Timer',0,...
-% %                 'StateChangeConditions', {'Tup','Punish','GlobalTimer2_End','exit'},...
-% %                 'OutputActions',{'ValveModule1',2,'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50});
+                'OutputActions',{'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50});
+
 % % CAN I HAVE A WIRE FOR ABORT??             
              sma = AddState(sma, 'Name', 'Abort', ...
                 'Timer',0,...
@@ -759,12 +704,7 @@ end
                 'Timer',S.GUI.PunishTime,...
                 'StateChangeConditions', {'Tup','exit','GlobalTimer2_End','exit'},...
                 'OutputActions',{'Wire1',1,'Wire3',1});
-%             
-%             
-%             sma = AddState(sma, 'Name', 'PunishFrontVisit', ...
-%                 'Timer',0,...
-%                 'StateChangeConditions', {'Tup','exit'},...
-%                 'OutputActions',{'Valve6',1});
+
 
 
             SendStateMatrix(sma);
@@ -814,7 +754,7 @@ for x = 1:Data.nTrials
     
         
     if ~isnan(Data.RawEvents.Trial{x}.States.Punish(1)) & isnan(Data.RawEvents.Trial{x}.States.Reward(1))
-        Outcomes(x) = 0;
+        Outcomes(x) = 0; % I think this is redundent 
     
     elseif ~isnan(Data.RawEvents.Trial{x}.States.Punish(1)) & ~isnan(Data.RawEvents.Trial{x}.States.Reward(1))
         Outcomes(x) = 1;

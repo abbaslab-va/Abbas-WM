@@ -1,6 +1,6 @@
-function DMTS_Tri_Training3
+function DMTS_Tri_Training2
 
-%The training protocol for a 4 port spatial working memory task. This
+%The training protocol for a 3 port spatial working memory task. This
 %script introduces punishments, extended delay period and early
 %withdrawals, as well as trial repeats.
 
@@ -12,15 +12,15 @@ if isempty(fieldnames(S))  % If settings file was an empty struct, populate stru
     S.GUI.SampleReward = 1;     %μl
     S.GUI.DelayReward = 1;      
     S.GUI.ChoiceReward = 5;     
-    S.GUI.ITI = 10;             %seconds
+    S.GUI.ITI = 5;             %seconds
     S.GUI.DelayHoldTime = 0;    
     S.GUI.DelayMaxHold = 0;
-    S.GUI.TimeIncrement = 0.05; %Start this value at .05 and increase up to 1
-    S.GUI.EarlyWithdrawalTimeout = 10;
-    S.GUI.PunishTime = 20;
+    S.GUI.TimeIncrement = 0.5; %Start this value at .05 and increase up to 1
+    S.GUI.EarlyWithdrawalTimeout = 5;
+    S.GUI.PunishTime = 10;
     S.GUI.SamplingFreq = 44100; %Sampling rate of wave player module (using max supported frequency)
-    S.GUI.SoundDuration = .5; % Duration of sound (s)
-    S.GUI.SinePitch = 10000; % Frequency of test tone
+    S.GUI.SoundDuration = .25; % Duration of sound (s)
+    S.GUI.SinePitch = 14000; % Frequency of test tone
 end
 
 %% Define trials
@@ -47,6 +47,7 @@ matDir = dir('*.mat');
 numSessions = numel(matDir);
 allTrials = [];
 allCorrect = [];
+sampleRewardOn = 0;
 if numSessions < 2
     doRepeat = zeros(1, numTT);
 else
@@ -58,6 +59,7 @@ else
             allTrials(end+1, :) = nTrials;
             allCorrect(end+1, :) = nCorrect;
         end
+        ewData = adaptive_early_withdrawal(SessionData);
     end
     allTrials = sum(allTrials, 1);
     allCorrect = sum(allCorrect, 1);
@@ -106,7 +108,7 @@ for currentTrial = 1:MaxTrials
 %     end
     switch currentTT
         case 1
-            SampleLight = {'PWM1', 50}; SampleValve = {'Valve1', 1};
+            SampleLight = {'PWM1', 50}; SampleValve = {'Valve1', sampleRewardOn};
             WhichSampleIn = {'Port1In'}; WhichSampleOut = {'Port1Out'};
             DelayLight = {'PWM2', 50}; DelayValve = {'Valve2', 1};
             WhichDelayIn = {'Port2In'}; WhichDelayOut = {'Port2Out'};
@@ -114,7 +116,7 @@ for currentTrial = 1:MaxTrials
             DelayValveTime = GetValveTimes(S.GUI.DelayReward, 2);
             ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 1);
         case 2
-            SampleLight = {'PWM1', 50}; SampleValve = {'Valve1', 1};
+            SampleLight = {'PWM1', 50}; SampleValve = {'Valve1', sampleRewardOn};
             WhichSampleIn = {'Port1In'}; WhichSampleOut = {'Port1Out'};
             DelayLight = {'PWM3', 50}; DelayValve = {'Valve3', 1};
             WhichDelayIn = {'Port3In'}; WhichDelayOut = {'Port3Out'};
@@ -122,7 +124,7 @@ for currentTrial = 1:MaxTrials
             DelayValveTime = GetValveTimes(S.GUI.DelayReward, 3);
             ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 1);
         case 3
-            SampleLight = {'PWM2', 50}; SampleValve = {'Valve2', 1};
+            SampleLight = {'PWM2', 50}; SampleValve = {'Valve2', sampleRewardOn};
             WhichSampleIn = {'Port2In'}; WhichSampleOut = {'Port2Out'};
             DelayLight = {'PWM1', 50}; DelayValve = {'Valve1', 1};
             WhichDelayIn = {'Port1In'}; WhichDelayOut = {'Port1Out'};
@@ -130,7 +132,7 @@ for currentTrial = 1:MaxTrials
             DelayValveTime = GetValveTimes(S.GUI.DelayReward, 1);
             ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 2);
         case 4
-            SampleLight = {'PWM2', 50}; SampleValve = {'Valve2', 1};
+            SampleLight = {'PWM2', 50}; SampleValve = {'Valve2', sampleRewardOn};
             WhichSampleIn = {'Port2In'}; WhichSampleOut = {'Port2Out'};
             DelayLight = {'PWM3', 50}; DelayValve = {'Valve3', 1};
             WhichDelayIn = {'Port3In'}; WhichDelayOut = {'Port3Out'};
@@ -138,7 +140,7 @@ for currentTrial = 1:MaxTrials
             DelayValveTime = GetValveTimes(S.GUI.DelayReward, 3);
             ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 2);
         case 5
-            SampleLight = {'PWM3', 50}; SampleValve = {'Valve3', 1};
+            SampleLight = {'PWM3', 50}; SampleValve = {'Valve3', sampleRewardOn};
             WhichSampleIn = {'Port3In'}; WhichSampleOut = {'Port3Out'};
             DelayLight = {'PWM1', 50}; DelayValve = {'Valve1', 1};
             WhichDelayIn = {'Port1In'}; WhichDelayOut = {'Port1Out'};
@@ -146,7 +148,7 @@ for currentTrial = 1:MaxTrials
             DelayValveTime = GetValveTimes(S.GUI.DelayReward, 1);
             ChoiceValveTime = GetValveTimes(S.GUI.ChoiceReward, 3);
         case 6
-            SampleLight = {'PWM3', 50}; SampleValve = {'Valve3', 1};
+            SampleLight = {'PWM3', 50}; SampleValve = {'Valve3', sampleRewardOn};
             WhichSampleIn = {'Port3In'}; WhichSampleOut = {'Port3Out'};
             DelayLight = {'PWM2', 50}; DelayValve = {'Valve2', 1};
             WhichDelayIn = {'Port2In'}; WhichDelayOut = {'Port2Out'};
@@ -163,18 +165,18 @@ for currentTrial = 1:MaxTrials
     sma = NewStateMatrix(); % Assemble state matrix
     sma = SetGlobalTimer(sma, 1, S.GUI.DelayHoldTime);
 
-    sma = AddState(sma, 'Name', 'ITI', 'Timer', S.GUI.ITI,...
+    sma = AddState(sma, 'Name', 'ITI', 'Timer', S.GUI.ITI/2,...
         'StateChangeConditions', {'Tup', 'ITI2'},...
         'OutputActions', {});
 
-    sma = AddState(sma, 'Name', 'ITI2', 'Timer', S.GUI.ITI-5,...
+    sma = AddState(sma, 'Name', 'ITI2', 'Timer', S.GUI.ITI/2,...
         'StateChangeConditions', {'Tup', 'WaitForSamplePoke', 'Port1In', 'ScanPunish',...
         'Port2In', 'ScanPunish', 'Port3In', 'ScanPunish'},...
         'OutputActions', {});
     
     sma = AddState(sma, 'Name', 'ScanPunish', 'Timer', 0,...
         'StateChangeConditions', {'Port1Out', 'ITI2', 'Port2Out', 'ITI2', 'Port3Out', 'ITI2',},...
-        'OutputActions', {'Valve6', 1});
+        'OutputActions', {'Valve8', 1});
     
     sma = AddState(sma, 'Name', 'WaitForSamplePoke', 'Timer', 0,...
         'StateChangeConditions', [WhichSampleIn, 'SampleOnHold', WrongPortsInSample(1), 'SampleOnHoldPunish',...
@@ -189,10 +191,14 @@ for currentTrial = 1:MaxTrials
         'StateChangeConditions', ['Tup', 'SamplePunish', WrongPortsOutSample(1), 'WaitForSamplePoke',...
         WrongPortsOutSample(2), 'WaitForSamplePoke'],...
         'OutputActions', SampleLight);
-    
+%     
     sma = AddState(sma, 'Name', 'SampleOn', 'Timer', SampleValveTime,...
         'StateChangeConditions', {'Tup', 'WaitForDelayPoke'},...
         'OutputActions', [SampleLight, SampleValve, 'TeensyAudio1', 1]);    
+% sample rewardremoved 7/5
+%     sma = AddState(sma, 'Name', 'SampleOn', 'Timer', SampleValveTime,...
+%         'StateChangeConditions', {'Tup', 'WaitForDelayPoke'},...
+%         'OutputActions', [SampleLight, 'TeensyAudio1', 1]);  
     
     %Early withdrawal states give no sample reward to prevent exploitation
     sma = AddState(sma, 'Name', 'WaitForSamplePokeEW', 'Timer', 0,...
@@ -225,7 +231,7 @@ for currentTrial = 1:MaxTrials
         'StateChangeConditions', ['Tup', 'DelayOn', 'GlobalTimer1_End', 'DelayOn', WhichDelayOut, 'DelayWaitForReentry'],...
         'OutputActions', DelayLight);
     
-    sma = AddState(sma, 'Name', 'DelayWaitForReentry', 'Timer', 1.25,...
+    sma = AddState(sma, 'Name', 'DelayWaitForReentry', 'Timer', 1,...
         'StateChangeConditions', ['Tup', 'EarlyWithdrawal', 'GlobalTimer1_End', 'DelayOn', WhichDelayIn, 'DelayOnHold'],...
         'OutputActions', DelayLight);
     
@@ -249,34 +255,36 @@ for currentTrial = 1:MaxTrials
         'StateChangeConditions', {'Tup', 'exit'},...
         'OutputActions', [SampleValve]);
     
-    sma = AddState(sma, 'Name', 'SamplePunish', 'Timer', 3,...
-        'StateChangeConditions', {'Tup', 'WaitForSamplePoke'},...
-        'OutputActions', {'Valve6', 1});
+    sma = AddState(sma, 'Name', 'SamplePunish', 'Timer', 0,...
+        'StateChangeConditions', {WrongPortsOutSample(1), 'WaitForSamplePoke',...
+        WrongPortsOutSample(2), 'WaitForSamplePoke'},...
+        'OutputActions', {'Valve8', 1});
     
-    sma = AddState(sma, 'Name', 'SamplePunishEW', 'Timer', 3,...
-        'StateChangeConditions', {'Tup', 'WaitForSamplePokeEW'},...
-        'OutputActions', {'Valve6', 1});
+    sma = AddState(sma, 'Name', 'SamplePunishEW', 'Timer', 0,...
+        'StateChangeConditions', {WrongPortsOutSample(1), 'WaitForSamplePokeEW',...
+        WrongPortsOutSample(2), 'WaitForSamplePokeEW'},...
+        'OutputActions', {'Valve8', 1});
     
     if RepeatTrial
         sma = AddState(sma, 'Name', 'Punish', 'Timer', S.GUI.PunishTime,...
             'StateChangeConditions', {'Tup', 'ITI2'},...
-            'OutputActions', {'Valve6', 1});
+            'OutputActions', {'Valve8', 1});
     else
         
         sma = AddState(sma, 'Name', 'Punish', 'Timer', S.GUI.PunishTime,...
             'StateChangeConditions', {'Tup', 'exit'},...
-            'OutputActions', {'Valve6', 1});
+            'OutputActions', {'Valve8', 1});
         
     end
     
     sma = AddState(sma, 'Name', 'EarlyWithdrawal', 'Timer', 3,...
         'StateChangeConditions', {'Tup', 'EarlyWithdrawalTimeout'},...
-        'OutputActions', {'Valve6', 1});
+        'OutputActions', {'Valve8', 1});
     
     
     sma = AddState(sma, 'Name', 'BadDelayPoke', 'Timer', 3,...
         'StateChangeConditions', {'Tup', 'WaitForSamplePokeEW'},...
-        'OutputActions', {'Valve6', 1});
+        'OutputActions', {'Valve8', 1});
     
     sma = AddState(sma, 'Name', 'EarlyWithdrawalTimeout', 'Timer', S.GUI.EarlyWithdrawalTimeout,...
         'StateChangeConditions', {'Tup', 'WaitForSamplePokeEW'},...
@@ -289,6 +297,7 @@ for currentTrial = 1:MaxTrials
         BpodSystem.Data = AddTrialEvents(BpodSystem.Data,RawEvents); % Computes trial events from raw data
         BpodSystem.Data = BpodNotebook('sync', BpodSystem.Data); % Sync with Bpod notebook plugin
         BpodSystem.Data.TrialTypes(currentTrial) = TrialTypes(currentTrial);
+        BpodSystem.Data.GUI(currentTrial) = S.GUI;
         UpdateTrialTypeOutcomePlot(TrialTypes, BpodSystem.Data);
         SaveBpodSessionData; % Saves the field BpodSystem.Data to the current data file
     end

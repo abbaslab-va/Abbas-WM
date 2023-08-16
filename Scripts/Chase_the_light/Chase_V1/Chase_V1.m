@@ -29,7 +29,7 @@ end
 BpodSystem.Data.TrialTypes = []; 
 %% Initialize plots
 
-BpodSystem.ProtocolFigures.OutcomePlotFig = figure('Position', [153 857 1000 400],'name','Duration plot','numbertitle','off', 'MenuBar', 'none', 'Resize', 'off');
+BpodSystem.ProtocolFigures.OutcomePlotFig = figure('Position', [50 340 1000 400],'name','Duration plot','numbertitle','off', 'MenuBar', 'none', 'Resize', 'off');
 BpodSystem.GUIHandles.TrialDurationPlot = axes('Position', [.075 .3 .89 .6]);
 xlabel(BpodSystem.GUIHandles.TrialDurationPlot,'Trial number')
 ylabel(BpodSystem.GUIHandles.TrialDurationPlot,'Time to port (s)')
@@ -133,7 +133,9 @@ t3Scatter = scatter(BpodSystem.GUIHandles.TrialDurationPlot, T3_inds, Outcomes(T
 end
 if exist('t1Scatter', 'var') && exist ('t2Scatter', 'var') && exist('t3Scatter', 'var')
     legend(BpodSystem.GUIHandles.TrialDurationPlot, [timePlot, t1Scatter, t2Scatter, t3Scatter],"", "Back (high)", "Right", "Left")
-
+%     if BpodSystem.GUIHandles.TrialDurationPlot.YLim(2) >30
+%         BpodSystem.GUIHandles.TrialDurationPlot.YLim(2)= 30;
+%     end
 end
 
 

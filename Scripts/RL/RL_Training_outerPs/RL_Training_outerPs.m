@@ -1,4 +1,4 @@
-function RL_Training
+function RL_Training_outerPs
 
 
 %%Template script -- used to build new bpod behavior scripts
@@ -9,7 +9,7 @@ global BpodSystem
 S = BpodSystem.ProtocolSettings; % Load settings chosen in launch manager into current workspace as a struct called S
 if isempty(fieldnames(S))  % If settings file was an empty struct, populate struct with default settings
     S.GUI.ITI = 1;
-    S.GUI.SmallReward = 1;  %ul
+    S.GUI.SmallReward = 0;  %ul
     S.GUI.MainReward = 5; 
     S.GUI.PunishTime= 5 %ul
 end
@@ -21,15 +21,15 @@ matDir = dir('*.mat');
 numSessions = numel(matDir);
 possibleTT = [1 2];
 ttCounter=0;
-% if numSessions
-%     load(matDir(numSessions).name);
-%     tt = SessionData.TrialTypes;
-%     lastStart = tt(1);
-%     startingTT = possibleTT(possibleTT ~= lastStart);
-% else
-    % Set this value manually during the first session
+if numSessions
+    load(matDir(numSessions).name);
+    tt = SessionData.TrialTypes;
+    lastStart = tt(1);
+    startingTT = possibleTT(possibleTT ~= lastStart);
+else
+    %Set this value manually during the first session
     startingTT = input('Enter a starting trial type, bitch (1 or 2):\n')
-% end
+end
 
 %% Define trials
 numTrialTypes = 1;
@@ -53,11 +53,19 @@ for currentTrial = 1:MaxTrials
     sma = NewStateMatrix(); % Assemble state matrix
     switch TrialTypes(currentTrial) % Determine trial-specific state matrix fields
         case 1 %Left
-            leftCode = 1;
-            rightCode = 2;
+            leftreward=GetValveTimes(S.GUI.MainReward,1);
+            rightValve = {'Valve5', 0};
+            leftValve = {'Valve1', 1};
+            rightreward=0;
+            leftCode=1;
+            rightCode=2;
         case 2 %Right
-            leftCode = 2;
-            rightCode = 1;
+            rightreward=GetValveTimes(S.GUI.MainReward,5);
+            rightValve = {'Valve5', 1};
+            leftValve = {'Valve1', 0};
+            leftreward=0;
+            leftCode=2;
+            rightCode=1;
     end 
     %Waiting for first choice, sample start (needs valve calibration)
     
@@ -66,46 +74,46 @@ for currentTrial = 1:MaxTrials
         'OutputActions', {});
 
     sma = AddState(sma, 'Name', 'WaitForCenterPoke', 'Timer', 0,...
-        'StateChangeConditions', {'Port3In', 'CenterReward'},...
+        'StateChangeConditions', {'Port3In', 'WaitForOuterPoke'},...
         'OutputActions', {'PWM3', 40});
-
-    sma = AddState(sma, 'Name', 'CenterReward', 'Timer', GetValveTimes(S.GUI.SmallReward, 3),...
-        'StateChangeConditions', {'Tup', 'WaitForOuterPoke'},...
-        'OutputActions', {'PWM3', 40, 'Valve3', 1});        
+    
     
     sma = AddState(sma, 'Name', 'WaitForOuterPoke', 'Timer', 0,... 
-        'StateChangeConditions', {'Port1In', 'LeftCode', 'Port5In', 'RightReward'},...
+        'StateChangeConditions', {'Port1In', 'leftChoice', 'Port5In', 'rightChoice'},...
         'OutputActions', {'PWM1', 40, 'PWM5', 40});
     
     % mabye put a Tup in here? 
 
-    sma = AddState(sma, 'Name', 'LeftCode', 'Timer', 0,...
-        'StateChangeConditions', {'Tup', 'SetRewardSize'},...
-        'OutputActions', {'PWM1', 40, 'SoftCode', leftCode});
+    sma = AddState(sma, 'Name', 'leftChoice', 'Timer', leftreward,...
+        'StateChangeConditions', {'Tup', 'leftSend'},...
+        'OutputActions', ['PWM1', 40, leftValve]);
+    
+      sma = AddState(sma, 'Name', 'leftSend', 'Timer', 0,...
+        'StateChangeConditions', {'Tup', 'Outcome'},...
+        'OutputActions', {'PWM1', 40,'SoftCode',leftCode});
 
-    sma = AddState(sma, 'Name', 'RightReward', 'Timer', 0,...
-        'StateChangeConditions', {'Tup', 'SetRewardSize'},...
-        'OutputActions', {'PWM5', 40, 'SoftCode', rightCode});
+    sma = AddState(sma, 'Name', 'rightChoice', 'Timer', rightreward,...
+        'StateChangeConditions', {'Tup', 'rightSend'},...
+        'OutputActions', ['PWM1', 40, rightValve]);
+    
+    sma = AddState(sma, 'Name', 'rightSend', 'Timer', 0,...
+        'StateChangeConditions', {'Tup', 'Outcome'},...
+        'OutputActions', {'PWM1', 40,'SoftCode',rightCode});
 
-    sma = AddState(sma, 'Name', 'SetRewardSize', 'Timer', 0,...
-        'StateChangeConditions', {'SoftCode1', 'WaitForBackRewarded', 'SoftCode2', 'WaitForBackUnrewarded'},...
+    
+    
+    sma = AddState(sma, 'Name', 'Outcome', 'Timer', 0,...
+        'StateChangeConditions', {'SoftCode1', 'Reward', 'SoftCode2', 'Punish'},...
         'OutputActions', {});
 
-    sma = AddState(sma, 'Name', 'WaitForBackRewarded', 'Timer', 0,...
-        'StateChangeConditions', {'Port7In', 'BackReward'},...
-        'OutputActions', {'PWM7', 40});
-
-    sma = AddState(sma, 'Name', 'BackReward', 'Timer', GetValveTimes(S.GUI.MainReward, 7),...
+    sma = AddState(sma, 'Name', 'Reward', 'Timer', 0,...
         'StateChangeConditions', {'Tup', 'exit'},...
-        'OutputActions', {'PWM7', 40, 'Valve7', 1});
+        'OutputActions', {});
 
-    sma = AddState(sma, 'Name', 'WaitForBackUnrewarded', 'Timer', 0,...
-        'StateChangeConditions', {'Port7In', 'exit'},...
-        'OutputActions', {'PWM7', 40});
-    
-%     sma = AddState(sma, 'Name', 'Punish', 'Timer',S.GUI.PunishTime,...
-%         'StateChangeConditions', {'Tup','exit'},...
-%         'OutputActions', {'Valve6', 1});
+
+    sma = AddState(sma, 'Name', 'Punish', 'Timer',0,...
+        'StateChangeConditions', {'Tup','exit'},...
+        'OutputActions', {});
     
     
 
@@ -138,7 +146,7 @@ function UpdateTrialTypeOutcomePlot(TrialTypes, Data)
 global BpodSystem
 Outcomes = zeros(1,Data.nTrials);
 for x = 1:Data.nTrials    
-    if ~isnan(Data.RawEvents.Trial{x}.States.BackReward(1))
+    if ~isnan(Data.RawEvents.Trial{x}.States.Reward(1))
         Outcomes(x) = 1;
     else
         Outcomes(x) = 0;
