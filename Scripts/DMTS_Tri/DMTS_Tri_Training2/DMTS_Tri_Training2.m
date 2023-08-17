@@ -52,18 +52,22 @@ if numSessions < 2
     doRepeat = zeros(1, numTT);
 else
 %     for sess = numSessions-2:numSessions
-    for sess = numSessions-1:numSessions
-        load(matDir(sess).name);
-        [nTrials, nCorrect] = bpod_performance(SessionData, 1);
-        if numel(nTrials) == numTT
-            allTrials(end+1, :) = nTrials;
-            allCorrect(end+1, :) = nCorrect;
+    try
+        for sess = numSessions-1:numSessions
+            load(matDir(sess).name);
+            [nTrials, nCorrect] = bpod_performance(SessionData, 1);
+            if numel(nTrials) == numTT
+                allTrials(end+1, :) = nTrials;
+                allCorrect(end+1, :) = nCorrect;
+            end
+            ewData = adaptive_early_withdrawal(SessionData);
         end
-        ewData = adaptive_early_withdrawal(SessionData);
+        allTrials = sum(allTrials, 1);
+        allCorrect = sum(allCorrect, 1);
+        doRepeat = allCorrect./allTrials < 0.5;
+    catch
+        doRepeat = zeros(1, numTT);
     end
-    allTrials = sum(allTrials, 1);
-    allCorrect = sum(allCorrect, 1);
-    doRepeat = allCorrect./allTrials < 0.5;
 end
 %% Initialize teensy audio module and load sound
 
@@ -241,15 +245,15 @@ for currentTrial = 1:MaxTrials
     
     sma = AddState(sma, 'Name', 'WaitForChoicePoke', 'Timer', 0,...
         'StateChangeConditions', [WhichSampleIn, 'ChoiceOnHold', WrongPortsInDelay(1), 'ChoiceOnHoldPunish'],...
-        'OutputActions', {SampleLight});
+        'OutputActions', SampleLight);
     
     sma = AddState(sma, 'Name', 'ChoiceOnHold', 'Timer', .05,...
         'StateChangeConditions', ['Tup', 'ChoiceOn', WhichSampleOut, 'WaitForChoicePoke'],...
-        'OutputActions', {SampleLight});
+        'OutputActions', SampleLight);
     
     sma = AddState(sma, 'Name', 'ChoiceOnHoldPunish', 'Timer', .05,...
         'StateChangeConditions', ['Tup', 'Punish', WrongPortsOutDelay(1), 'WaitForChoicePoke'],...
-        'OutputActions', {SampleLight});
+        'OutputActions', SampleLight);
     
     sma = AddState(sma, 'Name', 'ChoiceOn', 'Timer', ChoiceValveTime,...
         'StateChangeConditions', {'Tup', 'exit'},...
