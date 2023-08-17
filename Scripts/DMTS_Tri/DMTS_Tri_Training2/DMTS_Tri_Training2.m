@@ -11,11 +11,11 @@ S = BpodSystem.ProtocolSettings; % Load settings chosen in launch manager into c
 if isempty(fieldnames(S))  % If settings file was an empty struct, populate struct with default settings
     S.GUI.SampleReward = 1;     %μl
     S.GUI.DelayReward = 1;      
-    S.GUI.ChoiceReward = 5;     
+    S.GUI.ChoiceReward = 6;     
     S.GUI.ITI = 5;             %seconds
     S.GUI.DelayHoldTime = 0;    
     S.GUI.DelayMaxHold = 0;
-    S.GUI.TimeIncrement = 0.5; %Start this value at .05 and increase up to 1
+    S.GUI.TimeIncrement = 0.1; %Start this value at .05 and increase up to 1
     S.GUI.EarlyWithdrawalTimeout = 5;
     S.GUI.PunishTime = 10;
     S.GUI.SamplingFreq = 44100; %Sampling rate of wave player module (using max supported frequency)
@@ -63,7 +63,7 @@ else
     end
     allTrials = sum(allTrials, 1);
     allCorrect = sum(allCorrect, 1);
-    doRepeat = allCorrect./allTrials <= 0.5;
+    doRepeat = allCorrect./allTrials < 0.5;
 end
 %% Initialize teensy audio module and load sound
 
@@ -241,15 +241,15 @@ for currentTrial = 1:MaxTrials
     
     sma = AddState(sma, 'Name', 'WaitForChoicePoke', 'Timer', 0,...
         'StateChangeConditions', [WhichSampleIn, 'ChoiceOnHold', WrongPortsInDelay(1), 'ChoiceOnHoldPunish'],...
-        'OutputActions', {});
+        'OutputActions', {SampleLight});
     
     sma = AddState(sma, 'Name', 'ChoiceOnHold', 'Timer', .05,...
         'StateChangeConditions', ['Tup', 'ChoiceOn', WhichSampleOut, 'WaitForChoicePoke'],...
-        'OutputActions', {});
+        'OutputActions', {SampleLight});
     
-    sma = AddState(sma, 'Name', 'ChoiceOnHoldPunish', 'Timer', .1,...
+    sma = AddState(sma, 'Name', 'ChoiceOnHoldPunish', 'Timer', .05,...
         'StateChangeConditions', ['Tup', 'Punish', WrongPortsOutDelay(1), 'WaitForChoicePoke'],...
-        'OutputActions', {});
+        'OutputActions', {SampleLight});
     
     sma = AddState(sma, 'Name', 'ChoiceOn', 'Timer', ChoiceValveTime,...
         'StateChangeConditions', {'Tup', 'exit'},...

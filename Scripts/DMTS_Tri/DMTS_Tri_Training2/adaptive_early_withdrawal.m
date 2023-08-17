@@ -21,7 +21,7 @@ if ~isfield(session, 'GUI')
         delayLen(trial) = rawData.OriginalStateTimestamps{trial}(lastDelayOn) - rawData.OriginalStateTimestamps{trial}(lastDelayStart);
     end
 else
-    delayLen = cellfun(@(x) x.DelayHoldTime, session.GUI);
+    delayLen = extractfield(session.GUI, 'DelayHoldTime');
 end
 
 for trial = 1:session.nTrials
