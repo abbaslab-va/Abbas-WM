@@ -1,4 +1,4 @@
-function RL_Training
+function RL_Training_outerPs
 
 
 %%Template script -- used to build new bpod behavior scripts
@@ -21,15 +21,15 @@ matDir = dir('*.mat');
 numSessions = numel(matDir);
 possibleTT = [1 2];
 ttCounter=0;
-% if numSessions
-%     load(matDir(numSessions).name);
-%     tt = SessionData.TrialTypes;
-%     lastStart = tt(1);
-%     startingTT = possibleTT(possibleTT ~= lastStart);
-% else
-    % Set this value manually during the first session
+if numSessions
+    load(matDir(numSessions).name);
+    tt = SessionData.TrialTypes;
+    lastStart = tt(1);
+    startingTT = possibleTT(possibleTT ~= lastStart);
+else
+    %Set this value manually during the first session
     startingTT = input('Enter a starting trial type, bitch (1 or 2):\n')
-% end
+end
 
 %% Define trials
 numTrialTypes = 1;
@@ -53,19 +53,19 @@ for currentTrial = 1:MaxTrials
     sma = NewStateMatrix(); % Assemble state matrix
     switch TrialTypes(currentTrial) % Determine trial-specific state matrix fields
         case 1 %Left
-            leftreward=GetValveTimes(S.GUI.MainReward,1)
+            leftreward=GetValveTimes(S.GUI.MainReward,1);
             rightValve = {'Valve5', 0};
             leftValve = {'Valve1', 1};
-            rightreward=0
-            leftCode=1
-            rightCode=2
+            rightreward=0;
+            leftCode=1;
+            rightCode=2;
         case 2 %Right
-            rightreward=GetValveTimes(S.GUI.MainReward,5)
+            rightreward=GetValveTimes(S.GUI.MainReward,5);
             rightValve = {'Valve5', 1};
             leftValve = {'Valve1', 0};
-            leftreward=0
-            leftCode=2
-            rightCode=1
+            leftreward=0;
+            leftCode=2;
+            rightCode=1;
     end 
     %Waiting for first choice, sample start (needs valve calibration)
     
@@ -85,13 +85,23 @@ for currentTrial = 1:MaxTrials
     % mabye put a Tup in here? 
 
     sma = AddState(sma, 'Name', 'leftChoice', 'Timer', leftreward,...
+        'StateChangeConditions', {'Tup', 'leftSend'},...
+        'OutputActions', ['PWM1', 40, leftValve]);
+    
+      sma = AddState(sma, 'Name', 'leftSend', 'Timer', 0,...
         'StateChangeConditions', {'Tup', 'Outcome'},...
-        'OutputActions', ['PWM1', 40, leftValve,'SoftCode',leftCode]);
+        'OutputActions', {'PWM1', 40,'SoftCode',leftCode});
 
     sma = AddState(sma, 'Name', 'rightChoice', 'Timer', rightreward,...
+        'StateChangeConditions', {'Tup', 'rightSend'},...
+        'OutputActions', ['PWM1', 40, rightValve]);
+    
+    sma = AddState(sma, 'Name', 'rightSend', 'Timer', 0,...
         'StateChangeConditions', {'Tup', 'Outcome'},...
-        'OutputActions', ['PWM1', 40, rightValve,'SoftCode',rightCode]);
+        'OutputActions', {'PWM1', 40,'SoftCode',rightCode});
 
+    
+    
     sma = AddState(sma, 'Name', 'Outcome', 'Timer', 0,...
         'StateChangeConditions', {'SoftCode1', 'Reward', 'SoftCode2', 'Punish'},...
         'OutputActions', {});
@@ -101,9 +111,9 @@ for currentTrial = 1:MaxTrials
         'OutputActions', {});
 
 
-%     sma = AddState(sma, 'Name', 'Punish', 'Timer',0,...
-%         'StateChangeConditions', {'Tup','exit'},...
-%         'OutputActions', {});
+    sma = AddState(sma, 'Name', 'Punish', 'Timer',0,...
+        'StateChangeConditions', {'Tup','exit'},...
+        'OutputActions', {});
     
     
 
