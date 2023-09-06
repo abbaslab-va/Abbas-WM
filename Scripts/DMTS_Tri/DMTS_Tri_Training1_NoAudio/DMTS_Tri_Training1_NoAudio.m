@@ -10,7 +10,7 @@ global BpodSystem
 S = BpodSystem.ProtocolSettings; % Load settings chosen in launch manager into current workspace as a struct called S
 if isempty(fieldnames(S))  % If settings file was an empty struct, populate struct with default settings
     S.GUI.SampleReward = 1;     %μl
-    S.GUI.DelayReward = 3;      
+    S.GUI.DelayReward = 2;      
     S.GUI.ChoiceReward = 7;     
     S.GUI.ITI = 5;             %seconds
     S.GUI.DelayHoldTime = 0;    
@@ -180,7 +180,7 @@ for currentTrial = 1:MaxTrials
         'StateChangeConditions', ['Tup', 'DelayOn', 'GlobalTimer1_End', 'DelayOn', WhichDelayOut, 'DelayWaitForReentry'],...
         'OutputActions', DelayLight);
     
-    sma = AddState(sma, 'Name', 'DelayWaitForReentry', 'Timer', 0.5,...
+    sma = AddState(sma, 'Name', 'DelayWaitForReentry', 'Timer', 0.75,...
         'StateChangeConditions', ['Tup', 'EarlyWithdrawal', 'GlobalTimer1_End', 'DelayOn', WhichDelayIn, 'DelayOnHold'],...
         'OutputActions', DelayLight);
     
