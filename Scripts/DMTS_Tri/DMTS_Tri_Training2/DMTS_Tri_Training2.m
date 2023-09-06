@@ -10,12 +10,13 @@ global BpodSystem
 S = BpodSystem.ProtocolSettings; % Load settings chosen in launch manager into current workspace as a struct called S
 if isempty(fieldnames(S))  % If settings file was an empty struct, populate struct with default settings
     S.GUI.SampleReward = 1;     %μl
-    S.GUI.DelayReward = 1;      
+    S.GUI.DelayReward = 2;      
     S.GUI.ChoiceReward = 6;     
     S.GUI.ITI = 5;             %seconds
     S.GUI.DelayHoldTime = 0;    
     S.GUI.DelayMaxHold = 0;
-    S.GUI.TimeIncrement = 0.5; %Start this value at .05 and increase up to 1
+    S.GUI.EarlyIncrement = 0.5;
+    S.GUI.TimeIncrement = 0.2; %Start this value at .05 and increase up to 1
     S.GUI.EarlyWithdrawalTimeout = 5;
     S.GUI.PunishTime = 10;
     S.GUI.SamplingFreq = 44100; %Sampling rate of wave player module (using max supported frequency)
@@ -96,8 +97,10 @@ BpodParameterGUI('init', S); % Initialize parameter GUI plugin
 for currentTrial = 1:MaxTrials
 % %     repeated = 0;
     RepeatTrial = doRepeat(TrialTypes(currentTrial));
-    if S.GUI.DelayMaxHold < 7
+    if S.GUI.DelayMaxHold < 7 && S.GUI.DelayMaxHold >= 3
         S.GUI.DelayMaxHold = S.GUI.DelayMaxHold + S.GUI.TimeIncrement;
+    elseif S.GUI.DelayMaxHold < 3
+        S.GUI.DelayMaxHold = S.GUI.DelayMaxHold + S.GUI.EarlyIncrement;
     end
     if S.GUI.DelayMaxHold > 3
         S.GUI.DelayHoldTime = randsample(3:.1:S.GUI.DelayMaxHold, 1);
