@@ -8,7 +8,10 @@ global BpodSystem
 
 S = BpodSystem.ProtocolSettings; % Load settings chosen in launch manager into current workspace as a struct called S
 if isempty(fieldnames(S))  % If settings file was an empty struct, populate struct with default settings
-    S.GUI.ITI = 1; 
+    S.GUI.ITI = 1;     
+    S.GUI.SamplingFreq = 44100; %Sampling rate of wave player module (using max supported frequency)
+    S.GUI.SoundDuration = .25; % Duration of sound (s)
+    S.GUI.SinePitch = 14000; % Frequency of test tone
 end
 
 %% Define trials
@@ -28,6 +31,29 @@ TrialTypeOutcomePlot(BpodSystem.GUIHandles.TrialTypeOutcomePlot,'init',TrialType
 BpodNotebook('init');
 BpodParameterGUI('init', S); % Initialize parameter GUI plugin
 
+%% Test analog output module
+
+if (isfield(BpodSystem.ModuleUSB, 'AudioPlayer1'))
+    AudioPlayerUSB = BpodSystem.ModuleUSB.AudioPlayer1;
+else
+    error('Error: To run this protocol, you must first pair the AudioPlayer1 module with its USB port. Click the USB config button on the Bpod console.')
+end
+A = BpodAudioPlayer(AudioPlayerUSB);
+% SF = S.GUI.SamplingFreq;
+SF = A.Info.maxSamplingRate; % Use max supported sampling rate
+
+SampleTone = GenerateSineWave(SF, S.GUI.SinePitch, S.GUI.SoundDuration)*.6; % Sampling freq (hz), Sine frequency (hz), duration (s)
+% A.SamplingRate = SF;
+A.BpodEvents = 'On';
+A.TriggerMode = 'Master';
+A.loadSound(1, SampleTone);
+% Set Bpod serial message library with correct codes to trigger sounds 1-4 on analog output channels 1-2
+analogPortIndex = find(strcmp(BpodSystem.Modules.Name, 'AudioPlayer1'));
+if isempty(analogPortIndex)
+    error('Error: Bpod AudioPlayer module not found. If you just plugged it in, please restart Bpod.')
+end
+LoadSerialMessages('AudioPlayer1', {['P' 0], ['P' 1], ['P' 2], ['P' 3]});
+
 %% Main trial loop
 for currentTrial = 1:MaxTrials
     
@@ -43,8 +69,12 @@ for currentTrial = 1:MaxTrials
     %Waiting for first choice, sample start (needs valve calibration)
     
     sma = AddState(sma, 'Name', 'ITI', 'Timer', S.GUI.ITI,...
-        'StateChangeConditions', {'Tup', 'exit'},...
+        'StateChangeConditions', {'Tup', 'PlaySound'},...
         'OutputActions', {});
+
+    sma = AddState(sma, 'Name', 'PlaySound', 'Timer', S.GUI.SoundDuration,...
+        'StateChangeConditions', {'Tup', 'exit'},...
+        'OutputActions', {'AudioPlayer1', 1});
     
     SendStateMatrix(sma);
     
