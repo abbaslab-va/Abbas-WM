@@ -9,12 +9,13 @@ global BpodSystem
 
 S = BpodSystem.ProtocolSettings; % Load settings chosen in launch manager into current workspace as a struct called S
 if isempty(fieldnames(S))  % If settings file was an empty struct, populate struct with default settings
-    S.GUI.SampleReward = 1;     %μl
-    S.GUI.DelayReward = 3;      
-    S.GUI.ChoiceReward = 7;     
-    S.GUI.ITI = 5;             %seconds
+    S.GUI.SampleReward = 1;         %μl
+    S.GUI.DelayReward = 2;      
+    S.GUI.ChoiceReward = 6;     
+    S.GUI.ITI = 5;                  %seconds
     S.GUI.DelayHoldTime = 0;    
-    S.GUI.TimeIncrement = 0.05; %Start this value at .05 and increase up to 1
+    S.GUI.EarlyIncrement = 0.05;    %Start this value at .05 and increase up to 1
+    S.GUI.TimeIncrement = 0.05;     %Start this value at .05 and increase up to 1 
     S.GUI.DelayMaxHold = 0;
     S.GUI.EarlyWithdrawalTimeout = 5;
     S.GUI.PunishTime = 10;
@@ -30,7 +31,6 @@ numTT = 6;
 trialsPerType = 20;
 MaxTrials = numTT * trialsPerType;
 TrialTypes = zeros(1, MaxTrials);
-numEW=0;
 for fill = 1:trialsPerType
     block = randperm(numTT);
     TrialTypes(fill*numTT-(numTT-1):fill*numTT) = block;
@@ -68,20 +68,18 @@ for currentTrial = 1:MaxTrials
         
     S = BpodParameterGUI('sync', S);
     currentTT = TrialTypes(currentTrial);
-    if S.GUI.DelayMaxHold < 7
+    if S.GUI.DelayMaxHold < 7 && S.GUI.DelayMaxHold >= 3
         S.GUI.DelayMaxHold = S.GUI.DelayMaxHold + S.GUI.TimeIncrement;
+    elseif S.GUI.DelayMaxHold < 3
+        S.GUI.DelayMaxHold = S.GUI.DelayMaxHold + S.GUI.EarlyIncrement;
     end
+
     if S.GUI.DelayMaxHold > 3
         S.GUI.DelayHoldTime = randsample(3:.1:S.GUI.DelayMaxHold, 1);
     else
         S.GUI.DelayHoldTime = S.GUI.DelayMaxHold;
     end
-    if numEW
-        S.GUI.DelayHoldTime = S.GUI.DelayHoldTime - S.GUI.TimeIncrement;
-    end
-%     if currentTT > numTT
-%         currentTT = currentTT - numTT;
-%     end
+
     switch currentTT
         case 1
             SampleLight = {'PWM1', 50}; SampleValve = {'Valve1', 1};
@@ -203,8 +201,12 @@ for currentTrial = 1:MaxTrials
         'StateChangeConditions', ['Tup', 'DelayOn', 'GlobalTimer1_End', 'DelayOn', WhichDelayOut, 'DelayWaitForReentry'],...
         'OutputActions', DelayLight);
     
-    sma = AddState(sma, 'Name', 'DelayWaitForReentry', 'Timer', 0.5,...
-        'StateChangeConditions', ['Tup', 'EarlyWithdrawal', 'GlobalTimer1_End', 'DelayOn', WhichDelayIn, 'DelayOnHold'],...
+     sma = AddState(sma, 'Name', 'DelayWaitForReentry', 'Timer', 1,...
+        'StateChangeConditions', ['Tup', 'EarlyWithdrawal', 'GlobalTimer1_End', 'WaitForReentryDelayOver', WhichDelayIn, 'DelayOnHold'],...
+        'OutputActions', DelayLight);
+
+    sma = AddState(sma, 'Name', 'WaitForReentryDelayOver', 'Timer', 1,...
+        'StateChangeConditions', ['Tup', 'EarlyWithdrawal', WhichDelayIn, 'DelayOn'],...
         'OutputActions', DelayLight);
     
     sma = AddState(sma, 'Name', 'DelayOn', 'Timer', DelayValveTime,...
@@ -237,23 +239,13 @@ for currentTrial = 1:MaxTrials
         WrongPortsOutSample(2), 'WaitForSamplePoke'},...
         'OutputActions', {'Valve8', 1});
     
-%     if RepeatTrial
-%     
-%         sma = AddState(sma, 'Name', 'Punish', 'Timer', S.GUI.PunishTime,...
-%             'StateChangeConditions', {'Tup', 'ITI2'},...
-%             'OutputActions', {'Valve6', 1});
-%     else
-%         
-        sma = AddState(sma, 'Name', 'Punish', 'Timer', S.GUI.PunishTime,...
-            'StateChangeConditions', {'Tup', 'exit'},...
-            'OutputActions', {'Valve8', 1});
-        
-%     end
-    
+    sma = AddState(sma, 'Name', 'Punish', 'Timer', S.GUI.PunishTime,...
+        'StateChangeConditions', {'Tup', 'exit'},...
+        'OutputActions', {'Valve8', 1});
+     
     sma = AddState(sma, 'Name', 'EarlyWithdrawal', 'Timer', 3,...
         'StateChangeConditions', {'Tup', 'EarlyWithdrawalTimeout'},...
         'OutputActions', {'Valve8', 1});
-    
     
     sma = AddState(sma, 'Name', 'BadDelayPoke', 'Timer', 3,...
         'StateChangeConditions', {'Tup', 'WaitForSamplePokeEW'},...
@@ -270,6 +262,7 @@ for currentTrial = 1:MaxTrials
         BpodSystem.Data = AddTrialEvents(BpodSystem.Data,RawEvents); % Computes trial events from raw data
         BpodSystem.Data = BpodNotebook('sync', BpodSystem.Data); % Sync with Bpod notebook plugin
         BpodSystem.Data.TrialTypes(currentTrial) = TrialTypes(currentTrial);
+        BpodSystem.Data.GUI(currentTrial) = S.GUI;
         UpdateTrialTypeOutcomePlot(TrialTypes, BpodSystem.Data);
         SaveBpodSessionData; % Saves the field BpodSystem.Data to the current data file
     end
@@ -277,8 +270,6 @@ for currentTrial = 1:MaxTrials
     if BpodSystem.Status.BeingUsed == 0
         return
     end
-    ewStates = BpodSystem.Data.RawEvents.Trial{currentTrial}.States.EarlyWithdrawal(1, :);
-    numEW = numel(ewStates(~isnan(ewStates)));
 end
 
 function UpdateTrialTypeOutcomePlot(TrialTypes, Data)
