@@ -36,6 +36,7 @@ BpodSystem.Data.TrialTypes = [];
 
 %% Initialize plots
 BpodSystem.ProtocolFigures.OutcomePlotFig = figure('Position', [50 340 1000 400],'name','Outcome plot','numbertitle','off', 'MenuBar', 'none', 'Resize', 'off');
+sgtitle(BpodSystem.GUIData.SubjectName)
 BpodSystem.GUIHandles.TrialTypeOutcomePlot = axes('Position', [.075 .3 .89 .6]);
 TrialTypeOutcomePlot(BpodSystem.GUIHandles.TrialTypeOutcomePlot,'init',TrialTypes);
 BpodNotebook('init');
