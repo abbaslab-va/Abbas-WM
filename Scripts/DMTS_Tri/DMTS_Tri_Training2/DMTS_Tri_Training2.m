@@ -15,8 +15,8 @@ if isempty(fieldnames(S))  % If settings file was an empty struct, populate stru
     S.GUI.ITI = 5;             %seconds
     S.GUI.DelayHoldTime = 0;    
     S.GUI.DelayMaxHold = 0;
-    S.GUI.EarlyIncrement = 0.5;
-    S.GUI.TimeIncrement = 0.2; %Start this value at .05 and increase up to 1
+    S.GUI.EarlyIncrement = 1;
+    S.GUI.TimeIncrement = 1; %Start this value at .05 and increase up to 1
     S.GUI.EarlyWithdrawalTimeout = 5;
     S.GUI.PunishTime = 10;
     S.GUI.SamplingFreq = 44100; %Sampling rate of wave player module (using max supported frequency)
@@ -60,13 +60,13 @@ else
                 allTrials(end+1, :) = nTrials;
                 allCorrect(end+1, :) = nCorrect;
             end
-            ewData = adaptive_early_withdrawal(SessionData);
+%             ewData = adaptive_early_withdrawal(SessionData);
         end
         allTrials = sum(allTrials, 1);
         allCorrect = sum(allCorrect, 1);
-        doRepeat = allCorrect./allTrials < 0.5;
+        doRepeat = allCorrect./allTrials < 0.5
     catch
-        doRepeat = zeros(1, numTT);
+        doRepeat = zeros(1, numTT)
     end
 end
 %% Initialize teensy audio module and load sound
