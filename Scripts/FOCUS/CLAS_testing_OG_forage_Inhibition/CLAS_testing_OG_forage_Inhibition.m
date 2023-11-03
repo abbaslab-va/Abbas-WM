@@ -1,6 +1,6 @@
 
 
-function CLAS_testing_OG
+function CLAS_testing_OG_forage_Inhibition
 
 %%% 3/23 for males I took out the tup in chirp1 state. It now once again
 %%% waites for a port out, I also added punish light and tine out of 5
@@ -24,8 +24,8 @@ if exist('PulsePalSystem')
     EndPulsePal
 end
 PulsePal()
-params=load('ppParams.mat')
-ProgramPulsePal(params)
+load('ppParams.mat')
+ProgramPulsePal(ParameterMatrix)
 
 
 %% Define parameters
@@ -68,6 +68,7 @@ for fill = 1:100
     TrialTypes(fill*16-15:fill*16) = pick; 
 
 end 
+TrialTypes
 % indices2=randperm(18);
 %     block=[7 8 9 10 11 12 7 8 9 10 11 12 7 8 9 10 11 12];
 %     pickBegin=block(indices2);
@@ -174,8 +175,8 @@ elseif PortIn2=='Port5In'
 end 
 
 delayLength=randsample(1:5,1)
-ProgramPulsePalParam(1,12,delayLength)
-ProgramPulsePalParam(2,12,delayLength)
+ProgramPulsePalParam(1,11,delayLength)
+ProgramPulsePalParam(2,11,delayLength)
 switch TrialTypes(currentTrial)
     %case 1:6 Chirp with laser ON
     case 1 
@@ -405,8 +406,8 @@ end
           
         sma = NewStateMachine(); % Initialize new state machine description
         
-          sma=SetGlobalTimer(sma,'TimerID',1,'Duration',PickDur)
-          sma=SetGlobalTimer(sma,'TimerID',2,'Duration',S.GUI.TrialTime)
+          sma=SetGlobalTimer(sma,'TimerID',1,'Duration',PickDur);
+          sma=SetGlobalTimer(sma,'TimerID',2,'Duration',S.GUI.TrialTime);
         
                
 %First Wire (65529) Stamps begining on Trial Start (Start of ITI)
@@ -428,8 +429,14 @@ end
         
         sma = AddState(sma, 'Name', 'TriggerTimers2', ...
             'Timer',0,...
-            'StateChangeConditions', {'Tup','WaitForFirstPoke'},...
+            'StateChangeConditions', {'Tup','TriggerLaser'},...
             'OutputActions',{'GlobalTimerTrig',1});
+        
+            
+        sma = AddState(sma, 'Name', 'TriggerLaser', ...
+            'Timer',0,...
+            'StateChangeConditions', {'Tup','WaitForFirstPoke'},...
+            'OutputActions',LazerON);
         
         %     
 % sma = AddState(sma, 'Name', 'Prime1', ...
@@ -464,12 +471,14 @@ end
 %             'OutputActions',{'TeensyAudio1',PickNoise,'Wire2',1,'Wire3',1});            
         
 
-          sma = AddState(sma, 'Name', 'WaitForFirstPoke', ...
+        sma = AddState(sma, 'Name', 'WaitForFirstPoke', ...
             'Timer',0,...
             'StateChangeConditions', {'Port1In','Port1InMark','Port2In','Port2InMark','Port3In','Port3InMark','Port4In','Port4InMark','Port5In','Port5InMark','GlobalTimer2_End','exit','GlobalTimer1_End','Chirp1'},...
             'OutputActions',{'PWM1', 20,'PWM2', 20,'PWM3', 20,'PWM4', 20,'PWM5', 20, 'PWM7', 20});
         
         
+       
+
          sma = AddState(sma, 'Name', 'Port1InMark', ...
             'Timer',0,...
             'StateChangeConditions', {'GlobalTimer1_End','Chirp1','Tup','WaitForPoke','GlobalTimer2_End','exit'},...
@@ -634,19 +643,19 @@ end
              sma = AddState(sma, 'Name', 'Laser', ...
                 'Timer',0.5,...
                 'StateChangeConditions', {'Tup','ChirpPlay','GlobalTimer2_End','exit'},...
-                'OutputActions',[LazerON,'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50]);
+                'OutputActions',{'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50});
 
 % % % Wire 2 denotes the Playing of the Chirp (65530)   
 
              sma = AddState(sma, 'Name', 'ChirpPlay', ...
                 'Timer',0.5,...
                 'StateChangeConditions', {'Tup','Laser2','GlobalTimer2_End','exit','Port7In','Reward'},...
-                'OutputActions',['TeensyAudio1',PickChirp,LazerON,'Wire2',1,'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50]);
+                'OutputActions',{'TeensyAudio1',PickChirp,'Wire2',1,'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50});
             
              sma = AddState(sma, 'Name', 'Laser2', ...
                 'Timer',0.5,...
                 'StateChangeConditions', {'Tup','WaitForChirp1','Port7In','Reward','GlobalTimer2_End','exit'},...
-                'OutputActions',[LazerON,'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50]);
+                'OutputActions',{'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50});
             
              
              sma = AddState(sma, 'Name', 'WaitForChirp1', ...
