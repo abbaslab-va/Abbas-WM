@@ -31,12 +31,12 @@ if isempty(fieldnames(S))  % If settings file was an empty struct, populate stru
     %S.GUI.SweepUpLow=10000;
     %S.GUI.SweepUpHigh=14000;
     S.GUI.SinePitch = 10000; % Frequency of test tone
-    S.GUI.SoundDuration = 0.5;
+    S.GUI.SoundDuration = 2;
     S.GUI.SamplingFreq = 44100;
     S.GUI.PunishTime=1;
     S.GUI.PuffTime=0.25; 
     S.GUI.DrinkGrace=0.5;
-    S.GUI.TrialTime=20;
+    S.GUI.TrialTime=15;
  
 end
 %%
@@ -129,12 +129,12 @@ switch TrialTypes(currentTrial)
     case 1 
         rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
         PickChirp=1;
-        PickDur=3;
+        PickDur=5;
         
       case 2 
         rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
         PickChirp=1;
-        PickDur=3;
+        PickDur=9;
         
        case 3 
         rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
@@ -148,40 +148,40 @@ switch TrialTypes(currentTrial)
          case 5 
         rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
         PickChirp=1;
-            PickDur=10;
+            PickDur=8;
         
            case 6 
         rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
         PickChirp=1;
-            PickDur=10;
+            PickDur=8;
         
           case 7 
         rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
         PickChirp=1;
-            PickDur=4;
+            PickDur=5;
         
            case 8 
         rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
         PickChirp=1;
-            PickDur=4;
+            PickDur=6;
         
            case 9 
         rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
         PickChirp=1;
-            PickDur=2;
+            PickDur=8;
         
            case 10 
         rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
         PickChirp=1;
-        PickDur=2;
+        PickDur=4;
              case 11 
         rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
         PickChirp=1;
-        PickDur=2;
+        PickDur=4;
              case 12 
         rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
         PickChirp=1;
-        PickDur=3;
+        PickDur=6;
              case 13 
         rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
         PickChirp=1;
@@ -189,11 +189,11 @@ switch TrialTypes(currentTrial)
              case 14 
         rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
         PickChirp=1;
-        PickDur=10;
+        PickDur=4;
              case 15 
         rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
         PickChirp=1;
-        PickDur=10;
+        PickDur=5;
              case 16
         rewardtime1=GetValveTimes(S.GUI.ChirpReward,7)
         PickChirp=1
@@ -232,8 +232,8 @@ end
                  
         
          sma = AddState(sma, 'Name', 'ChirpPlay', ...
-                'Timer',0.5,...
-                'StateChangeConditions', {'Tup','WaitForBackPoke'},...
+                'Timer',2,...
+                'StateChangeConditions', {'Tup','WaitForBackPoke','Port7In','Reward'},...
                 'OutputActions',{'TeensyAudio1',PickChirp,'PWM1', 50,'PWM2', 50,'PWM3', 50,'PWM4', 50,'PWM5', 50, 'PWM7', 50});
             
             
