@@ -7,8 +7,9 @@ function ewData = adaptive_early_withdrawal(session)
 rawEvents = session.RawEvents.Trial;
 numEW = zeros(1, session.nTrials);
 delayLen = numEW;
+delayIncrement = delayLen;
 
-if ~isfield(session, 'GUI')
+% if ~isfield(session, 'GUI')
     rawData = session.RawData;
     for trial = 1:session.nTrials
         stateNames = rawData.OriginalStateNamesByNumber{trial};
@@ -33,4 +34,4 @@ for trial = 1:session.nTrials
     end
 end
 
-ewData = [];
+ewData = [delayLen; numEW; delayIncrement];

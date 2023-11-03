@@ -1,4 +1,4 @@
-function DMTS_Tri_Training2
+function DMTS_Tri_Training2_NoAudio
 
 %The training protocol for a 3 port spatial working memory task. This
 %script introduces punishments, extended delay period and early
@@ -15,13 +15,10 @@ if isempty(fieldnames(S))  % If settings file was an empty struct, populate stru
     S.GUI.ITI = 5;             %seconds
     S.GUI.DelayHoldTime = 0;    
     S.GUI.DelayMaxHold = 0;
-    S.GUI.EarlyIncrement = 1;
-    S.GUI.TimeIncrement = 1; %Start this value at .05 and increase up to 1
+    S.GUI.EarlyIncrement = 0.75;
+    S.GUI.TimeIncrement = 0.25; %Start this value at .05 and increase up to 1
     S.GUI.EarlyWithdrawalTimeout = 5;
     S.GUI.PunishTime = 10;
-    S.GUI.SamplingFreq = 44100; %Sampling rate of wave player module (using max supported frequency)
-    S.GUI.SoundDuration = .25; % Duration of sound (s)
-    S.GUI.SinePitch = 14000; % Frequency of test tone
 end
 
 %% Define trials
@@ -60,33 +57,16 @@ else
                 allTrials(end+1, :) = nTrials;
                 allCorrect(end+1, :) = nCorrect;
             end
-%             ewData = adaptive_early_withdrawal(SessionData);
+            ewData = adaptive_early_withdrawal(SessionData);
         end
         allTrials = sum(allTrials, 1);
         allCorrect = sum(allCorrect, 1);
-        doRepeat = allCorrect./allTrials < 0.5
+        doRepeat = allCorrect./allTrials < 0.5;
     catch
-        doRepeat = zeros(1, numTT)
+        doRepeat = zeros(1, numTT);
     end
 end
-%% Initialize teensy audio module and load sound
 
-if (isfield(BpodSystem.ModuleUSB, 'TeensyAudio1'))
-    TeensyAudioUSB = BpodSystem.ModuleUSB.TeensyAudio1;
-else
-    error('Error: To run this protocol, you must first pair the TeensyAudio1 module with its USB port. Click the USB config button on the Bpod console.')
-end
-
-T = TeensyAudioPlayer(TeensyAudioUSB);
-
-SF = S.GUI.SamplingFreq;
-SampleTone = GenerateSineWave(SF, S.GUI.SinePitch, S.GUI.SoundDuration)*.6; % Sampling freq (hz), Sine frequency (hz), duration (s)
-% Program sound server
-T.load(1, SampleTone);
-analogPortIndex = find(strcmp(BpodSystem.Modules.Name, 'TeensyAudio1'));
-if isempty(analogPortIndex)
-    error('Error: Bpod TeensyAudio module not found. If you just plugged it in, please restart Bpod.')
-end
 %% Initialize plots
 BpodSystem.ProtocolFigures.OutcomePlotFig = figure('Position', [50 340 1000 400],'name','Outcome plot','numbertitle','off', 'MenuBar', 'none', 'Resize', 'off');
 BpodSystem.GUIHandles.TrialTypeOutcomePlot = axes('Position', [.075 .3 .89 .6]);
@@ -200,12 +180,8 @@ for currentTrial = 1:MaxTrials
 %     
     sma = AddState(sma, 'Name', 'SampleOn', 'Timer', SampleValveTime,...
         'StateChangeConditions', {'Tup', 'WaitForDelayPoke'},...
-        'OutputActions', [SampleLight, SampleValve, 'TeensyAudio1', 1]);    
-% sample rewardremoved 7/5
-%     sma = AddState(sma, 'Name', 'SampleOn', 'Timer', SampleValveTime,...
-%         'StateChangeConditions', {'Tup', 'WaitForDelayPoke'},...
-%         'OutputActions', [SampleLight, 'TeensyAudio1', 1]);  
-    
+        'OutputActions', [SampleLight, SampleValve]);
+   
     %Early withdrawal states give no sample reward to prevent exploitation
     sma = AddState(sma, 'Name', 'WaitForSamplePokeEW', 'Timer', 0,...
         'StateChangeConditions', [WhichSampleIn, 'SampleOnHoldEW', WrongPortsInSample(1), 'SampleOnHoldPunishEW',...
@@ -223,7 +199,7 @@ for currentTrial = 1:MaxTrials
     
     sma = AddState(sma, 'Name', 'SampleOnEW', 'Timer', 0,...
         'StateChangeConditions', {'Tup', 'WaitForDelayPoke'},...
-        'OutputActions', [SampleLight, 'TeensyAudio1', 1]); 
+        'OutputActions', SampleLight); 
 
     sma = AddState(sma, 'Name', 'WaitForDelayPoke', 'Timer', 0,...
         'StateChangeConditions', [WhichDelayIn, 'DelayTimer', WrongPortsInDelay(1), 'BadDelayPoke'],...
