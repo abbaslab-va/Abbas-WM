@@ -176,22 +176,22 @@ for currentTrial = 1:MaxTrials
         case 1 % Sample Stim 1
             sampleStim = {'BNC1', 1};
             delayStim = {};
-            currParams = paramMat{1};
+            currParams = paramMat{1}.ParameterMatrix;
             ProgramPulsePal(currParams);
         case 2 % Delay Stim 1
             sampleStim = {};
             delayStim = {'BNC1', 1};
-            currParams = paramMat{1};
+            currParams = paramMat{1}.ParameterMatrix;
             ProgramPulsePal(currParams);
         case 3 % Sample Stim 2
             sampleStim = {'BNC1', 1};
             delayStim = {};
-            currParams = paramMat{2};
+            currParams = paramMat{2}.ParameterMatrix;
             ProgramPulsePal(currParams);
         case 4 % Delay Stim 2
             sampleStim = {};
             delayStim = {'BNC1', 1};
-            currParams = paramMat{2};
+            currParams = paramMat{2}.ParameterMatrix;
             ProgramPulsePal(currParams);
     end
             
