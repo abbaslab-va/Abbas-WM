@@ -354,6 +354,7 @@ for currentTrial = 1:MaxTrials
         BpodSystem.Data = AddTrialEvents(BpodSystem.Data,RawEvents); % Computes trial events from raw data
         BpodSystem.Data = BpodNotebook('sync', BpodSystem.Data); % Sync with Bpod notebook plugin
         BpodSystem.Data.TrialTypes(currentTrial) = TrialTypes(currentTrial);
+        BpodSystem.Data.StimTypes(currentTrial) = StimTypes(currentTrial);
         BpodSystem.Data.GUI(currentTrial) = S.GUI;
         try
         UpdateTrialTypeOutcomePlot(TrialTypes, BpodSystem.Data);
