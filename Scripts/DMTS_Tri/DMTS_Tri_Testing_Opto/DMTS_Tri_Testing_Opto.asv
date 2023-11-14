@@ -197,16 +197,13 @@ for currentTrial = 1:MaxTrials
             currParams = paramMat{2}.ParameterMatrix;
             ProgramPulsePal(currParams);
     end
-    notSamp = isempty(sampleStim);
-    notDel= isempty(delayStim);
-    if ~notSamp
-        disp(['Trial: ', num2str(currentTrial), ' SAMPLE STIM'])
+    isSamp = isempty(sampleStim);
+    isDel= isempty(delayStim);
+    if isSamp
+        disp(['Trial: ', num2str(currentTrial), 'SAMPLE STIM'])
     end
-    if ~notDel
-        disp(['Trial: ', num2str(currentTrial), ' DELAY STIM'])
-    end
-    if (notDel+notSamp)==2
-        disp(['Trial: ', num2str(currentTrial), ' NO STIM'])
+    if isDel
+        disp(['Trial: ', num2str(currentTrial), 'DELAY STIM'])
     end
     WrongPortsInSample = setdiff(AllPortsIn, WhichSampleIn);
     WrongPortsOutSample = setdiff(AllPortsOut, WhichSampleOut);
