@@ -174,11 +174,13 @@ for currentTrial = 1:MaxTrials
     
     switch current_stim
         case 0 % No Stim
+            sampleTimerTrig = {};
             sampleStim = {};
             sampleStop = {};
             delayStim = {};
             delayStop = {};
         case 1 % Sample Stim 1
+            sampleTimerTrig = {'GlobalTimerTrig', 2};
             sampleStim = {'BNC1', 1, 'SoftCode', 1};
             sampleStop = {'SoftCode', 2};
             delayStim = {};
@@ -186,6 +188,7 @@ for currentTrial = 1:MaxTrials
             currParams = paramMat{1}.ParameterMatrix;
             ProgramPulsePal(currParams);
         case 2 % Delay Stim 1
+            sampleTimerTrig = {'GlobalTimerTrig', 2};
             sampleStim = {};
             sampleStop = {};
             delayStim = {'BNC1', 1, 'SoftCode', 1};
@@ -193,6 +196,7 @@ for currentTrial = 1:MaxTrials
             currParams = paramMat{1}.ParameterMatrix;
             ProgramPulsePal(currParams);
         case 3 % Sample Stim 2
+            sampleTimerTrig = {'GlobalTimerTrig', 2};
             sampleStim = {'BNC1', 1, 'SoftCode', 1};
             sampleStop = {'SoftCode', 2};
             delayStim = {};
@@ -200,6 +204,7 @@ for currentTrial = 1:MaxTrials
             currParams = paramMat{2}.ParameterMatrix;
             ProgramPulsePal(currParams);
         case 4 % Delay Stim 2
+            sampleTimerTrig = {'GlobalTimerTrig', 2};
             sampleStim = {};
             sampleStop = {};
             delayStim = {'BNC1', 1, 'SoftCode', 1};
@@ -242,11 +247,11 @@ for currentTrial = 1:MaxTrials
 
     sma = AddState(sma, 'Name', 'SampleStimTimer', 'Timer', 0,...
         'StateChangeConditions', {'Tup', 'WaitForSamplePoke'},...
-        'OutputActions', {'GlobalTimerTrig', 2});
+        'OutputActions', sampleTimerTrig);
  
      sma = AddState(sma, 'Name', 'SampleStimTimerEW', 'Timer', 0,...
         'StateChangeConditions', {'Tup', 'WaitForSamplePokeEW'},...
-        'OutputActions', {'GlobalTimerTrig', 2});   
+        'OutputActions', sampleTimerTrig);   
 
         % When sample on hold starts, if it's a sample-stim trial, trigger stim
     % start and 30-s stim timeout w/trial abort
