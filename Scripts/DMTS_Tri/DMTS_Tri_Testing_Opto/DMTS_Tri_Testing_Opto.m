@@ -175,25 +175,35 @@ for currentTrial = 1:MaxTrials
     switch current_stim
         case 0 % No Stim
             sampleStim = {};
+            sampleStop = {};
             delayStim = {};
+            delayStop = {};
         case 1 % Sample Stim 1
             sampleStim = {'BNC1', 1, 'SoftCode', 1};
+            sampleStop = {'SoftCode', 2};
             delayStim = {};
+            delayStop = {};
             currParams = paramMat{1}.ParameterMatrix;
             ProgramPulsePal(currParams);
         case 2 % Delay Stim 1
             sampleStim = {};
+            sampleStop = {};
             delayStim = {'BNC1', 1, 'SoftCode', 1};
+            delayStop = {'SoftCode', 2};
             currParams = paramMat{1}.ParameterMatrix;
             ProgramPulsePal(currParams);
         case 3 % Sample Stim 2
             sampleStim = {'BNC1', 1, 'SoftCode', 1};
+            sampleStop = {'SoftCode', 2};
             delayStim = {};
+            delayStop = {};
             currParams = paramMat{2}.ParameterMatrix;
             ProgramPulsePal(currParams);
         case 4 % Delay Stim 2
             sampleStim = {};
+            sampleStop = {};
             delayStim = {'BNC1', 1, 'SoftCode', 1};
+            delayStop = {'SoftCode', 2};
             currParams = paramMat{2}.ParameterMatrix;
             ProgramPulsePal(currParams);
     end
@@ -290,7 +300,7 @@ for currentTrial = 1:MaxTrials
     % Trigger sample off
     sma = AddState(sma, 'Name', 'DelayTimer', 'Timer', 0,...
         'StateChangeConditions', {'Tup', 'DelayOnHold'},...
-        'OutputActions', {'GlobalTimerTrig', 1, 'SoftCode', 2}); % trigger
+        'OutputActions', {'GlobalTimerTrig', 1, sampleStop}); % trigger
     
     sma = AddState(sma, 'Name', 'DelayOnHold', 'Timer', S.GUI.DelayHoldTime,...
         'StateChangeConditions', ['Tup', 'DelayOn', 'GlobalTimer1_End', 'DelayOn', WhichDelayOut, 'DelayWaitForReentry'],...
@@ -302,7 +312,7 @@ for currentTrial = 1:MaxTrials
     
     sma = AddState(sma, 'Name', 'DelayOn', 'Timer', DelayValveTime,...
         'StateChangeConditions', {'Tup', 'WaitForChoicePoke'},...
-        'OutputActions', [DelayLight, DelayValve, 'SoftCode', 2]);
+        'OutputActions', [DelayLight, DelayValve, delayStop]);
     
     sma = AddState(sma, 'Name', 'WaitForChoicePoke', 'Timer', 0,...
         'StateChangeConditions', [WhichSampleIn, 'ChoiceOnHold', WrongPortsInDelay(1), 'ChoiceOnHoldPunish'],...
@@ -322,13 +332,13 @@ for currentTrial = 1:MaxTrials
     
     sma = AddState(sma, 'Name', 'SamplePunish', 'Timer', 0,...
         'StateChangeConditions', {WrongPortsOutSample(1), 'WaitForSamplePoke',...
-        WrongPortsOutSample(2), 'WaitForSamplePoke'},...
-        'OutputActions', {'Valve8', 1});
+        WrongPortsOutSample(2), 'WaitForSamplePoke', 'GlobalTimer2_End', 'SampleStimTimeout'},...
+        'OutputActions', ['Valve8', 1, sampleStim]);
     
     sma = AddState(sma, 'Name', 'SamplePunishEW', 'Timer', 0,...
         'StateChangeConditions', {WrongPortsOutSample(1), 'WaitForSamplePokeEW',...
-        WrongPortsOutSample(2), 'WaitForSamplePokeEW'},...
-        'OutputActions', {'Valve8', 1});
+        WrongPortsOutSample(2), 'WaitForSamplePokeEW', 'GlobalTimer2_End', 'SampleStimTimeout'},...
+        'OutputActions', ['Valve8', 1, sampleStim]);
     
 
     sma = AddState(sma, 'Name', 'Punish', 'Timer', S.GUI.PunishTime,...
@@ -338,12 +348,12 @@ for currentTrial = 1:MaxTrials
     
     sma = AddState(sma, 'Name', 'EarlyWithdrawal', 'Timer', 3,...
         'StateChangeConditions', {'Tup', 'EarlyWithdrawalTimeout'},...
-        'OutputActions', {'Valve8', 1, 'SoftCode', 2});
+        'OutputActions', ['Valve8', 1, delayStop]);
     
     
     sma = AddState(sma, 'Name', 'BadDelayPoke', 'Timer', 3,...
-        'StateChangeConditions', {'Tup', 'WaitForSamplePokeEW'},...
-        'OutputActions', {'Valve8', 1});
+        'StateChangeConditions', {'Tup', 'WaitForSamplePokeEW', 'GlobalTimer2_End', 'SampleStimTimeout'},...
+        'OutputActions', ['Valve8', 1, sampleStim]);
     
     sma = AddState(sma, 'Name', 'EarlyWithdrawalTimeout', 'Timer', S.GUI.EarlyWithdrawalTimeout,...
         'StateChangeConditions', {'Tup', 'SampleStimTimerEW'},...
@@ -352,7 +362,7 @@ for currentTrial = 1:MaxTrials
     
      sma = AddState(sma, 'Name', 'SampleStimTimeout', 'Timer', OptoTimeOut,...
         'StateChangeConditions', {'Tup', 'ITI2'},...
-        'OutputActions', {});
+        'OutputActions', sampleStop);
     
     SendStateMatrix(sma);
     
