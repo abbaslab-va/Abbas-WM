@@ -188,7 +188,7 @@ for currentTrial = 1:MaxTrials
             currParams = paramMat{1}.ParameterMatrix;
             ProgramPulsePal(currParams);
         case 2 % Delay Stim 1
-            sampleTimerTrig = {'GlobalTimerTrig', 2};
+            sampleTimerTrig = {};
             sampleStim = {};
             sampleStop = {};
             delayStim = {'BNC1', 1, 'SoftCode', 1};
@@ -204,7 +204,7 @@ for currentTrial = 1:MaxTrials
             currParams = paramMat{2}.ParameterMatrix;
             ProgramPulsePal(currParams);
         case 4 % Delay Stim 2
-            sampleTimerTrig = {'GlobalTimerTrig', 2};
+            sampleTimerTrig = {};
             sampleStim = {};
             sampleStop = {};
             delayStim = {'BNC1', 1, 'SoftCode', 1};
@@ -305,7 +305,7 @@ for currentTrial = 1:MaxTrials
     % Trigger sample off
     sma = AddState(sma, 'Name', 'DelayTimer', 'Timer', 0,...
         'StateChangeConditions', {'Tup', 'DelayOnHold'},...
-        'OutputActions', {'GlobalTimerTrig', 1, sampleStop}); % trigger
+        'OutputActions', ['GlobalTimerTrig', 1, sampleStop]); % trigger
     
     sma = AddState(sma, 'Name', 'DelayOnHold', 'Timer', S.GUI.DelayHoldTime,...
         'StateChangeConditions', ['Tup', 'DelayOn', 'GlobalTimer1_End', 'DelayOn', WhichDelayOut, 'DelayWaitForReentry'],...
