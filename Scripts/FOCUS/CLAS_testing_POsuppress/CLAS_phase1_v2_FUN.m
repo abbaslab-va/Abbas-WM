@@ -1,5 +1,4 @@
-function stateName=CLAS_phase1_v2_FUN(byte)
-
+function CLAS_phase1_v2_FUN(byte)
 global BpodSystem
 %global visited 
 %disp(num2str(byte))
@@ -49,9 +48,25 @@ elseif byte==5
             disp('port active =4')
         end
         
- elseif byte==6
-    SendBpodSoftCode(6)
-
+% elseif byte==6
+%     choose=randsample([1:5],1) 
+%         if choose==1
+%             SendBpodSoftCode(1)
+%             disp('port active =1')
+%         elseif choose==2
+%             SendBpodSoftCode(2)
+%             disp('port active =2')
+%         elseif choose==3
+%             SendBpodSoftCode(3)
+%             disp('port active =3')
+%         elseif choose==4
+%             SendBpodSoftCode(4)
+%             disp('port active =4')
+%         elseif choose==5
+%             SendBpodSoftCode(5)
+%             disp('port active =5')   
+%         end        
+%         
         
 else 
     disp('poop')
