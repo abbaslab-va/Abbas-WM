@@ -14,8 +14,8 @@ if isempty(fieldnames(S))  % If settings file was an empty struct, populate stru
     S.GUI.ChoiceReward = 6;     
     S.GUI.ITI = 5;                  %seconds
     S.GUI.DelayHoldTime = 0;    
-    S.GUI.EarlyIncrement = 0.15;    %Start this value at .05 and increase up to 1
-    S.GUI.TimeIncrement = 0.05;     %Start this value at .05 and increase up to 1 
+    S.GUI.EarlyIncrement = 0.75;    %Start this value at .05 and increase up to 1
+    S.GUI.TimeIncrement = 0.25;     %Start this value at .05 and increase up to 1 
     S.GUI.DelayMaxHold = 0;
     S.GUI.EarlyWithdrawalTimeout = 5;
     S.GUI.PunishTime = 10;
@@ -36,7 +36,7 @@ BpodSystem.Data.TrialTypes = [];
 
 %% Initialize plots
 BpodSystem.ProtocolFigures.OutcomePlotFig = figure('Position', [50 340 1000 400],'name','Outcome plot','numbertitle','off', 'MenuBar', 'none', 'Resize', 'off');
-sgtitle(BpodSystem.GUIData.SubjectName)
+ 
 BpodSystem.GUIHandles.TrialTypeOutcomePlot = axes('Position', [.075 .3 .89 .6]);
 TrialTypeOutcomePlot(BpodSystem.GUIHandles.TrialTypeOutcomePlot,'init',TrialTypes);
 BpodNotebook('init');
@@ -244,6 +244,9 @@ for currentTrial = 1:MaxTrials
         UpdateTrialTypeOutcomePlot(TrialTypes, BpodSystem.Data);
         SaveBpodSessionData; % Saves the field BpodSystem.Data to the current data file
     end
+    
+    
+    
     HandlePauseCondition; % Checks to see if the protocol is paused. If so, waits until user resumes.
     if BpodSystem.Status.BeingUsed == 0
         return

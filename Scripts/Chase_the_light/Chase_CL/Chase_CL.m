@@ -1,4 +1,4 @@
-function Chase_V1
+function Chase_CL
 
 %The training protocol for a 4 port spatial working memory task. This
 %script introduces punishments, extended delay period and early
@@ -9,8 +9,8 @@ global BpodSystem
 
 S = BpodSystem.ProtocolSettings; % Load settings chosen in launch manager into current workspace as a struct called S
 if isempty(fieldnames(S))  % If settings file was an empty struct, populate struct with default settings
-    S.GUI.Large_reward_vol = 3;     %μl
-    S.GUI.Small_reward_vol = 3;     %μl  
+    S.GUI.Large_reward_vol = 15;     %μl
+    S.GUI.Small_reward_vol = 15;     %μl  
     S.GUI.ITI = 1;             %seconds
 end
 
@@ -26,6 +26,10 @@ for i = 2:MaxTrials
     Available_trials = setdiff([1:3], TrialTypes(i-1));
     TrialTypes(i) = randsample(Available_trials,1);
 end
+
+PunishTime = 1;
+MaxPunishTime = 15;
+
 BpodSystem.Data.TrialTypes = []; 
 %% Initialize plots
 
@@ -46,14 +50,17 @@ for currentTrial = 1:MaxTrials
         case 1 % Port #1 (Back) - Large reward
             SampleLight = {'PWM1', 50}; SampleValve = {'Valve1', 1};
             WhichSampleIn = {'Port1In'}; WhichSampleOut = {'Port1Out'};
+            WrongInA = {'Port2In'}; WrongInB = {'Port3In'};
             SampleValveTime = GetValveTimes(S.GUI.Large_reward_vol, 1);
         case 2 % Port #2 (Right)
             SampleLight = {'PWM2', 50}; SampleValve = {'Valve2', 1};
             WhichSampleIn = {'Port2In'}; WhichSampleOut = {'Port2Out'};
+            WrongInA = {'Port1In'}; WrongInB = {'Port3In'};
             SampleValveTime = GetValveTimes(S.GUI.Small_reward_vol, 2);
         case 3 % Port #3 (Left)
             SampleLight = {'PWM3', 50}; SampleValve = {'Valve3', 1};
             WhichSampleIn = {'Port3In'}; WhichSampleOut = {'Port3Out'};
+            WrongInA = {'Port1In'}; WrongInB = {'Port2In'};
             SampleValveTime = GetValveTimes(S.GUI.Small_reward_vol, 3);
     end
     
@@ -68,19 +75,21 @@ for currentTrial = 1:MaxTrials
         'StateChangeConditions', {'Tup', 'WaitForSamplePoke'},...
         'OutputActions', {'Wire1', 1});
     
-
     sma = AddState(sma, 'Name', 'WaitForSamplePoke', 'Timer', 0,...
-        'StateChangeConditions', [WhichSampleIn, 'SampleOnHold'],...
+        'StateChangeConditions', [WhichSampleIn, 'SampleOnHold', WrongInA, 'Punish', WrongInB, 'Punish'],...
         'OutputActions', SampleLight);
     
     sma = AddState(sma, 'Name', 'SampleOnHold', 'Timer', .05,...
         'StateChangeConditions', ['Tup', 'SampleReward', WhichSampleOut, 'WaitForSamplePoke'],...
         'OutputActions', SampleLight);
     
-    
     sma = AddState(sma, 'Name', 'SampleReward', 'Timer', SampleValveTime,...
         'StateChangeConditions', {'Tup', 'exit'},...
-        'OutputActions', [SampleLight, SampleValve, 'Wire2', 1]);    
+        'OutputActions', [SampleLight, SampleValve, 'Wire2', 1]);
+    
+    sma = AddState(sma, 'Name', 'Punish', 'Timer', PunishTime,...
+        'StateChangeConditions', {'Tup', 'exit'},...
+        'OutputActions', {'Wire3', 1});
     
     SendStateMatrix(sma);
     
@@ -96,6 +105,9 @@ for currentTrial = 1:MaxTrials
     if BpodSystem.Status.BeingUsed == 0
         return
     end
+    
+    %increment punish time by 0.5 seconds
+    PunishTime = min([PunishTime+0.5, MaxPunishTime]);
 
 end
 

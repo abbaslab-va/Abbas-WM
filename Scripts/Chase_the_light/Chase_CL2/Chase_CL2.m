@@ -1,4 +1,4 @@
-function Chase_V1
+function Chase_CL2
 
 %The training protocol for a 4 port spatial working memory task. This
 %script introduces punishments, extended delay period and early
@@ -9,14 +9,11 @@ global BpodSystem
 
 S = BpodSystem.ProtocolSettings; % Load settings chosen in launch manager into current workspace as a struct called S
 if isempty(fieldnames(S))  % If settings file was an empty struct, populate struct with default settings
-    S.GUI.Large_reward_vol = 3;     %μl
-    S.GUI.Small_reward_vol = 3;     %μl  
-    S.GUI.ITI = 1;             %seconds
+    S.GUI.Reward_vol = 15;     %μl
+    S.GUI.ITI = 5;             %seconds
 end
 
 %% Define trials
-AllPortsIn = {'Port1In', 'Port2In', 'Port3In'};
-AllPortsOut = {'Port1Out', 'Port2Out', 'Port3Out'};
 numTT = 3;
 trialsPerType = 100;
 MaxTrials = numTT * trialsPerType;
@@ -26,6 +23,10 @@ for i = 2:MaxTrials
     Available_trials = setdiff([1:3], TrialTypes(i-1));
     TrialTypes(i) = randsample(Available_trials,1);
 end
+
+PunishTime = 1;
+MaxPunishTime = 5;
+
 BpodSystem.Data.TrialTypes = []; 
 %% Initialize plots
 
@@ -44,17 +45,23 @@ for currentTrial = 1:MaxTrials
 
     switch currentTT
         case 1 % Port #1 (Back) - Large reward
-            SampleLight = {'PWM1', 50}; SampleValve = {'Valve1', 1};
+            SampleLight = {'PWM2', 50, 'PWM3', 50}; %incorrect ports light up
+            SampleValve = {'Valve1', 1};
             WhichSampleIn = {'Port1In'}; WhichSampleOut = {'Port1Out'};
-            SampleValveTime = GetValveTimes(S.GUI.Large_reward_vol, 1);
+            WrongInA = {'Port2In'}; WrongInB = {'Port3In'};
+            SampleValveTime = GetValveTimes(S.GUI.Reward_vol, 1);
         case 2 % Port #2 (Right)
-            SampleLight = {'PWM2', 50}; SampleValve = {'Valve2', 1};
+            SampleLight = {'PWM1', 50, 'PWM3', 50}; %incorrect ports light up
+            SampleValve = {'Valve2', 1};
             WhichSampleIn = {'Port2In'}; WhichSampleOut = {'Port2Out'};
-            SampleValveTime = GetValveTimes(S.GUI.Small_reward_vol, 2);
+            WrongInA = {'Port1In'}; WrongInB = {'Port3In'};
+            SampleValveTime = GetValveTimes(S.GUI.Reward_vol, 2);
         case 3 % Port #3 (Left)
-            SampleLight = {'PWM3', 50}; SampleValve = {'Valve3', 1};
+            SampleLight = {'PWM1', 50, 'PWM2', 50}; %incorrect ports light up
+            SampleValve = {'Valve3', 1};
             WhichSampleIn = {'Port3In'}; WhichSampleOut = {'Port3Out'};
-            SampleValveTime = GetValveTimes(S.GUI.Small_reward_vol, 3);
+            WrongInA = {'Port1In'}; WrongInB = {'Port2In'};
+            SampleValveTime = GetValveTimes(S.GUI.Reward_vol, 3);
     end
     
     
@@ -68,19 +75,21 @@ for currentTrial = 1:MaxTrials
         'StateChangeConditions', {'Tup', 'WaitForSamplePoke'},...
         'OutputActions', {'Wire1', 1});
     
-
     sma = AddState(sma, 'Name', 'WaitForSamplePoke', 'Timer', 0,...
-        'StateChangeConditions', [WhichSampleIn, 'SampleOnHold'],...
+        'StateChangeConditions', [WhichSampleIn, 'SampleOnHold', WrongInA, 'Punish', WrongInB, 'Punish'],...
         'OutputActions', SampleLight);
     
     sma = AddState(sma, 'Name', 'SampleOnHold', 'Timer', .05,...
         'StateChangeConditions', ['Tup', 'SampleReward', WhichSampleOut, 'WaitForSamplePoke'],...
         'OutputActions', SampleLight);
     
-    
     sma = AddState(sma, 'Name', 'SampleReward', 'Timer', SampleValveTime,...
         'StateChangeConditions', {'Tup', 'exit'},...
-        'OutputActions', [SampleLight, SampleValve, 'Wire2', 1]);    
+        'OutputActions', [SampleValve, 'Wire2', 1]);
+    
+    sma = AddState(sma, 'Name', 'Punish', 'Timer', PunishTime,...
+        'StateChangeConditions', {'Tup', 'exit'},...
+        'OutputActions', {'PWM1', 50, 'PWM2', 50, 'PWM3', 50, 'Wire3', 1}); %all port lights on
     
     SendStateMatrix(sma);
     
@@ -91,11 +100,19 @@ for currentTrial = 1:MaxTrials
         BpodSystem.Data.TrialTypes(currentTrial) = TrialTypes(currentTrial);
         UpdateTrialTypeOutcomePlot(TrialTypes, BpodSystem.Data);
         SaveBpodSessionData; % Saves the field BpodSystem.Data to the current data file
+        
+        if ~isnan(BpodSystem.Data.RawEvents.Trial{currentTrial}.States.Punish(1))
+            TrialTypes = [TrialTypes(1:currentTrial), TrialTypes(currentTrial), TrialTypes(currentTrial+1:end)];
+        end
+        
     end
     HandlePauseCondition; % Checks to see if the protocol is paused. If so, waits until user resumes.
     if BpodSystem.Status.BeingUsed == 0
         return
     end
+    
+    %increment punish time by 0.5 seconds
+    PunishTime = min([PunishTime+0.5, MaxPunishTime]);
 
 end
 
