@@ -66,10 +66,14 @@ else
         doRepeat = zeros(1, numTT);
     end
 end
+if isempty(doRepeat)
+    doRepeat = zeros(1, numTT);
+end
+
 
 %% Initialize plots
 BpodSystem.ProtocolFigures.OutcomePlotFig = figure('Position', [50 340 1000 400],'name','Outcome plot','numbertitle','off', 'MenuBar', 'none', 'Resize', 'off');
-sgtitle(BpodSystem.GUIData.SubjectName);
+sgtitle(replace(BpodSystem.GUIData.SubjectName,'_','  '))
 BpodSystem.GUIHandles.TrialTypeOutcomePlot = axes('Position', [.075 .3 .89 .6]);
 TrialTypeOutcomePlot(BpodSystem.GUIHandles.TrialTypeOutcomePlot,'init',TrialTypes);
 BpodNotebook('init');
@@ -305,7 +309,11 @@ for x = 1:Data.nTrials
 end
 BpodSystem.Data.SessionPerformance = Outcomes;
 SaveBpodSessionData;
+accuracy = 100*(nnz(Outcomes)/numel(Outcomes));
 TrialTypeOutcomePlot(BpodSystem.GUIHandles.TrialTypeOutcomePlot,'update',Data.nTrials+1,TrialTypes,Outcomes);
+sgtitle(BpodSystem.ProtocolFigures.OutcomePlotFig,[ replace(BpodSystem.GUIData.SubjectName,'_',' '), '  Accuracy: ', num2str(accuracy),'%'])
+
+
         
     
     
