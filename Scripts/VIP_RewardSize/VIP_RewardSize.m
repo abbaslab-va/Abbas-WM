@@ -8,7 +8,7 @@ S = BpodSystem.ProtocolSettings; % Load settings chosen in launch manager into c
 % if isempty(fieldnames(S))  % If settings file was an empty struct, populate struct with default settings
 
     S.GUI.CenterReward = 0.5; %ul
-    S.GUI.SmallReward = 0.1; %ul
+    S.GUI.SmallReward = 0.05; %ul
     S.GUI.LargeReward = 8; %ul
     S.GUI.RewardDelay = 0.01; % How long the mouse must poke in the center to activate the goal port
     S.GUI.ResponseTime = 7; % How long until the mouse must make a choice, or forefeit the trial
