@@ -25,7 +25,7 @@ global BpodSystem
 S = BpodSystem.ProtocolSettings; % Load settings chosen in launch manager into current workspace as a struct called S
 if isempty(fieldnames(S))  % If settings file was an empty struct, populate struct with default settings
     S.GUI.ForageReward = 1.5; %ul
-    S.GUI.ChirpReward = 4; 
+    S.GUI.ChirpReward = 3; 
     S.GUI.ITI = 5; % How long the mouse must poke in the center to activate the goal portngjhg
     S.GUI.ResponseTime = 5; % How long until the mouse must make a choice, or forefeit the trial
     %S.GUI.SweepUpLow=10000;
@@ -33,7 +33,7 @@ if isempty(fieldnames(S))  % If settings file was an empty struct, populate stru
     S.GUI.SinePitch = 12000; % Frequency of test tone
     S.GUI.SoundDuration = 0.5;
     S.GUI.SamplingFreq = 44100;
-    S.GUI.PunishTime=0;
+    S.GUI.PunishTime=5;
     S.GUI.PuffTime=0.25; 
     S.GUI.DrinkGrace=0.5;
     S.GUI.TrialTime=30;
@@ -449,12 +449,7 @@ end
 %     'StateChangeConditions', {'Tup','WaitForFirstPoke'},...
 %     'OutputActions',{'Valve5',1});
 
-  %Start of Start of Trial wire 2 and Wire3 ( 65534)        
-%         sma = AddState(sma, 'Name', 'StartSound', ...
-%             'Timer',0,...
-%             'StateChangeConditions', {'Tup','WaitForFirstPoke'},...
-%             'OutputActions',{'TeensyAudio1',PickNoise,'Wire2',1,'Wire3',1});            
-        
+
 
           sma = AddState(sma, 'Name', 'WaitForFirstPoke', ...
             'Timer',0,...
@@ -707,7 +702,7 @@ end
             sma = AddState(sma, 'Name', 'Punish', ...
                 'Timer',S.GUI.PunishTime,...
                 'StateChangeConditions', {'Tup','exit','GlobalTimer2_End','exit'},...
-                'OutputActions',{'Wire1',1,'Wire3',1});
+                'OutputActions',{'Wire1',1,'Wire3',1,'Valve6',1});
 
 
 
