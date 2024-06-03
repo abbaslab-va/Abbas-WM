@@ -32,13 +32,13 @@ if isempty(fieldnames(S))  % If settings file was an empty struct, populate stru
     S.GUI.SinePitch = 14000; % Frequency of test tone
 end
 
-ts.trialStart = {'Wire1', 1};
-ts.sampleOn = {'Wire2', 1};
-ts.sampleReward = {'Wire1', 1, 'Wire2', 1};
-ts.delayStart = {'Wire3', 1};
-ts.delayReward = {'Wire1', 1, 'Wire3', 1};
-ts.choiceReward = {'Wire2', 1, 'Wire3', 1};
-ts.choicePunish = {'Wire1', 1, 'Wire2', 1, 'Wire3', 1};
+ts.trialStart = {'Wire1', 1}; %65529
+ts.sampleOn = {'Wire2', 1};%65530
+ts.sampleReward = {'Wire1', 1, 'Wire2', 1};%65531
+ts.delayStart = {'Wire3', 1};%65532
+ts.delayReward = {'Wire1', 1, 'Wire3', 1};%65533
+ts.choiceReward = {'Wire2', 1, 'Wire3', 1};%65534
+ts.choicePunish = {'Wire1', 1, 'Wire2', 1, 'Wire3', 1};%65535
 
 %% Define trials
 OptoTimeOut = 30; % After opto stim has lasted too long, the pre-repeat timeout
