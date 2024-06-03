@@ -7,15 +7,15 @@ global Outcomes
 S = BpodSystem.ProtocolSettings; % Load settings chosen in launch manager into current workspace as a struct called S
 % if isempty(fieldnames(S))  % If settings file was an empty struct, populate struct with default settings
 
-    S.GUI.CenterReward = 0.5; %ul
+    S.GUI.CenterReward = 1; %ul
     S.GUI.SmallReward = 0.05; %ul
-    S.GUI.LargeReward = 8; %ul
+    S.GUI.LargeReward = 10; %ul
     S.GUI.RewardDelay = 0.01; % How long the mouse must poke in the center to activate the goal port
     S.GUI.ResponseTime = 7; % How long until the mouse must make a choice, or forefeit the trial
     S.GUI.DelayTime = 0; % How long the mouse waits between sample and test
     S.GUI.PunishTime = 5; %Length of punishment
     S.GUI.CerePlexRefreshRate = 0;
-    S.GUI.ITI = 5; %Time between end of trial to start of next one
+    S.GUI.ITI = 3; %Time between end of trial to start of next one
     
 % end
 
@@ -59,8 +59,10 @@ WhichLightSmall = WhichLight{RandomPort(3)};
 
 WhichCenterPortOut = WhichPortOut{RandomPort(1)};
 
+correctswitches = 0
 count = 0
-for currentTrial = 1:MaxTrials
+TotalCount = 0
+for currentTrial = 1:100
     
     S = BpodParameterGUI('sync', S); % Sync parameters with BpodParameterGUI plugin
 
@@ -105,9 +107,9 @@ for currentTrial = 1:MaxTrials
         'OutputActions', {LargeValve, 1});
     
     %Giving Small reward and starting new trial
-    sma = AddState(sma, 'Name', 'SmallReward', 'Timer', SmallReward,...
+    sma = AddState(sma, 'Name', 'SmallReward', 'Timer', 5,...
         'StateChangeConditions',{'Tup', 'exit'},...
-        'OutputActions', {SmallValve, 1});
+        'OutputActions', {});
 
 
     SendStateMatrix(sma);
@@ -130,29 +132,37 @@ for currentTrial = 1:MaxTrials
     %Adaptive Reward size - switches the port that the large reward is on
     %after 7 consecutive large rewards
     
-    if Outcomes(currentTrial) == 0
+    if Outcomes(currentTrial) == 1
         
         count = count + 1
+        TotalCount = TotalCount + 1
+        correctswitches
         
         if count == 7
 
-            tempLargeReward = LargeReward;
-            tempLargeValve = LargeValve;
-            tempLargeRewardPoke = LargeRewardPoke;
-
-            LargeReward = SmallReward;
-            LargeValve = SmallValve;
-            LargeRewardPoke = SmallRewardPoke;
+            priorLargeValve = LargeValve;
+            priorSmallValve = SmallValve;
+            LargeValve = priorSmallValve;
+            SmallValve = priorLargeValve;
             
-            SmallReward = tempLargeReward;
-            SmallValve = tempLargeValve;
-            SmallRewardPoke = tempLargeRewardPoke;
+            priorLargeRewardPoke = LargeRewardPoke;
+            priorSmallRewardPoke = SmallRewardPoke;
+            LargeRewardPoke = priorSmallRewardPoke;
+            SmallRewardPoke = priorLargeRewardPoke;
+
+%             LargeReward = SmallReward;
+%             LargeValve = SmallValve;
+%             tempLargeReward = LargeReward;
+%             
+%             SmallReward = tempLargeReward;
+%             SmallValve = tempLargeValve;
             
             count = 0
+            correctswitches = correctswitches+1
                     
         end  
         
-    elseif Outcomes(currentTrial) ~= 0
+    elseif Outcomes(currentTrial) ~= 1
         
         count = 0
         
@@ -160,6 +170,7 @@ for currentTrial = 1:MaxTrials
     
 end
 
+SendSlackNotification('https://hooks.slack.com/services/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', strcat(BpodSystem.GUIData.SubjectName, {' '}, 'behavior completed'))
 
 function UpdateTrialTypeOutcomePlot(TrialTypes, Data)
 
@@ -171,9 +182,9 @@ Outcomes = zeros(1,Data.nTrials);
 for x = 1:Data.nTrials
     
     if ~isnan(Data.RawEvents.Trial{x}.States.LargeReward(1))
-        Outcomes(x) = 0;
-    else
         Outcomes(x) = 1;
+    else
+        Outcomes(x) = 0;
     end
     
 end

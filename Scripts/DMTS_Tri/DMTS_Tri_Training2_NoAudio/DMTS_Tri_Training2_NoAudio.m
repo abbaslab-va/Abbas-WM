@@ -15,8 +15,8 @@ if isempty(fieldnames(S))  % If settings file was an empty struct, populate stru
     S.GUI.ITI = 5;             %seconds
     S.GUI.DelayHoldTime = 0;    
     S.GUI.DelayMaxHold = 0;
-    S.GUI.EarlyIncrement = 0.75;
-    S.GUI.TimeIncrement = 0.25; %Start this value at .05 and increase up to 1
+    S.GUI.EarlyIncrement = 0.45;
+    S.GUI.TimeIncrement = 0.45; %Start this value at .05 and increase up to 1
     S.GUI.EarlyWithdrawalTimeout = 5;
     S.GUI.PunishTime = 10;
 end
@@ -40,7 +40,9 @@ BpodSystem.Data.TrialTypes = [];
 
 %% Lookback at previous 3 sessions for trial repeats
 dataPath = fileparts(BpodSystem.Path.CurrentDataFile);
-cd(dataPath)
+dataFolder = BpodSystem.Path.DataFolder;
+networkDataPath = ['\\User-pc\f\All_rigs_bpodRecording\bpodRecording', dataPath(numel(dataFolder)+1:end)];
+cd(networkDataPath)
 matDir = dir('*.mat');
 numSessions = numel(matDir);
 allTrials = [];
