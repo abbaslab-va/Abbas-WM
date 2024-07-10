@@ -8,7 +8,7 @@ I = INI;
 I.read('F:\LabGym\DMTS_Tri\matlab\config.ini')
 load("F:\LabGym\DMTS_Tri\matlab\labGymSessions.mat", "labGymSessions")
 load("F:\LabGym\DMTS_Tri\matlab\BehaviorDataModified.mat", "BehaviorData")
-taskName = 'DMTS_Tri_Training2_NoAudio';
+taskName = 'DMTS_Tri_Training2';
 subNamesUnfiltered = labGymSessions.metadata.subjects;
 subSessions = cellfun(@(x) labGymSessions.subset('animal', x), subNamesUnfiltered, 'uni', 0);
 % Calculate performance in testing and identify animals with at least 3
@@ -30,10 +30,12 @@ goodAnimalsIdx = find(goodAnimals);
 trainingSessions = cell(numel(goodAnimalsIdx), 1);
 for sub = goodAnimalsIdx
     subName = subNamesUnfiltered{sub};
-    structSubName = regexprep(subName, 'NMTP', 'DMTS');
+    structSubName = regexprep(subName, 'DMTS', 'NMTP');
     subStruct = BehaviorData.(structSubName).(taskName);
     subSessions = extractfield(subStruct, 'Results');
     configs = struct('name', subName, 'trialTypes', I.trialTypes, 'outcomes', I.outcomes);
     parserArray = cellfun(@(x) BpodParser('session', x, 'config', configs), subSessions);
     trainingSessions{sub} = parserArray;
 end
+emptySessions = cellfun(@(x) isempty(x), trainingSessions);
+trainingSessions = trainingSessions(~emptySessions);
