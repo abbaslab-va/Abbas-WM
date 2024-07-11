@@ -5,7 +5,7 @@ function [trainingSessions, testingSessions] = DMTS_tri_pipeline_init()
 
 minThresh = 65;     % Minimum percent performance threshold
 I = INI;
-I.read('F:\LabGym\DMTS_Tri\matlab\config.ini')
+I.read('F:\LabGym\DMTS_Tri\matlab\config.ini');
 load("F:\LabGym\DMTS_Tri\matlab\labGymSessions.mat", "labGymSessions")
 load("F:\LabGym\DMTS_Tri\matlab\BehaviorDataModified.mat", "BehaviorData")
 taskName = 'DMTS_Tri_Training2';
