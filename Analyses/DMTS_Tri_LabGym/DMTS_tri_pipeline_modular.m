@@ -16,14 +16,22 @@ behaviorColormap = ...
     behaviorColormap(3, :);  %     right - green
     behaviorColormap(7, :);  %     walk - brown
     ];
+sampleColor = '#33DBFF';
+delayColor = '#BD33FF';
 leftColor = behaviorColormap(4, :);
 rightColor = behaviorColormap(8, :);
 % Create class objects by filtering pre-organized data
-[trainingParser, testingSessions] = DMTS_tri_pipeline_init;
+[trainingSessions, testingSessions] = DMTS_tri_pipeline_init;
 %% Training performance
 
-trainingPerformance = DMTS_tri_training_performance(trainingParser);
+trainingPerformance = DMTS_tri_training_performance(trainingSessions);
 
+DMTS_tri_training_plot(trainingPerformance);
 %% Testing Performance
-[performanceByAnimal, performanceBySession] = DMTS_tri_testing_performance(testingSessions);
 
+testingPerformance = DMTS_tri_testing_performance(testingSessions);
+
+[sampleAnimalFig, sampleSessionFig] = DMTS_tri_testing_plot(testingPerformance.samplePort, sampleColor);
+[delayAnimalFig, delaySessionFig] = DMTS_tri_testing_plot(testingPerformance.delayPort, delayColor);
+[directionAnimalFig, directionSessionFig] = DMTS_tri_testing_plot(testingPerformance.directional, {leftColor rightColor});
+[delayLengthAnimalFig, delayLengthSessionFig] = DMTS_tri_testing_plot(testingPerformance.delayLength, 'k');

@@ -160,9 +160,6 @@ clean_DMTS_figs
 ylim([35 100])
 yline(50, 'LineStyle', '--', 'LineWidth', 3, 'Color', 'k')
 
-figure
-hold on
-bar()
 %% Training bias
 maxSessions = size(trainingParserFiltered, 2);
 % timeToChoiceLeftCorrect = cell(size(trainingParserFiltered));
@@ -205,8 +202,7 @@ for sess = 1:maxSessions
     timeToChoiceLeftCorrectSess = cellfun(@(w, x) cellfun(@(y, z) y - z, w, x, 'uni', 0), leftChoiceCorrect(hasLeftDelay), leftDelayCorrect(hasLeftDelay), 'uni', 0);
     timeToChoiceLeftIncorrectSess = cellfun(@(w, x) cellfun(@(y, z) y - z, w, x, 'uni', 0), leftChoiceIncorrect(hasLeftDelay), leftDelayIncorrect(hasLeftDelay), 'uni', 0);
     timeToChoiceRightCorrectSess = cellfun(@(w, x) cellfun(@(y, z) y - z, w, x, 'uni', 0), rightChoiceCorrect(hasRightDelay), rightDelayCorrect(hasRightDelay), 'uni', 0);
-    timeToChoiceRightIncorrectSess = cellfun(@(w, x) cellfun(@(y, z) y - z, w, x, 'uni', 0), rightChoiceIncorrect(hasRightDelay), rightDelayIncorrect(hasRightDelay), 'uni', 0);
-    
+c    
     timeToChoiceLeftCorrectSessMeans = cellfun(@(x) mean(cat(1, x{:})), timeToChoiceLeftCorrectSess);
     timeToChoiceLeftIncorrectSessMeans = cellfun(@(x) mean(cat(1, x{:})), timeToChoiceLeftIncorrectSess);
     timeToChoiceRightCorrectSessMeans = cellfun(@(x) mean(cat(1, x{:})), timeToChoiceRightCorrectSess);

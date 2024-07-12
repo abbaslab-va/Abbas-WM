@@ -26,16 +26,5 @@ testingSessions.sessions = testingSessions.sessions(goodSessionsAll);
 testingSessions.metadata.subjects = subNamesUnfiltered(goodAnimals);
 
 % Get training sessions from filtered animals and make BpodParser arrays
-goodAnimalsIdx = find(goodAnimals);
-trainingSessions = cell(numel(goodAnimalsIdx), 1);
-for sub = goodAnimalsIdx
-    subName = subNamesUnfiltered{sub};
-    structSubName = regexprep(subName, 'DMTS', 'NMTP');
-    subStruct = BehaviorData.(structSubName).(taskName);
-    subSessions = extractfield(subStruct, 'Results');
-    configs = struct('name', subName, 'trialTypes', I.trialTypes, 'outcomes', I.outcomes);
-    parserArray = cellfun(@(x) BpodParser('session', x, 'config', configs), subSessions);
-    trainingSessions{sub} = parserArray;
-end
-emptySessions = cellfun(@(x) isempty(x), trainingSessions);
-trainingSessions = trainingSessions(~emptySessions);
+trainingSessions = make_BpodParser_training_array(BehaviorData, taskName, I);
+trainingSessions = trainingSessions(goodAnimals);

@@ -14,12 +14,12 @@ function performanceSessions = DMTS_tri_training_performance(parserArray, vararg
     earlyPerformance = cellfun(@(x) percent_correct(x, presets), earlySessions, 'uni', 0);
     midPerformance = cellfun(@(x) percent_correct(x, presets), midSessions, 'uni', 0);
     latePerformance = cellfun(@(x) percent_correct(x, presets), lateSessions, 'uni', 0);
-    earlyMean = mean(cellfun(@(x) mean(x), earlyPerformance)) * 100;
-    earlySEM = mean(cellfun(@(x) std(x)/sqrt(numel(x)), earlyPerformance)) * 100;
-    midMean = mean(cellfun(@(x) mean(x), midPerformance)) * 100;
-    midSEM = mean(cellfun(@(x) std(x)/sqrt(numel(x)), midPerformance)) * 100;
-    lateMean = mean(cellfun(@(x) mean(x), latePerformance)) * 100;
-    lateSEM = mean(cellfun(@(x) std(x)/sqrt(numel(x)), latePerformance)) * 100;
+    earlyMean = mean(cellfun(@(x) mean(x), earlyPerformance));
+    earlySEM = mean(cellfun(@(x) std(x)/sqrt(numel(x)), earlyPerformance));
+    midMean = mean(cellfun(@(x) mean(x), midPerformance));
+    midSEM = mean(cellfun(@(x) std(x)/sqrt(numel(x)), midPerformance));
+    lateMean = mean(cellfun(@(x) mean(x), latePerformance));
+    lateSEM = mean(cellfun(@(x) std(x)/sqrt(numel(x)), latePerformance));
     performanceSessions = struct('means', struct('early', earlyMean, 'mid', midMean, 'late', lateMean), ...
         'sem', struct('early', earlySEM, 'mid', midSEM, 'late', lateSEM));
 
@@ -42,5 +42,5 @@ end
 
 function sessionPerformance = percent_correct(parserArray, presets)
     [numTT, numCorrect] = arrayfun(@(y) y.performance('preset', presets), parserArray, 'uni', 0);
-    sessionPerformance = cellfun(@(x, y) sum(x)/sum(y), numCorrect, numTT);
+    sessionPerformance = cellfun(@(x, y) 100*sum(x)/sum(y), numCorrect, numTT);
 end
