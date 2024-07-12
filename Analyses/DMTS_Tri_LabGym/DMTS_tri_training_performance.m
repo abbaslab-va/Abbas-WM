@@ -1,7 +1,15 @@
 function performanceSessions = DMTS_tri_training_performance(parserArray, varargin)
 
-% Divides a bpod parser array into 3 eras and returns means and sem
+% Divides a bpod parser array into 3 eras and returns means and sem, as
+% well as the aligned performance data per animal.
     presets = PresetManager(varargin{:});
+    performanceSessions = perf_by_era(parserArray, presets);
+    performanceAll = cellfun(@(x) percent_correct(x, presets), parserArray, 'uni', 0);
+    alignedPerformanceAll = align_training_data(parserArray, performanceAll);
+    performanceSessions(1).all = alignedPerformanceAll;
+end
+
+function eraPerformance = perf_by_era(parserArray, presets)
     eraFraction = 1/3;
     numTrainingSessionsAll = cellfun(@(x) numel(x), parserArray, 'uni', 0);
     earlySessionsIdx = cellfun(@(x) round(1:x*eraFraction), ...
@@ -20,24 +28,8 @@ function performanceSessions = DMTS_tri_training_performance(parserArray, vararg
     midSEM = mean(cellfun(@(x) std(x)/sqrt(numel(x)), midPerformance));
     lateMean = mean(cellfun(@(x) mean(x), latePerformance));
     lateSEM = mean(cellfun(@(x) std(x)/sqrt(numel(x)), latePerformance));
-    performanceSessions = struct('means', struct('early', earlyMean, 'mid', midMean, 'late', lateMean), ...
+    eraPerformance = struct('means', struct('early', earlyMean, 'mid', midMean, 'late', lateMean), ...
         'sem', struct('early', earlySEM, 'mid', midSEM, 'late', lateSEM));
-
-    performanceAll = cellfun(@(x) percent_correct(x, presets), parserArray, 'uni', 0);
-    trainingDates = cellfun(@(x) arrayfun(@(y) datetime(y.session.Info.SessionDate), x, 'uni', 0), parserArray, 'uni', 0);
-    allDates = [];
-    for i = 1:numel(trainingDates)
-        allDates = [allDates, [trainingDates{i}{:}]];
-    end
-    uniqueDates = unique(allDates);
-    numDates = numel(uniqueDates);
-    numAnimals = numel(parserArray);
-    alignedPerformanceAll = nan(numDates, numAnimals);
-    for i = 1:numAnimals
-        [~, loc] = ismember([trainingDates{i}{:}], uniqueDates);
-        alignedPerformanceAll(loc, i) = performanceAll{i};
-    end
-    performanceSessions(1).all = alignedPerformanceAll;
 end
 
 function sessionPerformance = percent_correct(parserArray, presets)
