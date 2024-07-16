@@ -26,11 +26,14 @@ rightColor = behaviorColormap(8, :);
 
 trainingPerformance = DMTS_tri_training_performance(trainingSessions);
 
-trainingPerfFig = DMTS_tri_training_plot(trainingPerformance);
+trainingPerfGroupFig = DMTS_tri_training_plot_group(trainingPerformance);
+trainingPerfIndividualFig = DMTS_tri_training_plot_individual(trainingPerformance);
+
 %% Testing performance
 
 testingPerformance = DMTS_tri_testing_performance(testingSessions);
 
+animalPerfFig = DMTS_tri_testing_plot_individual(testingPerformance);
 [sampleAnimalFig, sampleSessionFig] = DMTS_tri_testing_plot(testingPerformance.samplePort, sampleColor);
 [delayAnimalFig, delaySessionFig] = DMTS_tri_testing_plot(testingPerformance.delayPort, delayColor);
 [directionAnimalFig, directionSessionFig] = DMTS_tri_testing_plot(testingPerformance.directional, {leftColor rightColor});
@@ -39,3 +42,5 @@ testingPerformance = DMTS_tri_testing_performance(testingSessions);
 %% Training repeats
 
 trainingRepeats = DMTS_tri_training_repeats(trainingSessions);
+
+%% 

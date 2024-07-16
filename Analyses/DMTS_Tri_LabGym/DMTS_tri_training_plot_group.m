@@ -1,4 +1,4 @@
-function figH = DMTS_tri_training_plot(performanceStruct)
+function figH = DMTS_tri_training_plot_group(performanceStruct)
 
 % performanceStruct is obtained from the method DMTS_tri_training_performance
 

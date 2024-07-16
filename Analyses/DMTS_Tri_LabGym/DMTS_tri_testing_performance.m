@@ -30,4 +30,7 @@ for al = 1:numel(groupings)
     testingPerf.(currentGrouping).sessions = performanceSessions;
     testingPerf.(currentGrouping).alignments = alignments.(currentGrouping);
 end
-
+[numTT, numCorrect] = managerObj.calculate_performance();
+testingPerf.all.sessions = cellfun(@(x, y) 100*sum(x)/sum(y), numCorrect, numTT);
+testingPerf.all.animals = cellfun(@(x) mean(testingPerf.all.sessions(x)), subIdxAll);
+testingPerf.all(1).subIdx = subIdxAll;
