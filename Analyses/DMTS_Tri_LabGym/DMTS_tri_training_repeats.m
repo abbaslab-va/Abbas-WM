@@ -6,11 +6,11 @@ repeatedPunishAll = cellfun(@(x) arrayfun(@(y) y.state_times('Punish', 'outcome'
 % repeatedPunishRight = cellfun(@(x) arrayfun(@(y) y.state_times('Punish', 'outcome', 'Repeat', 'trialType', 'Right'), x, 'uni', 0), parserArray, 'uni', 0);
 
 repeatBySession = cellfun(@(x) cellfun(@(y) numel(y), x), repeatedPunishAll, 'uni', 0);
-alignedRepeatsBySession = align_training_data(parserArray, repeatBySession);
+repeatData = align_training_data(parserArray, repeatBySession);
 
 
-meanRepeatPunish = mean(alignedRepeatsBySession, 2, 'omitnan');        
-semRepeatPunish = std(alignedRepeatsBySession, 0, 2, 'omitnan')./sqrt(sum(~isnan(alignedRepeatsBySession), 2));
+meanRepeatPunish = mean(repeatData, 2, 'omitnan');        
+semRepeatPunish = std(repeatData, 0, 2, 'omitnan')./sqrt(sum(~isnan(repeatData), 2));
 figure
 shaded_error_plot(1:numel(meanRepeatPunish), meanRepeatPunish, semRepeatPunish, [0 0 0], [.2 .2 .2], .3);
 clean_DMTS_figs

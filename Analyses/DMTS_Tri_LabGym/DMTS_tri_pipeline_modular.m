@@ -27,7 +27,6 @@ rightColor = behaviorColormap(8, :);
 trainingPerformance = DMTS_tri_training_performance(trainingSessions);
 
 trainingPerfGroupFig = DMTS_tri_training_plot_group(trainingPerformance);
-trainingPerfIndividualFig = DMTS_tri_training_plot_individual(trainingPerformance);
 
 %% Testing performance
 
@@ -43,4 +42,9 @@ animalPerfFig = DMTS_tri_testing_plot_individual(testingPerformance);
 
 trainingRepeats = DMTS_tri_training_repeats(trainingSessions);
 
-%% 
+%% Training bias
+
+sidePref = cellfun(@(x) )
+%% Testing bias
+
+%% Testing video
