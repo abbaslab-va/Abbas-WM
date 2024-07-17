@@ -44,7 +44,9 @@ trainingRepeats = DMTS_tri_training_repeats(trainingSessions);
 
 %% Training bias
 
-sidePref = cellfun(@(x) )
+trainingSideBias = DMTS_tri_training_side_bias(trainingSessions);
+trainingPerformanceBias = DMTS_tri_training_performance_bias(trainingSessions);
+
 %% Testing bias
 
 %% Testing video
