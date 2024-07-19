@@ -6,42 +6,17 @@ function eraDiff = DMTS_tri_training_decision_speed(parserArray)
     nonPreferredTimeAligned = align_training_data(parserArray, nonPreferredTimeToChoice);
     % preferredAll = [preferredTimeToChoice{:}];
     % nonPreferredAll = [nonPreferredTimeToChoice{:}];
-    eraDiff = diff_by_era(preferredTimeAligned, nonPreferredTimeAligned);
-    eraNames = fields(eraDiff);
+    eraDiff.preferred = DMTS_tri_results_by_era(preferredTimeAligned);
+    eraDiff.nonPreferred = DMTS_tri_results_by_era(nonPreferredTimeAligned);
+    eraNames = fields(eraDiff.preferred);
     for e = 1:numel(eraNames)
         era = eraNames{e};
         figure
-        eraMeans = [eraDiff.(era).preferred.mean eraDiff.(era).nonPreferred.mean];
-        eraSEM = [eraDiff.(era).preferred.sem eraDiff.(era).nonPreferred.sem];
-        bar(eraMeans, 'k', 'FaceAlpha', );
+        eraMeans = [eraDiff.preferred.(era).mean eraDiff.nonPreferred.(era).mean];
+        eraSEM = [eraDiff.preferred.(era).sem eraDiff.nonPreferred.(era).sem];
+        bar(eraMeans, 'k', 'FaceAlpha', .6, 'EdgeAlpha', .6);
         hold on
         errorbar([1, 2], eraMeans, eraSEM, 'LineStyle', 'none', 'Color', 'k', 'LineWidth', 1.5)
         clean_DMTS_figs
     end
-end
-
-function eraDiff = diff_by_era(preferred, nonPreferred)
-    eraFraction = 1/3;
-    numTrainingSessionsAll = size(preferred, 1);
-    sessionsPerEra = floor(numTrainingSessionsAll*eraFraction);
-    earlySessionsIdx = 1:sessionsPerEra;
-    earlyPreferred = preferred(earlySessionsIdx, :);
-    earlyNonPreferred = nonPreferred(earlySessionsIdx, :);
-    [eraDiff.early.preferred.mean, eraDiff.early.preferred.sem] = calculate_averages(earlyPreferred);
-    [eraDiff.early.nonPreferred.mean, eraDiff.early.nonPreferred.sem] = calculate_averages(earlyNonPreferred);
-    midSessionsIdx = sessionsPerEra + 1:sessionsPerEra * 2;
-    midPreferred = preferred(midSessionsIdx, :);
-    midNonPreferred = nonPreferred(midSessionsIdx, :);
-    [eraDiff.mid.preferred.mean, eraDiff.mid.preferred.sem] = calculate_averages(midPreferred);
-    [eraDiff.mid.nonPreferred.mean, eraDiff.mid.nonPreferred.sem] = calculate_averages(midNonPreferred);
-    lateSessionsIdx = 2 * sessionsPerEra + 1:numTrainingSessionsAll;
-    latePreferred = preferred(lateSessionsIdx, :);
-    lateNonPreferred = nonPreferred(lateSessionsIdx, :);
-    [eraDiff.late.preferred.mean, eraDiff.late.preferred.sem] = calculate_averages(latePreferred);
-    [eraDiff.late.nonPreferred.mean, eraDiff.late.nonPreferred.sem] = calculate_averages(lateNonPreferred);
-end
-
-function [meanVal, SEM] = calculate_averages(dataMat)
-    meanVal = mean(dataMat, 'all', 'omitnan');
-    SEM = std(dataMat, 0, 'all', 'omitnan')./sqrt(sum(~isnan(dataMat), 'all'));
 end

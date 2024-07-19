@@ -38,18 +38,28 @@ animalPerfFig = DMTS_tri_testing_plot_individual(testingPerformance);
 [directionAnimalFig, directionSessionFig] = DMTS_tri_testing_plot(testingPerformance.directional, {leftColor rightColor});
 [delayLengthAnimalFig, delayLengthSessionFig] = DMTS_tri_testing_plot(testingPerformance.delayLength, 'k');
 
+%% Combined performance
+
+DMTS_tri_combined_performance(trainingPerformance, testingPerformance);
+
 %% Training repeats
 
 trainingRepeats = DMTS_tri_training_repeats(trainingSessions);
 
 %% Training bias
 
-trainingSideBias = DMTS_tri_training_side_bias(trainingSessions);
-trainingPerformanceBias = DMTS_tri_training_performance_bias(trainingSessions);
+% trainingSideBias = DMTS_tri_training_side_bias(trainingSessions);
+% trainingPerformanceBias = DMTS_tri_training_performance_bias(trainingSessions);
 diffByTrainingEra = DMTS_tri_training_decision_speed(trainingSessions);
 
 
 %% Testing bias
 
+testingSideBias = DMTS_tri_testing_side_bias(testingSessions);
+choiceDiff = DMTS_tri_testing_decision_speed(testingSessions);
+
+%% Combined bias
+
+DMTS_tri_combined_diff(diffByTrainingEra, choiceDiff)
 
 %% Testing video
