@@ -33,6 +33,7 @@ BpodSystem.ProtocolFigures.OutcomePlotFig = figure('Position', [50 340 1000 400]
 BpodSystem.GUIHandles.TrialDurationPlot = axes('Position', [.075 .3 .89 .6]);
 xlabel(BpodSystem.GUIHandles.TrialDurationPlot,'Trial number')
 ylabel(BpodSystem.GUIHandles.TrialDurationPlot,'Time to port (s)')
+sgtitle(replace(BpodSystem.GUIData.SubjectName,'_','  '))
 BpodNotebook('init');
 BpodParameterGUI('init', S); % Initialize parameter GUI plugin
 %% Main trial loop

@@ -149,9 +149,16 @@ for currentTrial = 1:100
             priorSmallRewardPoke = SmallRewardPoke;
             LargeRewardPoke = priorSmallRewardPoke;
             SmallRewardPoke = priorLargeRewardPoke;
+
+%             LargeReward = SmallReward;
+%             LargeValve = SmallValve;
+%             tempLargeReward = LargeReward;
+%             
+%             SmallReward = tempLargeReward;
+%             SmallValve = tempLargeValve;
             
             count = 0
-            correctswitches = correctswitches + 1
+            correctswitches = correctswitches+1
                     
         end  
         
@@ -163,7 +170,7 @@ for currentTrial = 1:100
     
 end
 
-% SendSlackNotification('https://hooks.slack.com/services/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', strcat(BpodSystem.GUIData.SubjectName, {' '}, 'behavior completed'))
+SendSlackNotification('https://hooks.slack.com/services/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', strcat(BpodSystem.GUIData.SubjectName, {' '}, 'behavior completed'))
 
 function UpdateTrialTypeOutcomePlot(TrialTypes, Data)
 
