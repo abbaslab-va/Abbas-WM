@@ -1,4 +1,4 @@
-function VIP_RewardSize
+function VIP_RewardSize_DCZ
 
 global BpodSystem
 global Outcomes
