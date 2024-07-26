@@ -16,7 +16,7 @@ if isempty(fieldnames(S))  % If settings file was an empty struct, populate stru
     S.GUI.DelayHoldTime = 0;    
     S.GUI.DelayMaxHold = 0;
     S.GUI.EarlyIncrement = 0.75;
-    S.GUI.TimeIncrement = 0.25; %Start this value at .05 and increase up to 1
+    S.GUI.TimeIncrement = 0.75; %Start this value at .05 and increase up to 1
     S.GUI.EarlyWithdrawalTimeout = 5;
     S.GUI.PunishTime = 10;
 end
@@ -37,10 +37,19 @@ end
 RepeatTrial = 0;
 
 BpodSystem.Data.TrialTypes = []; 
+[ret name] = system('hostname');
+PCName = string(name);
+BpodSystem.Data.TaskPC = PCName; 
 
 %% Lookback at previous 3 sessions for trial repeats
 dataPath = fileparts(BpodSystem.Path.CurrentDataFile);
-cd(dataPath)
+dataFolder = BpodSystem.Path.DataFolder;
+if strcmp(dataFolder(end),'\')
+    networkDataPath = ['\\User-pc\f\All_rigs_bpodRecording\bpodRecording\', dataPath(numel(dataFolder)+1:end)]
+else
+networkDataPath = ['\\User-pc\f\All_rigs_bpodRecording\bpodRecording', dataPath(numel(dataFolder)+1:end)]
+end
+cd(networkDataPath)
 matDir = dir('*.mat');
 numSessions = numel(matDir);
 allTrials = [];
@@ -66,10 +75,14 @@ else
         doRepeat = zeros(1, numTT);
     end
 end
+if isempty(doRepeat)
+    doRepeat = zeros(1, numTT);
+end
+
 
 %% Initialize plots
 BpodSystem.ProtocolFigures.OutcomePlotFig = figure('Position', [50 340 1000 400],'name','Outcome plot','numbertitle','off', 'MenuBar', 'none', 'Resize', 'off');
-sgtitle(BpodSystem.GUIData.SubjectName)
+sgtitle(replace(BpodSystem.GUIData.SubjectName,'_','  '))
 BpodSystem.GUIHandles.TrialTypeOutcomePlot = axes('Position', [.075 .3 .89 .6]);
 TrialTypeOutcomePlot(BpodSystem.GUIHandles.TrialTypeOutcomePlot,'init',TrialTypes);
 BpodNotebook('init');
@@ -305,7 +318,11 @@ for x = 1:Data.nTrials
 end
 BpodSystem.Data.SessionPerformance = Outcomes;
 SaveBpodSessionData;
+accuracy = 100*(nnz(Outcomes==1)/numel(Outcomes));
 TrialTypeOutcomePlot(BpodSystem.GUIHandles.TrialTypeOutcomePlot,'update',Data.nTrials+1,TrialTypes,Outcomes);
+sgtitle(BpodSystem.ProtocolFigures.OutcomePlotFig,[ replace(BpodSystem.GUIData.SubjectName,'_',' '), '  Accuracy: ', num2str(accuracy),'%'])
+
+
         
     
     
