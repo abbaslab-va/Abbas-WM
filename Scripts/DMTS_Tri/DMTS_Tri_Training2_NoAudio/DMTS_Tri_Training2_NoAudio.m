@@ -34,7 +34,7 @@ for fill = 1:trialsPerType
     TrialTypes(fill*numTT-(numTT-1):fill*numTT) = block;
 end
 
-RepeatTrial = 0;
+% RepeatTrial = 0;
 
 BpodSystem.Data.TrialTypes = []; 
 [ret name] = system('hostname');
@@ -73,11 +73,13 @@ else
         doRepeat = allCorrect./allTrials < 0.5;
     catch
         doRepeat = zeros(1, numTT);
+        disp('triggered CATCH in repeat trial section')
     end
 end
 if isempty(doRepeat)
     doRepeat = zeros(1, numTT);
 end
+TrialTypes_to_repeat = find(doRepeat);
 
 
 %% Initialize plots
@@ -88,9 +90,31 @@ TrialTypeOutcomePlot(BpodSystem.GUIHandles.TrialTypeOutcomePlot,'init',TrialType
 BpodNotebook('init');
 BpodParameterGUI('init', S); % Initialize parameter GUI plugin
 %% Main trial loop
-for currentTrial = 1:MaxTrials
+% for currentTrial = 1:MaxTrials
+TotalTrials = MaxTrials
+    while currentTrial <TotalTrials
+        currentTrial = currentTrial + 1;
+        if currentTrial ~= 1
+            if [[Outcomes(currentTrial - 1)== 0]|[Outcomes(currentTrial - 1)== 2]] & ismember(TrialTypes(currentTrial-1),TrialTypes_to_repeat)
+                % last trial was wrong and trial type is member of doRepeat
+                %insert a trial
+                TotalTrials = TotalTrials+1;
+                New_trial_type = TrialTypes_to_repeat(randi(numel(TrialTypes_to_repeat),1));
+                TrialTypes = [TrialTypes(1:current_trial-1), New_trial_type, TrialTypes(current_trial:end)];
+                RepeatTrial = 1;
+                
+            else
+                RepeatTrial = 0;
+                
+
+
+            end
+        else
+            RepeatTrial = 0;
+        end
+
 % %     repeated = 0;
-    RepeatTrial = doRepeat(TrialTypes(currentTrial));
+    % RepeatTrial = doRepeat(TrialTypes(currentTrial));
     if S.GUI.DelayMaxHold < 7 && S.GUI.DelayMaxHold >= 3
         S.GUI.DelayMaxHold = S.GUI.DelayMaxHold + S.GUI.TimeIncrement;
     elseif S.GUI.DelayMaxHold < 3
@@ -261,17 +285,17 @@ for currentTrial = 1:MaxTrials
         WrongPortsOutSample(2), 'WaitForSamplePokeEW'},...
         'OutputActions', {'Valve8', 1});
     
-    if RepeatTrial
-        sma = AddState(sma, 'Name', 'Punish', 'Timer', S.GUI.PunishTime,...
-            'StateChangeConditions', {'Tup', 'ITI2'},...
-            'OutputActions', {'Valve8', 1});
-    else
+    % if RepeatTrial
+    %     sma = AddState(sma, 'Name', 'Punish', 'Timer', S.GUI.PunishTime,...
+    %         'StateChangeConditions', {'Tup', 'ITI2'},...
+    %         'OutputActions', {'Valve8', 1});
+    % else
         
         sma = AddState(sma, 'Name', 'Punish', 'Timer', S.GUI.PunishTime,...
             'StateChangeConditions', {'Tup', 'exit'},...
             'OutputActions', {'Valve8', 1});
         
-    end
+    % end
     
     sma = AddState(sma, 'Name', 'EarlyWithdrawal', 'Timer', 3,...
         'StateChangeConditions', {'Tup', 'EarlyWithdrawalTimeout'},...
@@ -308,8 +332,10 @@ global BpodSystem
 Outcomes = zeros(1,Data.nTrials);
 for x = 1:Data.nTrials
     
-    if ~isnan(Data.RawEvents.Trial{x}.States.Punish(1)) && ~isnan(Data.RawEvents.Trial{x}.States.ChoiceOn(1))
+    if ~isnan(Data.RawEvents.Trial{x}.States.Punish(1)) && RepeatTrial==1
         Outcomes(x) = 2;
+    elseif ~isnan(Data.RawEvents.Trial{x}.States.ChoiceOn(1)) && RepeatTrial==1
+        Outcomes(x) = 3;
     elseif ~isnan(Data.RawEvents.Trial{x}.States.Punish(1))
         Outcomes(x) = 0;
     elseif ~isnan(Data.RawEvents.Trial{x}.States.ChoiceOn(1))
