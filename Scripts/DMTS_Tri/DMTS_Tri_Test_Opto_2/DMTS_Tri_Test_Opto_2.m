@@ -204,7 +204,7 @@ for currentTrial = 1:MaxTrials
             delayStop = {'SoftCode', 2};
             currParams = paramMat{2}.ParameterMatrix;
             ProgramPulsePal(currParams);
-        case 4 % Delay Stim 3
+        case 3 % Delay Stim 3
             sampleTimerTrig = {};
             sampleStim = {};
             sampleStop = {};
