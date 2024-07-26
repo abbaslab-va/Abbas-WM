@@ -8,13 +8,19 @@ repeatedPunishAll = cellfun(@(x) arrayfun(@(y) y.state_times('Punish', 'outcome'
 repeatBySession = cellfun(@(x) cellfun(@(y) numel(y), x), repeatedPunishAll, 'uni', 0);
 repeatData = align_training_data(parserArray, repeatBySession);
 
-
 meanRepeatPunish = mean(repeatData, 2, 'omitnan');        
 semRepeatPunish = std(repeatData, 0, 2, 'omitnan')./sqrt(sum(~isnan(repeatData), 2));
-figure
 shaded_error_plot(1:numel(meanRepeatPunish), meanRepeatPunish, semRepeatPunish, [0 0 0], [.2 .2 .2], .3);
 clean_DMTS_figs
 
+repeatByEra = DMTS_tri_results_by_era(repeatData);
+meanByEra = [repeatByEra.early.mean, repeatByEra.mid.mean, repeatByEra.late.mean];
+semByEra = [repeatByEra.early.sem, repeatByEra.mid.sem, repeatByEra.late.sem];
+figure
+bar(meanByEra, 'k', 'FaceAlpha', .6, 'EdgeAlpha', .6);
+hold on
+errorbar(meanByEra, semByEra, 'LineStyle', 'none', 'Color', 'k', 'LineWidth', 1.5)
+clean_DMTS_figs
 % repeatCorrectByTrial = cellfun(@(x) numel(x), repeatedCorrectAll);
 % repeatPunishByTrialLeft = cellfun(@(x) numel(x), repeatedPunishLeft);
 % repeatPunishByTrialRight = cellfun(@(x) numel(x), repeatedPunishRight);

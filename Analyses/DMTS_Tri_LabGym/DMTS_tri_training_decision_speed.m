@@ -1,4 +1,4 @@
-function eraDiff = DMTS_tri_training_decision_speed(parserArray)
+function eraDiff = DMTS_tri_training_decision_speed(parserArray, plotEras)
 
     [preferredTimeToChoice, nonPreferredTimeToChoice] = cellfun(@(x) ...
         arrayfun(@(y) DMTS_tri_time_to_choice(y), x), parserArray, 'uni', 0);
@@ -9,6 +9,9 @@ function eraDiff = DMTS_tri_training_decision_speed(parserArray)
     eraDiff.preferred = DMTS_tri_results_by_era(preferredTimeAligned);
     eraDiff.nonPreferred = DMTS_tri_results_by_era(nonPreferredTimeAligned);
     eraNames = fields(eraDiff.preferred);
+    if ~plotEras
+        return
+    end
     for e = 1:numel(eraNames)
         era = eraNames{e};
         figure

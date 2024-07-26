@@ -50,7 +50,8 @@ trainingRepeats = DMTS_tri_training_repeats(trainingSessions);
 
 % trainingSideBias = DMTS_tri_training_side_bias(trainingSessions);
 % trainingPerformanceBias = DMTS_tri_training_performance_bias(trainingSessions);
-diffByTrainingEra = DMTS_tri_training_decision_speed(trainingSessions);
+% biasRelationship = DMTS_bias_through_training(trainingSessions);
+diffByTrainingEra = DMTS_tri_training_decision_speed(trainingSessions, false);
 
 
 %% Testing bias

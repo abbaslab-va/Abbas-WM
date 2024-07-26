@@ -1,0 +1,13 @@
+function biasRelationship = DMTS_bias_through_trianing(trainingSessions)
+
+biasByAnimal = cellfun(@(x) arrayfun(@(y) calculate_performance_bias(y), x), trainingSessions, 'uni', 0);
+delayToChoiceCorrectLeft = cellfun(@(x) ...
+    arrayfun(@(y) y.distance_between_states('DelayOn', 'ChoiceOn', 'trialType', 'Left', 'outcome', 'Correct'), x, 'uni', 0), ...
+    trainingSessions, 'uni', 0);
+delayToChoiceIncorrectLeft = cellfun(@(x) ...
+    arrayfun(@(y) y.distance_between_states('DelayOn', 'Punish', 'trialType', 'Left', 'outcome', 'Incorrect'), x, 'uni', 0), ...
+    trainingSessions, 'uni', 0);
+
+% delayToChoiceCorrectRight = sessionParser.distance_between_states('DelayOn', 'ChoiceOn', 'trialType', 'Right', 'outcome', 'Correct');
+% delayToChoiceIncorrectRight = sessionParser.distance_between_states('DelayOn', 'Punish', 'trialType', 'Right', 'outcome', 'Incorrect');
+leftChoiceDiff = cellfun(@(x, y)x - y, delayToChoiceIncorrectLeft, delayToChoiceCorrectLeft, 'uni', 0);
