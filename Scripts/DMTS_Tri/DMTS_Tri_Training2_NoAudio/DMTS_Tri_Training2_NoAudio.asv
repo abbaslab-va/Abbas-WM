@@ -92,28 +92,27 @@ BpodParameterGUI('init', S); % Initialize parameter GUI plugin
 %% Main trial loop
 % for currentTrial = 1:MaxTrials
 TotalTrials = MaxTrials;
-RepeatTrial= 0;
-currentTrial = 0;
+currentTrial = 1;
     while currentTrial <TotalTrials
         currentTrial = currentTrial + 1;
         if currentTrial ~= 1
-            priorOutcome = BpodSystem.Data.SessionPerformance(currentTrial - 1);
-            if [[priorOutcome== 0]|[priorOutcome== 2]] & ismember(TrialTypes(currentTrial-1),TrialTypes_to_repeat)
+            priorOutcome = BpodSystem.Data.SessionPerformance(
+            if [[Outcomes(currentTrial - 1)== 0]|[Outcomes(currentTrial - 1)== 2]] & ismember(TrialTypes(currentTrial-1),TrialTypes_to_repeat)
                 % last trial was wrong and trial type is member of doRepeat
                 %insert a trial
                 TotalTrials = TotalTrials+1;
                 New_trial_type = TrialTypes_to_repeat(randi(numel(TrialTypes_to_repeat),1));
-                TrialTypes = [TrialTypes(1:currentTrial-1), New_trial_type, TrialTypes(currentTrial:end)];
-                RepeatTrial(currentTrial) = 1;
+                TrialTypes = [TrialTypes(1:current_trial-1), New_trial_type, TrialTypes(current_trial:end)];
+                RepeatTrial = 1;
                 
             else
-                RepeatTrial(currentTrial) = 0;
+                RepeatTrial = 0;
                 
 
 
             end
         else
-            RepeatTrial(currentTrial) = 0;
+            RepeatTrial = 0;
         end
 
 % %     repeated = 0;
@@ -321,7 +320,7 @@ currentTrial = 0;
         BpodSystem.Data = BpodNotebook('sync', BpodSystem.Data); % Sync with Bpod notebook plugin
         BpodSystem.Data.TrialTypes(currentTrial) = TrialTypes(currentTrial);
         BpodSystem.Data.GUI(currentTrial) = S.GUI;
-        UpdateTrialTypeOutcomePlot(TrialTypes, BpodSystem.Data, RepeatTrial);
+        UpdateTrialTypeOutcomePlot(TrialTypes, BpodSystem.Data);
         SaveBpodSessionData; % Saves the field BpodSystem.Data to the current data file
     end
     HandlePauseCondition; % Checks to see if the protocol is paused. If so, waits until user resumes.
@@ -330,14 +329,14 @@ currentTrial = 0;
     end
 end
 
-function UpdateTrialTypeOutcomePlot(TrialTypes, Data, RepeatTrial)
+function UpdateTrialTypeOutcomePlot(TrialTypes, Data)
 global BpodSystem
 Outcomes = zeros(1,Data.nTrials);
 for x = 1:Data.nTrials
     
-    if ~isnan(Data.RawEvents.Trial{x}.States.Punish(1)) && RepeatTrial(x)==1
+    if ~isnan(Data.RawEvents.Trial{x}.States.Punish(1)) && RepeatTrial==1
         Outcomes(x) = 2;
-    elseif ~isnan(Data.RawEvents.Trial{x}.States.ChoiceOn(1)) && RepeatTrial(x)==1
+    elseif ~isnan(Data.RawEvents.Trial{x}.States.ChoiceOn(1)) && RepeatTrial==1
         Outcomes(x) = 3;
     elseif ~isnan(Data.RawEvents.Trial{x}.States.Punish(1))
         Outcomes(x) = 0;
@@ -348,11 +347,7 @@ end
 BpodSystem.Data.SessionPerformance = Outcomes;
 SaveBpodSessionData;
 accuracy = 100*(nnz(Outcomes==1)/numel(Outcomes));
-Outcomes_for_plot = Outcomes; 
-Outcomes_for_plot(find(Outcomes_for_plot==2)) = 0; %failed repeats plotted as failed trials
-Outcomes_for_plot(find(Outcomes_for_plot==3)) = 2; %correct repeats plotted as open green circles
-
-TrialTypeOutcomePlot(BpodSystem.GUIHandles.TrialTypeOutcomePlot,'update',Data.nTrials+1,TrialTypes,Outcomes_for_plot);
+TrialTypeOutcomePlot(BpodSystem.GUIHandles.TrialTypeOutcomePlot,'update',Data.nTrials+1,TrialTypes,Outcomes);
 sgtitle(BpodSystem.ProtocolFigures.OutcomePlotFig,[ replace(BpodSystem.GUIData.SubjectName,'_',' '), '  Accuracy: ', num2str(accuracy),'%'])
 
 
