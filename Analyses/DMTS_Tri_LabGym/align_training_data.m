@@ -12,8 +12,16 @@ end
 uniqueDates = unique(allDates);
 numDates = numel(uniqueDates);
 numAnimals = numel(parserArray);
-dateIdx = nan(numDates, numAnimals);
-for i = 1:numAnimals
-    [~, loc] = ismember([trainingDates{i}{:}], uniqueDates);
-    dateIdx(loc, i) = data{i};
+if all(cellfun(@(x) isstruct(x), data))
+    dateIdx = cell(numDates, numAnimals);
+    for i = 1:numAnimals
+        [~, loc] = ismember([trainingDates{i}{:}], uniqueDates);
+        dateIdx(loc, i) = arrayfun(@(x) x, data{i}, 'uni', 0);
+    end
+else
+    dateIdx = nan(numDates, numAnimals);
+    for i = 1:numAnimals
+        [~, loc] = ismember([trainingDates{i}{:}], uniqueDates);
+        dateIdx(loc, i) = data{i};
+    end
 end

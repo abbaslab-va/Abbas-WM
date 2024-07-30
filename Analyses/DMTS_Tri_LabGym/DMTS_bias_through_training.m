@@ -1,36 +1,18 @@
 function biasRelationship = DMTS_bias_through_trianing(trainingSessions)
 
-    biasByAnimal = cellfun(@(x) arrayfun(@(y) calculate_side_bias(y), x), trainingSessions, 'uni', 0);
-    biasByAnimalAligned = align_training_data(trainingSessions, biasByAnimal);
-    numSessions = cellfun(@(x) true(size(x)), biasByAnimal, 'uni', 0);
-    sessionIdx = align_training_data(trainingSessions, numSessions);
-    sessionIdx(isnan(sessionIdx)) = false;
-    delayToChoiceCorrectLeft = cellfun(@(x) ...
-        arrayfun(@(y) mean(y.distance_between_states('DelayOn', 'ChoiceOn', 'trialType', 'Left', 'outcome', 'Correct')), x, 'uni', 0), ...
-        trainingSessions, 'uni', 0);
-    delayToChoiceIncorrectLeft = cellfun(@(x) ...
-        arrayfun(@(y) mean(y.distance_between_states('DelayOn', 'Punish', 'trialType', 'Left', 'outcome', 'Incorrect')), x, 'uni', 0), ...
-        trainingSessions, 'uni', 0);
-    delayToChoiceCorrectRight = cellfun(@(x) ...
-        arrayfun(@(y) mean(y.distance_between_states('DelayOn', 'ChoiceOn', 'trialType', 'Right', 'outcome', 'Correct')), x, 'uni', 0), ...
-        trainingSessions, 'uni', 0);
-    delayToChoiceIncorrectRight = cellfun(@(x) ...
-        arrayfun(@(y) mean(y.distance_between_states('DelayOn', 'Punish', 'trialType', 'Right', 'outcome', 'Incorrect')), x, 'uni', 0), ...
-        trainingSessions, 'uni', 0);
-    correctLeftAligned = nan(size(sessionIdx));
-    incorrectLeftAligned = nan(size(sessionIdx));
-    correctRightAligned = nan(size(sessionIdx));
-    incorrectRightAligned = nan(size(sessionIdx));
-    for animal = 1:numel(trainingSessions)
-        dayIdx = find(sessionIdx(:, animal));
-        correctLeftAligned(dayIdx, animal) = cell2mat(delayToChoiceCorrectLeft{animal});
-        incorrectLeftAligned(dayIdx, animal) = cell2mat(delayToChoiceIncorrectLeft{animal});
-        correctRightAligned(dayIdx, animal) = cell2mat(delayToChoiceCorrectRight{animal});
-        incorrectRightAligned(dayIdx, animal) = cell2mat(delayToChoiceIncorrectRight{animal});
-    end
-    
+    structByAnimal = cellfun(@(x) arrayfun(@(y) bias_against_timing(y), x), trainingSessions, 'uni', 0);
+    structByAnimalAligned = align_training_data(trainingSessions, structByAnimal);
+    hasSession = cellfun(@(x) ~isempty(x), structByAnimalAligned);
+    dataStruct = nan(size(structByAnimalAligned));
+    biasByAnimalAligned = dataStruct;
+    leftByAnimalAligned = dataStruct;
+    rightByAnimalAligned = dataStruct;
+    biasByAnimalAligned(hasSession) = cellfun(@(x) x.bias, structByAnimalAligned(hasSession));
+    leftByAnimalAligned(hasSession) = cellfun(@(x) x.left, structByAnimalAligned(hasSession));
+    rightByAnimalAligned(hasSession) = cellfun(@(x) x.right, structByAnimalAligned(hasSession));
+
     eraFraction = 1/3;
-    numTrainingSessionsAll = size(sessionIdx, 1);
+    numTrainingSessionsAll = size(structByAnimalAligned, 1);
     sessionsPerEra = floor(numTrainingSessionsAll*eraFraction);
     eraIdx = cell(1, 3);
     eraIdx{1} = 1:sessionsPerEra;
@@ -39,18 +21,18 @@ function biasRelationship = DMTS_bias_through_trianing(trainingSessions)
     for era = 1:3
         currentIdx = eraIdx{era};
         eraBias = biasByAnimalAligned(currentIdx, :);
-        leftCorrect = correctLeftAligned(currentIdx, :);
-        leftIncorrect = incorrectLeftAligned(currentIdx, :);
-        rightCorrect = correctRightAligned(currentIdx, :);
-        rightIncorrect = incorrectRightAligned(currentIdx, :);
-        hasLeft = ~isnan(leftCorrect) & ~isnan(leftIncorrect);
+        leftDiff = leftByAnimalAligned(currentIdx, :);
+        rightDiff = rightByAnimalAligned(currentIdx, :);
+        hasLeft = ~isnan(leftDiff);
         biasLeft = eraBias(hasLeft);
-        leftDiff = leftIncorrect(hasLeft) - leftCorrect(hasLeft);
-        hasRight = ~isnan(rightCorrect) & ~isnan(rightIncorrect);
+        leftDiff = leftDiff(hasLeft);
+        hasRight = ~isnan(rightDiff);
         biasRight = eraBias(hasRight);
-        rightDiff = rightIncorrect(hasRight) - rightCorrect(hasRight);
+        rightDiff = rightDiff(hasRight);
         leftMdl = fitlm(biasLeft, leftDiff);
         rightMdl = fitlm(biasRight, rightDiff);
+        leftSE(era) = leftMdl.Coefficients.SE(2);
+        rightSE(era) = rightMdl.Coefficients.SE(2);
         leftIntercept(era) = leftMdl.Coefficients.Estimate(2);
         rightIntercept(era) = rightMdl.Coefficients.Estimate(2);   
         figure
@@ -58,28 +40,36 @@ function biasRelationship = DMTS_bias_through_trianing(trainingSessions)
         figure
         plot(rightMdl)
     end
-    
+    figure
+    bar([leftIntercept' rightIntercept'])
+    figure
+    bar([leftSE', rightSE'])
+    biasRelationship = 0;
+
     for sess = 1:numTrainingSessionsAll
         sessionBias = biasByAnimalAligned(sess, :);
-        leftCorrect = correctLeftAligned(sess, :);
-        leftIncorrect = incorrectLeftAligned(sess, :);
-        rightCorrect = correctRightAligned(sess, :);
-        rightIncorrect = incorrectRightAligned(sess, :);
-        hasLeft = ~isnan(leftCorrect) & ~isnan(leftIncorrect);
+        leftDiff = leftByAnimalAligned(sess, :);
+        rightDiff = rightByAnimalAligned(sess, :);
+        hasLeft = ~isnan(leftDiff);
         biasLeft = sessionBias(hasLeft);
-        leftDiff = leftIncorrect(hasLeft) - leftCorrect(hasLeft);
-        hasRight = ~isnan(rightCorrect) & ~isnan(rightIncorrect);
+        leftDiff = leftDiff(hasLeft);
+        hasRight = ~isnan(rightDiff);
         biasRight = sessionBias(hasRight);
-        rightDiff = rightIncorrect(hasRight) - rightCorrect(hasRight);
+        rightDiff = rightDiff(hasRight);
         leftMdl = fitlm(biasLeft, leftDiff);
         rightMdl = fitlm(biasRight, rightDiff);
         leftIntercept(sess) = leftMdl.Coefficients.Estimate(2);
         rightIntercept(sess) = rightMdl.Coefficients.Estimate(2);   
     end
+    figure
+    plot(smooth(leftIntercept, 5), 'r', 'LineWidth', 3);
+    hold on
+    plot(smooth(rightIntercept, 5), 'g', 'LineWidth', 3);
 end
 
 function diffStruct = bias_against_timing(sessionParser)
     diffStruct.bias = calculate_side_bias(sessionParser);
+    % diffStruct.bias = calculate_performance_bias(sessionParser);
     delayToChoiceCorrectLeft = mean(sessionParser.distance_between_states ...
         ('DelayOn', 'ChoiceOn', 'trialType', 'Left', 'outcome', 'Correct'));
     delayToChoiceIncorrectLeft = mean(sessionParser.distance_between_states ...

@@ -6,8 +6,8 @@ function biasIdx = calculate_side_bias(sessionParser)
     rightTrialsIdx = sessionParser.trial_intersection_BpodParser('trialType', 'Right');
     choicePort = {'Port1In', 'Port2In', 'Port3In'};
     
-    waitForChoiceState = sessionParser.state_times('WaitForChoicePoke');
-    choiceMade = cellfun(@(x) x(end, 2), waitForChoiceState);
+    waitForChoiceState = sessionParser.state_times('WaitForChoicePoke', 'returnEnd', true);
+    choiceMade = cellfun(@(x) x, waitForChoiceState);
     leftChosen = zeros(1, sessionParser.session.nTrials);
     rightChosen = zeros(1, sessionParser.session.nTrials);
     
@@ -25,8 +25,9 @@ function biasIdx = calculate_side_bias(sessionParser)
         rightChoiceTime = choiceTimeAll{portIdx}(rt);
         rightChosen(rt) = any(ismember(rightChoiceTime{1}, choiceMade(rt)));
         leftChosen(rt) = ~any(ismember(rightChoiceTime{1}, choiceMade(rt)));
-    
     end
-    
+    if any(leftChosen & rightChosen)
+        disp("POOP")
+    end
     biasIdx = mean(rightChosen) - mean(leftChosen);
 end
