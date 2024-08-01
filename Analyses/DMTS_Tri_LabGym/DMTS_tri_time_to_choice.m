@@ -7,8 +7,8 @@ delayToChoiceIncorrectLeft = sessionParser.distance_between_states('DelayOn', 'P
 delayToChoiceCorrectRight = sessionParser.distance_between_states('DelayOn', 'ChoiceOn', 'trialType', 'Right', 'outcome', 'Correct');
 delayToChoiceIncorrectRight = sessionParser.distance_between_states('DelayOn', 'Punish', 'trialType', 'Right', 'outcome', 'Incorrect');
 
-leftDiff = mean([delayToChoiceIncorrectLeft{:}]) - mean([delayToChoiceCorrectLeft{:}]);
-rightDiff = mean([delayToChoiceIncorrectRight{:}]) - mean([delayToChoiceCorrectRight{:}]);
+leftDiff = mean(delayToChoiceIncorrectLeft) - mean(delayToChoiceCorrectLeft);
+rightDiff = mean(delayToChoiceIncorrectRight) - mean(delayToChoiceCorrectRight);
 
 if sessionBias < 0
     preferredDiff = leftDiff;

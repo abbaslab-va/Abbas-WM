@@ -6,8 +6,8 @@ function biasIdx = calculate_side_bias(sessionParser)
     rightTrialsIdx = sessionParser.trial_intersection_BpodParser('trialType', 'Right');
     choicePort = {'Port1In', 'Port2In', 'Port3In'};
     
-    waitForChoiceState = sessionParser.state_times('WaitForChoicePoke', 'returnEnd', true);
-    choiceMade = cellfun(@(x) x, waitForChoiceState);
+    waitForChoiceState = sessionParser.state_times('WaitForChoicePoke', 'returnEnd', true, 'trialized', true);
+    choiceMade = cellfun(@(x) cat(1, x{:}), waitForChoiceState, 'uni', 0);
     leftChosen = zeros(1, sessionParser.session.nTrials);
     rightChosen = zeros(1, sessionParser.session.nTrials);
     
@@ -17,14 +17,14 @@ function biasIdx = calculate_side_bias(sessionParser)
     for lt = find(leftTrialsIdx)
         portIdx = ismember(leftTrials, sessionParser.session.TrialTypes(lt));
         leftChoiceTime = choiceTimeAll{portIdx}(lt);
-        leftChosen(lt) = any(ismember(leftChoiceTime{1}, choiceMade(lt)));
-        rightChosen(lt) = ~any(ismember(leftChoiceTime{1}, choiceMade(lt)));
+        leftChosen(lt) = any(ismember(leftChoiceTime{1}, choiceMade{lt}(1)));
+        rightChosen(lt) = ~any(ismember(leftChoiceTime{1}, choiceMade{lt}(1)));
     end
     for rt = find(rightTrialsIdx)
         portIdx = ismember(rightTrials, sessionParser.session.TrialTypes(rt));
         rightChoiceTime = choiceTimeAll{portIdx}(rt);
-        rightChosen(rt) = any(ismember(rightChoiceTime{1}, choiceMade(rt)));
-        leftChosen(rt) = ~any(ismember(rightChoiceTime{1}, choiceMade(rt)));
+        rightChosen(rt) = any(ismember(rightChoiceTime{1}, choiceMade{rt}(1)));
+        leftChosen(rt) = ~any(ismember(rightChoiceTime{1}, choiceMade{rt}(1)));
     end
     if any(leftChosen & rightChosen)
         disp("POOP")

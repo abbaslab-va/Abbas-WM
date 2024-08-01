@@ -41,10 +41,15 @@ function biasRelationship = DMTS_bias_through_trianing(trainingSessions)
         plot(rightMdl)
     end
     figure
-    bar([leftIntercept' rightIntercept'])
-    figure
-    bar([leftSE', rightSE'])
-    biasRelationship = 0;
+    interceptData = [leftIntercept' rightIntercept'];
+    interceptBar = bar(interceptData, 'k', 'FaceAlpha', .6, 'EdgeAlpha', .6);
+    hold on
+    seData = [leftSE' rightSE'];
+    leftX = interceptBar(1).XEndPoints;
+    rightX = interceptBar(2).XEndPoints;
+    errorX = [leftX; rightX]';
+    errorbar(errorX, interceptData, seData, 'LineStyle', 'none', 'Color', 'k', 'LineWidth', 1.5)
+    clean_DMTS_figs
 
     for sess = 1:numTrainingSessionsAll
         sessionBias = biasByAnimalAligned(sess, :);
@@ -65,11 +70,13 @@ function biasRelationship = DMTS_bias_through_trianing(trainingSessions)
     plot(smooth(leftIntercept, 5), 'r', 'LineWidth', 3);
     hold on
     plot(smooth(rightIntercept, 5), 'g', 'LineWidth', 3);
+    biasRelationship = 0;
+
 end
 
 function diffStruct = bias_against_timing(sessionParser)
-    diffStruct.bias = calculate_side_bias(sessionParser);
-    % diffStruct.bias = calculate_performance_bias(sessionParser);
+    % diffStruct.bias = calculate_side_bias(sessionParser);
+    diffStruct.bias = calculate_performance_bias(sessionParser);
     delayToChoiceCorrectLeft = mean(sessionParser.distance_between_states ...
         ('DelayOn', 'ChoiceOn', 'trialType', 'Left', 'outcome', 'Correct'));
     delayToChoiceIncorrectLeft = mean(sessionParser.distance_between_states ...

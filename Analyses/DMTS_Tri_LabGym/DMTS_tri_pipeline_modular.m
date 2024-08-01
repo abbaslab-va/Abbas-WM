@@ -48,8 +48,6 @@ trainingRepeats = DMTS_tri_training_repeats(trainingSessions);
 
 %% Training bias
 
-% trainingSideBias = DMTS_tri_training_side_bias(trainingSessions);
-% trainingPerformanceBias = DMTS_tri_training_performance_bias(trainingSessions);
 biasRelationship = DMTS_bias_through_training(trainingSessions);
 diffByTrainingEra = DMTS_tri_training_decision_speed(trainingSessions, false);
 
@@ -63,4 +61,9 @@ choiceDiff = DMTS_tri_testing_decision_speed(testingSessions);
 
 DMTS_tri_combined_diff(diffByTrainingEra, choiceDiff)
 
+%% Bias metric comparison
+
+trainingSideBias = DMTS_tri_training_side_bias(trainingSessions);
+trainingPerformanceBias = DMTS_tri_training_performance_bias(trainingSessions);
+compare_bias_metrics(trainingSideBias, trainingPerformanceBias);
 %% Testing video
