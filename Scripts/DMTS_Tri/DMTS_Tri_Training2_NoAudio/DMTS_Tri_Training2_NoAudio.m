@@ -15,8 +15,8 @@ if isempty(fieldnames(S))  % If settings file was an empty struct, populate stru
     S.GUI.ITI = 5;             %seconds
     S.GUI.DelayHoldTime = 0;    
     S.GUI.DelayMaxHold = 0;
-    S.GUI.EarlyIncrement = 0.75;
-    S.GUI.TimeIncrement = 0.75; %Start this value at .05 and increase up to 1
+    S.GUI.EarlyIncrement = 0.85;
+    S.GUI.TimeIncrement = 0.85; %Start this value at .05 and increase up to 1
     S.GUI.EarlyWithdrawalTimeout = 5;
     S.GUI.PunishTime = 10;
 end
