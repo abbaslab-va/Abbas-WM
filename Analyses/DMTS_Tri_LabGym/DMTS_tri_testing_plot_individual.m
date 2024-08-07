@@ -10,10 +10,10 @@ scatterX = cellfun(@(x, y, z) zeros(1, numel(x)) + y + z, animalPerf, xOffset, j
 scatterY = cellfun(@(x, y) x + y, animalPerf, jitterVecAll, 'uni', 0);
 figH = figure;
 hold on
-bar(meanAll, 'facecolor', 'flat', 'FaceColor', 'k', 'FaceAlpha', .4, 'EdgeColor', 'none');
+bar(meanAll, 'facecolor', 'flat', 'FaceColor', 'k', 'FaceAlpha', .6, 'EdgeColor', 'none');
 cellfun(@(x, y) scatter(x, y, 20, 'k', 'filled'), scatterX, animalPerf)
 errorbar(meanAll, semAll, 'vertical', 'Color','k', 'LineWidth', 3, 'LineStyle', 'none')
 xlim([.5, numel(animalPerf) + .5])
-ylim([35 100])
+ylim([30 100])
 clean_DMTS_figs
-yline(50, 'LineStyle', '--', 'LineWidth', 3, 'Color', 'k')
+yline(50, 'LineStyle', '--', 'LineWidth', 3, 'Color', 'k', 'Alpha', .6)

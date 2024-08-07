@@ -20,6 +20,7 @@ figure
 bar(meanByEra, 'k', 'FaceAlpha', .6, 'EdgeAlpha', .6);
 hold on
 errorbar(meanByEra, semByEra, 'LineStyle', 'none', 'Color', 'k', 'LineWidth', 1.5)
+xticklabels({"Early", "Mid", "Late"})
 clean_DMTS_figs
 % repeatCorrectByTrial = cellfun(@(x) numel(x), repeatedCorrectAll);
 % repeatPunishByTrialLeft = cellfun(@(x) numel(x), repeatedPunishLeft);

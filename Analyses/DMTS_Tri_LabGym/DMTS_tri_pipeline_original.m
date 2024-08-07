@@ -202,7 +202,7 @@ for sess = 1:maxSessions
     timeToChoiceLeftCorrectSess = cellfun(@(w, x) cellfun(@(y, z) y - z, w, x, 'uni', 0), leftChoiceCorrect(hasLeftDelay), leftDelayCorrect(hasLeftDelay), 'uni', 0);
     timeToChoiceLeftIncorrectSess = cellfun(@(w, x) cellfun(@(y, z) y - z, w, x, 'uni', 0), leftChoiceIncorrect(hasLeftDelay), leftDelayIncorrect(hasLeftDelay), 'uni', 0);
     timeToChoiceRightCorrectSess = cellfun(@(w, x) cellfun(@(y, z) y - z, w, x, 'uni', 0), rightChoiceCorrect(hasRightDelay), rightDelayCorrect(hasRightDelay), 'uni', 0);
-c    
+    timeToChoiceRightIncorrectSess = cellfun(@(w, x) cellfun(@(y, z) y - z, w, x, 'uni', 0), rightChoiceIncorrect(hasRightDelay), rightDelayIncorrect(hasRightDelay), 'uni', 0);
     timeToChoiceLeftCorrectSessMeans = cellfun(@(x) mean(cat(1, x{:})), timeToChoiceLeftCorrectSess);
     timeToChoiceLeftIncorrectSessMeans = cellfun(@(x) mean(cat(1, x{:})), timeToChoiceLeftIncorrectSess);
     timeToChoiceRightCorrectSessMeans = cellfun(@(x) mean(cat(1, x{:})), timeToChoiceRightCorrectSess);
@@ -1057,7 +1057,7 @@ end
 leftCorrect = PresetManager('event', 'choicePoke', 'outcome', 'Correct', 'trialType', 'Left', 'edges', [-1 0]);
 rightCorrect = PresetManager('event', 'choicePoke', 'outcome', 'Correct', 'trialType', 'Right', 'edges', [-1 0]);
 
-fig3Subs = [1 7];
+% fig3Subs = [1 7];
 fig3Subs = 1:8;
 for sub = fig3Subs
     subName = filteredSubNames{sub};

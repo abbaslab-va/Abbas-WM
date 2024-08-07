@@ -1,7 +1,7 @@
-function choiceDiff = DMTS_tri_testing_decision_speed(managerObj)
+function choiceDiff = DMTS_tri_testing_decision_speed(managerObj, biasType)
 
     [preferredTimeToChoice, nonPreferredTimeToChoice] = arrayfun(@(x) ...
-        DMTS_tri_time_to_choice(x.bpod), managerObj.sessions);
+        DMTS_tri_time_to_choice(x.bpod, biasType), managerObj.sessions);
     [choiceDiff.preferred.mean, choiceDiff.preferred.sem] = calculate_averages(preferredTimeToChoice);
     [choiceDiff.nonPreferred.mean, choiceDiff.nonPreferred.sem] = calculate_averages(nonPreferredTimeToChoice);
     testingMeans = [choiceDiff.preferred.mean choiceDiff.nonPreferred.mean];

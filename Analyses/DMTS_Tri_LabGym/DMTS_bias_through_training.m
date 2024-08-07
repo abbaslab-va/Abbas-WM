@@ -1,6 +1,6 @@
-function biasRelationship = DMTS_bias_through_trianing(trainingSessions)
+function biasRelationship = DMTS_bias_through_trianing(trainingSessions, perfType)
 
-    structByAnimal = cellfun(@(x) arrayfun(@(y) bias_against_timing(y), x), trainingSessions, 'uni', 0);
+    structByAnimal = cellfun(@(x) arrayfun(@(y) bias_against_timing(y, perfType), x), trainingSessions, 'uni', 0);
     structByAnimalAligned = align_training_data(trainingSessions, structByAnimal);
     hasSession = cellfun(@(x) ~isempty(x), structByAnimalAligned);
     dataStruct = nan(size(structByAnimalAligned));
@@ -49,6 +49,7 @@ function biasRelationship = DMTS_bias_through_trianing(trainingSessions)
     rightX = interceptBar(2).XEndPoints;
     errorX = [leftX; rightX]';
     errorbar(errorX, interceptData, seData, 'LineStyle', 'none', 'Color', 'k', 'LineWidth', 1.5)
+    xticklabels({"Early", "Mid", "Late"})
     clean_DMTS_figs
 
     for sess = 1:numTrainingSessionsAll
@@ -71,12 +72,17 @@ function biasRelationship = DMTS_bias_through_trianing(trainingSessions)
     hold on
     plot(smooth(rightIntercept, 5), 'g', 'LineWidth', 3);
     biasRelationship = 0;
-
+    
 end
 
-function diffStruct = bias_against_timing(sessionParser)
-    % diffStruct.bias = calculate_side_bias(sessionParser);
-    diffStruct.bias = calculate_performance_bias(sessionParser);
+function diffStruct = bias_against_timing(sessionParser, biasType)
+    if strcmp(biasType, 'perf')
+        diffStruct.bias = calculate_performance_bias(sessionParser);
+    elseif strcmp(biasType, 'side')
+        diffStruct.bias = calculate_side_bias(sessionParser);
+    else
+        throw(MException("DMTS:BadInput", "ERROR: please input either perf or side to select bias type"))
+    end
     delayToChoiceCorrectLeft = mean(sessionParser.distance_between_states ...
         ('DelayOn', 'ChoiceOn', 'trialType', 'Left', 'outcome', 'Correct'));
     delayToChoiceIncorrectLeft = mean(sessionParser.distance_between_states ...

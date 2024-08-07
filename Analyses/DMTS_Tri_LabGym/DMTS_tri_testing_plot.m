@@ -4,7 +4,7 @@ function [animalFigH, sessionFigH] = DMTS_tri_testing_plot(alignmentStruct, colo
 numAlignments = numel(alignmentStruct.alignments);
 alignmentField = alignmentStruct.alignments;
 if all(cellfun(@(x) ischar(x), alignmentField))
-    alignmentString = alignmentField;
+    alignmentString = {'1', '2', '3'};
 else
     alignmentString = {'0-3', '3-4', '4-5', '5-6', '6-7'};
 end

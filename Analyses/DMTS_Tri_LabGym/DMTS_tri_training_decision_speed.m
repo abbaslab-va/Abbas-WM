@@ -1,7 +1,7 @@
-function eraDiff = DMTS_tri_training_decision_speed(parserArray, plotEras)
+function eraDiff = DMTS_tri_training_decision_speed(parserArray, plotEras, biasType)
 
     [preferredTimeToChoice, nonPreferredTimeToChoice] = cellfun(@(x) ...
-        arrayfun(@(y) DMTS_tri_time_to_choice(y), x), parserArray, 'uni', 0);
+        arrayfun(@(y) DMTS_tri_time_to_choice(y, biasType), x), parserArray, 'uni', 0);
     preferredTimeAligned = align_training_data(parserArray, preferredTimeToChoice);
     nonPreferredTimeAligned = align_training_data(parserArray, nonPreferredTimeToChoice);
     % preferredAll = [preferredTimeToChoice{:}];

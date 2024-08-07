@@ -11,4 +11,5 @@ preferredX = meanBar(1).XEndPoints;
 nonPreferredX = meanBar(2).XEndPoints;
 errorX = [preferredX; nonPreferredX]';
 errorbar(errorX, meanData, semData, 'LineStyle', 'none', 'Color', 'k', 'LineWidth', 1.5)
+xticklabels({"Early", "Mid", "Late", "Testing"})
 clean_DMTS_figs

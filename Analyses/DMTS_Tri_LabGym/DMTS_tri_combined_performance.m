@@ -11,4 +11,7 @@ figure
 bar(meanData, 'k', 'FaceAlpha', .6, 'EdgeAlpha', .6)
 hold on
 errorbar(meanData, semData, 'LineStyle', 'none', 'Color', 'k', 'LineWidth', 1.5)
+xticklabels({"Early", "Mid", "Late", "Testing"})
+yline(50, 'LineStyle', '--', 'LineWidth', 3, 'color', 'k', 'Alpha', .6)
+ylim([30 100])
 clean_DMTS_figs
