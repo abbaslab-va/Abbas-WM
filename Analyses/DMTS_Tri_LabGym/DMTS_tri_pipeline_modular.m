@@ -42,10 +42,14 @@ animalPerfFig = DMTS_tri_testing_plot_individual(testingPerformance);
 
 DMTS_tri_combined_performance(trainingPerformance, testingPerformance);
 
-%% Training repeats
+%% Training repeats and Early Withdrawals
 
 trainingRepeats = DMTS_tri_training_repeats(trainingSessions);
+DMTS_tri_training_early_withdrawals(trainingSessions);
 
+%% Testing early withdrawals
+
+DMTS_tri_testing_early_withdrawals(testingSessions)
 %% Training bias
 
 perfBiasRelationship = DMTS_bias_through_training(trainingSessions, 'perf');
