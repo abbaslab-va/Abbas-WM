@@ -13,4 +13,4 @@ ylabel("Directional performance bias")
 scatter(sideBias, performanceBias, 20, 'filled', 'k')
 
 clean_DMTS_figs
-l = legend({"Remove me", "Fit", "95% Confidence Bounds", "Sessions"}, "Color", 'w', "TextColor", 'k')
+legend({"Remove me", "Fit", "95% Confidence Bounds", "Sessions"}, "Color", 'w', "TextColor", 'k');

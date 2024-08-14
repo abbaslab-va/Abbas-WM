@@ -7,7 +7,6 @@ semAll = cellfun(@(x) std(x)/sqrt(numel(x)), animalPerf);
 xOffset = num2cell(1:numel(animalPerf));
 jitterVecAll = cellfun(@(x) (zeros(1, numel(x)) + rand(1, numel(x)) - .5).*.5, animalPerf, 'uni', 0);
 scatterX = cellfun(@(x, y, z) zeros(1, numel(x)) + y + z, animalPerf, xOffset, jitterVecAll, 'uni', 0);
-scatterY = cellfun(@(x, y) x + y, animalPerf, jitterVecAll, 'uni', 0);
 figH = figure;
 hold on
 xticks(1:numel(animalPerf))

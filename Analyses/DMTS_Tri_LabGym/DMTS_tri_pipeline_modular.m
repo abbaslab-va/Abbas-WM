@@ -3,6 +3,7 @@
 
 %% Initialize pipeline
 
+delayBins = {[0 3] [3.1 4] [4.1 5] [5.1 6] [6.1 7]};
 % Create colormap to be used in figures
 behaviorColormap = brewermap(9, 'Set1');
 behaviorColormap = ...
@@ -31,7 +32,6 @@ trainingPerfGroupFig = DMTS_tri_training_plot_group(trainingPerformance);
 %% Testing performance
 
 testingPerformance = DMTS_tri_testing_performance(testingSessions);
-
 animalPerfFig = DMTS_tri_testing_plot_individual(testingPerformance);
 [sampleAnimalFig, sampleSessionFig] = DMTS_tri_testing_plot(testingPerformance.samplePort, sampleColor);
 [delayAnimalFig, delaySessionFig] = DMTS_tri_testing_plot(testingPerformance.delayPort, delayColor);
@@ -45,19 +45,20 @@ DMTS_tri_combined_performance(trainingPerformance, testingPerformance);
 %% Training repeats and Early Withdrawals
 
 trainingRepeats = DMTS_tri_training_repeats(trainingSessions);
-DMTS_tri_training_early_withdrawals(trainingSessions);
+trainingEW = DMTS_tri_training_early_withdrawals(trainingSessions, delayBins);
 
 %% Testing early withdrawals
 
-DMTS_tri_testing_early_withdrawals(testingSessions)
-%% Training bias
+earlyWithdrawalByDelay = DMTS_tri_testing_early_withdrawals(testingSessions, delayBins);
+
+%% Training bias (figure 4)
 
 % perfBiasRelationship = DMTS_bias_through_training(trainingSessions, 'perf');
 sideBiasRelationship = DMTS_bias_through_training(trainingSessions, 'side', leftColor, rightColor);
 % diffByTrainingEraPerfBias = DMTS_tri_training_decision_speed(trainingSessions, false, 'perf');
 diffByTrainingEraSideBias = DMTS_tri_training_decision_speed(trainingSessions, false, 'side');
 
-%% Testing bias
+%% Testing bias (figure 4)
 
 % left_vs_right_bias_diff(testingSessions, 'perf', leftColor, rightColor);
 left_vs_right_bias_diff(testingSessions, 'side', leftColor, rightColor);
@@ -72,7 +73,7 @@ DMTS_tri_combined_diff(diffByTrainingEraSideBias, choiceDiffSideBias)
 trainingSideBias = DMTS_tri_training_side_bias(trainingSessions);
 trainingPerformanceBias = DMTS_tri_training_performance_bias(trainingSessions);
 compare_bias_metrics(trainingSideBias, trainingPerformanceBias);
-%% Testing video
+%% Testing video (figure 3)
 
 combined_behavior_and_position(testingSessions, 1)
 combined_behavior_and_position(testingSessions, 2)

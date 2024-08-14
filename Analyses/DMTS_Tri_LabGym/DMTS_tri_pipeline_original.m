@@ -94,8 +94,8 @@ for sub = 1:numSubs
             filteredSessions(sessionIdx) = newSess;
             sessionIdx = sessionIdx + 1;
         end
-        coords.(subName).Choice.Correct.Left = arrayfun(@(x) x.plot_centroid('preset', correctChoiceLeft, 'plot', false), subSessions(goodSessions), 'uni', 0);
-        coords.(subName).Choice.Correct.Right = arrayfun(@(x) x.plot_centroid('preset', correctChoiceRight, 'plot', false), subSessions(goodSessions), 'uni', 0);
+        % coords.(subName).Choice.Correct.Left = arrayfun(@(x) x.plot_centroid('preset', correctChoiceLeft, 'plot', false), subSessions(goodSessions), 'uni', 0);
+        % coords.(subName).Choice.Correct.Right = arrayfun(@(x) x.plot_centroid('preset', correctChoiceRight, 'plot', false), subSessions(goodSessions), 'uni', 0);
     else
         performanceAnimals(sub) = nan;
     end
