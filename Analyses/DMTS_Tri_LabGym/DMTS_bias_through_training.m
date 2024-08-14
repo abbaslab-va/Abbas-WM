@@ -1,4 +1,4 @@
-function biasRelationship = DMTS_bias_through_trianing(trainingSessions, perfType)
+function biasRelationship = DMTS_bias_through_training(trainingSessions, perfType, leftColor, rightColor)
 
     structByAnimal = cellfun(@(x) arrayfun(@(y) bias_against_timing(y, perfType), x), trainingSessions, 'uni', 0);
     structByAnimalAligned = align_training_data(trainingSessions, structByAnimal);
@@ -68,9 +68,10 @@ function biasRelationship = DMTS_bias_through_trianing(trainingSessions, perfTyp
         rightIntercept(sess) = rightMdl.Coefficients.Estimate(2);   
     end
     figure
-    plot(smooth(leftIntercept, 5), 'r', 'LineWidth', 3);
+    plot(smooth(leftIntercept, 5), 'Color', leftColor, 'LineWidth', 3);
     hold on
-    plot(smooth(rightIntercept, 5), 'g', 'LineWidth', 3);
+    plot(smooth(rightIntercept, 5), 'Color', rightColor, 'LineWidth', 3);
+    clean_DMTS_figs
     biasRelationship = 0;
     
 end

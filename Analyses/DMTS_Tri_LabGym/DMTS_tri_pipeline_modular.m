@@ -52,16 +52,16 @@ DMTS_tri_training_early_withdrawals(trainingSessions);
 DMTS_tri_testing_early_withdrawals(testingSessions)
 %% Training bias
 
-perfBiasRelationship = DMTS_bias_through_training(trainingSessions, 'perf');
-sideBiasRelationship = DMTS_bias_through_training(trainingSessions, 'side');
-diffByTrainingEraPerfBias = DMTS_tri_training_decision_speed(trainingSessions, false, 'perf');
+% perfBiasRelationship = DMTS_bias_through_training(trainingSessions, 'perf');
+sideBiasRelationship = DMTS_bias_through_training(trainingSessions, 'side', leftColor, rightColor);
+% diffByTrainingEraPerfBias = DMTS_tri_training_decision_speed(trainingSessions, false, 'perf');
 diffByTrainingEraSideBias = DMTS_tri_training_decision_speed(trainingSessions, false, 'side');
 
 %% Testing bias
 
-left_vs_right_bias_diff(testingSessions, 'perf', leftColor, rightColor);
+% left_vs_right_bias_diff(testingSessions, 'perf', leftColor, rightColor);
 left_vs_right_bias_diff(testingSessions, 'side', leftColor, rightColor);
-choiceDiffPerfBias = DMTS_tri_testing_decision_speed(testingSessions, 'perf');
+% choiceDiffPerfBias = DMTS_tri_testing_decision_speed(testingSessions, 'perf');
 choiceDiffSideBias = DMTS_tri_testing_decision_speed(testingSessions, 'side');
 %% Combined bias
 
@@ -73,8 +73,8 @@ trainingSideBias = DMTS_tri_training_side_bias(trainingSessions);
 trainingPerformanceBias = DMTS_tri_training_performance_bias(trainingSessions);
 compare_bias_metrics(trainingSideBias, trainingPerformanceBias);
 %% Testing video
-for subNo = 1:8
-    combined_behavior_and_position(testingSessions, subNo)
-end
-% combined_behavior_and_position(testingSessions, 1)
-% combined_behavior_and_position(testingSessions, 7)filteredSessions([17, 29]) = [];
+
+combined_behavior_and_position(testingSessions, 1)
+combined_behavior_and_position(testingSessions, 2)
+combined_behavior_and_position(testingSessions, 3)
+combined_behavior_and_position(testingSessions, 7)

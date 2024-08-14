@@ -10,6 +10,7 @@ scatterX = cellfun(@(x, y, z) zeros(1, numel(x)) + y + z, animalPerf, xOffset, j
 scatterY = cellfun(@(x, y) x + y, animalPerf, jitterVecAll, 'uni', 0);
 figH = figure;
 hold on
+xticks(1:numel(animalPerf))
 bar(meanAll, 'facecolor', 'flat', 'FaceColor', 'k', 'FaceAlpha', .6, 'EdgeColor', 'none');
 cellfun(@(x, y) scatter(x, y, 20, 'k', 'filled'), scatterX, animalPerf)
 errorbar(meanAll, semAll, 'vertical', 'Color','k', 'LineWidth', 3, 'LineStyle', 'none')

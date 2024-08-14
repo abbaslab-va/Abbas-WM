@@ -19,18 +19,21 @@ for sess = sessIdx
     xlim([60 220])
     ylim([0 140])
     set(rightSess, 'Color', 'none')
-    copyobj(leftSess.Children, leftPosition)
+    arrayfun(@(x) copyobj(x, leftPosition.Children), leftSess.Children.Children)
     close(leftSess)
-    copyobj(rightSess.Children, rightPosition)
+    arrayfun(@(x) copyobj(x, rightPosition.Children), rightSess.Children.Children)
     close(rightSess)
 end
+set(leftPosition.Children, 'xlim', [60 220], 'ylim', [0 140])
+set(rightPosition.Children, 'xlim', [60 220], 'ylim', [0 140])
 [~, ~, leftBehavior] = testingSessions.plot_combined_behaviors('preset', leftCorrect, 'animal', subName);
 [~, ~, rightBehavior] = testingSessions.plot_combined_behaviors('preset', rightCorrect, 'animal', subName);
-% copygraphics(leftPosition, 'ContentType', 'vector')
-% pause
-% copygraphics(rightPosition, 'ContentType', 'vector')
-% pause
-% copygraphics(leftBehavior, 'ContentType', 'vector')
-% pause
-% copygraphics(rightBehavior, 'ContentType', 'vector')
-% pause
+copygraphics(leftPosition, 'ContentType', 'vector')
+disp("Left position copied to clipboard")
+pause
+copygraphics(rightPosition, 'ContentType', 'vector')
+disp("Right position copied to clipboard")
+pause
+subNo = num2str(find(strcmp(subName, testingSessions.metadata.subjects)));
+exportgraphics(leftBehavior.Children, fullfile('E:\Papers\DMTS_Tri\Figures\figure4', strcat(subName, '_Left_', subNo, '.png')));
+exportgraphics(rightBehavior.Children, fullfile('E:\Papers\DMTS_Tri\Figures\figure4', strcat(subName, '_Right_', subNo, '.png')));
