@@ -1,7 +1,8 @@
 function DMTS_tri_combined_performance(trainingData, testingData)
 
 % This is formatted to use outputs from DMTS_tri_training_performance and
-% DMTS_tri_testing_performance, respectively
+% DMTS_tri_testing_performance, respectively. Combines performance data from
+% the three training eras with that of the testing period.
 
 testingMeans = mean(testingData.all.sessions);
 testingSEM = std(testingData.all.sessions)./sqrt(numel(testingData.all.sessions));

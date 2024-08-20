@@ -1,4 +1,6 @@
 function figH = compare_bias_metrics(sideBias, performanceBias)
+% Examines the relationship between the two calculated bias metrics, 
+% performance and side. This finds the relationship to be very correlated, as expected.
 
 matSize = size(sideBias);
 numElements = matSize(1) * matSize(2);

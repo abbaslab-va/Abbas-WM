@@ -1,6 +1,8 @@
 function testingPerf = DMTS_tri_testing_performance(managerObj)
 
-% Accepts an ExpManager object to calculate performance
+% Accepts an ExpManager object to calculate performance in testing. 
+% Returns a structure with the given alignment, with means by animal and session.
+
 alignments = struct();
 testingPerf = struct();
 alignments(1).directional = {'Left', 'Right'};

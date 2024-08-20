@@ -1,5 +1,7 @@
 function [preferredDiff, nonPreferredDiff] = DMTS_tri_time_to_choice(sessionParser, biasType)
 
+% Outputs the difference in time to choice arrival from delay reward for the session's preferred and non-preferred trial type.
+
 if strcmp(biasType, 'perf')
     sessionBias = calculate_performance_bias(sessionParser);
 elseif strcmp(biasType, 'side')

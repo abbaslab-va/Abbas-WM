@@ -1,4 +1,6 @@
 function left_vs_right_bias_diff(testingSessions, biasType, leftColor, rightColor)
+% Plots the relationship between bias and incorrect vs. correct time to choice difference,
+% contrasting the slope of left trials against right trials.
 
 frameRate = 30;
 if strcmp(biasType, 'perf')

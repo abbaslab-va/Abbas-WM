@@ -1,4 +1,5 @@
 function combined_behavior_and_position(testingSessions, subNo)
+% Provides plots for figure 3 in DMTS_tri paper. Displays LabGym behavior and decoded position for the given subject.
 
 leftCorrect = PresetManager('event', 'choicePoke', 'outcome', 'Correct', 'trialType', 'Left', 'edges', [-1 0]);
 rightCorrect = PresetManager('event', 'choicePoke', 'outcome', 'Correct', 'trialType', 'Right', 'edges', [-1 0]);

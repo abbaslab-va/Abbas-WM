@@ -1,4 +1,9 @@
-function DMTS_tri_early_withdrawals(trainingSessions)
+function [abortedTrials, reentriesPerCompletion] = DMTS_tri_early_withdrawals(trainingSessions)
+% Currently does a lot of work. Counts the total number of early withdrawals, as well as
+% binned according to the delay length. Plots average number of early
+% withdrawals through training. Attempts to find a relationship between early withdrawals by delay
+% and trial type preference, this is still a WIP.
+
 
 ewCountAll = cellfun(@(x) ...
     arrayfun(@(y) y.state_times('EarlyWithdrawal', 'trialized', true), ...
@@ -49,6 +54,9 @@ for d = 1:5
     hold on
     scatter(ewByDelayAlignedRight{d}, sideBiasData, 10, 'g', 'filled')
 end
+
+figure
+
 
 disp('poop')
 leftBias = sideBiasData < 0;

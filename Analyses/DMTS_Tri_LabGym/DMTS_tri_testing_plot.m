@@ -1,6 +1,9 @@
 function [animalFigH, sessionFigH] = DMTS_tri_testing_plot(alignmentStruct, color)
 
 % alignmentStruct is obtained from the method DMTS_tri_testing_performance
+% Makes bar plots with performance according to various alignments
+% Figure 2
+
 numAlignments = numel(alignmentStruct.alignments);
 alignmentField = alignmentStruct.alignments;
 if numel(alignmentField) == 3

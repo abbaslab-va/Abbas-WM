@@ -1,4 +1,7 @@
 function biasIdx = calculate_side_bias(sessionParser)
+    % Returns a value from -1:1, indicating the bias towards port visits after delay towards
+    % the left choice port (-1 = 100% correct left, 0% correct right) or right choice port
+    % (1 = 0% correct left, 100% correct right)
 
     leftTrials = sessionParser.config.trialTypes.Left;
     rightTrials = sessionParser.config.trialTypes.Right;

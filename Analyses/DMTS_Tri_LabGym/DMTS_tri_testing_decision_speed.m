@@ -1,4 +1,11 @@
 function choiceDiff = DMTS_tri_testing_decision_speed(managerObj, biasType)
+    % OUTPUT:
+    %     choiceDiff - a structure containing average and sem values for the difference
+    %     in latencies between incorrect and correct choice port arrivals, comparing the 
+    %     preferred trialtypes against the non-preferred
+    % INPUT:
+    %     managerObj - an ExpManager object containing BehDat sessions with BpodParser sessions within
+    %     biasType - a string indicating if bias should be calculated by performance ('perf') or side preference ('side')
 
     [preferredTimeToChoice, nonPreferredTimeToChoice] = arrayfun(@(x) ...
         DMTS_tri_time_to_choice(x.bpod, biasType), managerObj.sessions);

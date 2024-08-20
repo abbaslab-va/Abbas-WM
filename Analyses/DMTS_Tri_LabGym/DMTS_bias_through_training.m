@@ -1,4 +1,6 @@
 function biasRelationship = DMTS_bias_through_training(trainingSessions, perfType, leftColor, rightColor)
+    % Generates figures to evaluate the development of the relationship between bias and the time to choice difference
+    % on preferred vs non-preferred trialtypes. These are not used in the main body of the paper.
 
     structByAnimal = cellfun(@(x) arrayfun(@(y) bias_against_timing(y, perfType), x), trainingSessions, 'uni', 0);
     structByAnimalAligned = align_training_data(trainingSessions, structByAnimal);

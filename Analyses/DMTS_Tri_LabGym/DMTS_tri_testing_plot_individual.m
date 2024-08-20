@@ -1,5 +1,8 @@
 function figH = DMTS_tri_testing_plot_individual(sessionPerformance)
 
+% Generates a plot that shows performance during testing for each animal separately.
+% Part of figure 1
+
 meanAll = sessionPerformance.all.animals;
 subIdx = sessionPerformance.all.subIdx;
 animalPerf = cellfun(@(x) sessionPerformance.all.sessions(x), subIdx, 'uni', 0);

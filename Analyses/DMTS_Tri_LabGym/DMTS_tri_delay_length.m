@@ -1,4 +1,12 @@
 function [delayTimes, ewByDelay] = DMTS_tri_delay_length(sessionParser, varargin)
+% OUTPUT:
+%     delayTimes - a 1xT array of delay lengths in seconds, where T is the number of trials in sessionParser
+%     ewByDelay - a 1xB array of binned early withdrawal counts or proportions, 
+%     where B is the number of bins in the variable binRanges, defined below.
+% INPUT:
+%     sessionParser - a BpodSession object
+% VARIABLE INPUT PAIRS:
+%     trialType - a string of trial types defined in the configs
 
 presets = PresetManager(varargin{:});
 validCalcType = @(x) strcmp(x, 'raw') || strcmp(x, 'proportion');
