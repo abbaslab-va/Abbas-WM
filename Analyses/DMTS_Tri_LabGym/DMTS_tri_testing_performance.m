@@ -10,6 +10,7 @@ alignments(1).delayLength = {[0 3], [3.1 4], [4.1 5], [5.1 6], [6.1 7]};
 subNames = managerObj.metadata.subjects;
 subIdxAll = cellfun(@(x) managerObj.subset('animal', x), subNames, 'uni', 0);
 groupings = fields(alignments);
+numTrials = arrayfun(@(x) x.bpod.session.nTrials, managerObj.sessions);
 % sort through alignments using PresetManager calls
 for al = 1:numel(groupings)
     currentGrouping = groupings{al};
