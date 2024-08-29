@@ -9,10 +9,11 @@ alignmentField = alignmentStruct.alignments;
 if numel(alignmentField) == 3
     alignmentString = cellfun(@(x, y) ...
     [x(1) y], alignmentField, {'1', '2', '3'}, 'uni', 0);
-elseif numel(alignmentField) == 2
-    alignmentString = alignmentField;
+elseif ~any(cellfun(@(x) any(ischar(x)), alignmentField))
+    % alignmentString = {'0-3', '3-4', '4-5', '5-6', '6-7'};
+    alignmentString = {'3-5', '5-7'};
 else
-    alignmentString = {'0-3', '3-4', '4-5', '5-6', '6-7'};
+    alignmentString = alignmentField;
 end
 
 animalCells = alignmentStruct.animals;

@@ -3,7 +3,8 @@
 
 %% Initialize pipeline
 
-delayBins = {[0 3] [3.1 4] [4.1 5] [5.1 6] [6.1 7]};
+% delayBins = {[0 3] [3.1 4] [4.1 5] [5.1 6] [6.1 7]};
+delayBins = {[3.1 5] [5.1 7]};
 % Create colormap to be used in figures
 behaviorColormap = brewermap(9, 'Set1');
 behaviorColormap = ...
@@ -66,16 +67,20 @@ left_vs_right_bias_diff(testingSessions, 'side', leftColor, rightColor);
 choiceDiffSideBias = DMTS_tri_testing_decision_speed(testingSessions, 'side');
 %% Combined bias
 
-DMTS_tri_combined_diff(diffByTrainingEraPerfBias, choiceDiffPerfBias)
+% DMTS_tri_combined_diff(diffByTrainingEraPerfBias, choiceDiffPerfBias)
 DMTS_tri_combined_diff(diffByTrainingEraSideBias, choiceDiffSideBias)
 %% Bias metric comparison
 
-trainingSideBias = DMTS_tri_training_side_bias(trainingSessions);
-trainingPerformanceBias = DMTS_tri_training_performance_bias(trainingSessions);
-compare_bias_metrics(trainingSideBias, trainingPerformanceBias);
+% trainingSideBias = DMTS_tri_training_side_bias(trainingSessions);
+% trainingPerformanceBias = DMTS_tri_training_performance_bias(trainingSessions);
+% compare_bias_metrics(trainingSideBias, trainingPerformanceBias);
 %% Testing video (figure 3)
 
 combined_behavior_and_position(testingSessions, 1)
 combined_behavior_and_position(testingSessions, 2)
 combined_behavior_and_position(testingSessions, 3)
 combined_behavior_and_position(testingSessions, 7)
+
+%% Training scan punish
+
+DMTS_tri_training_scanning(trainingSessions)

@@ -7,10 +7,25 @@ function choiceDiff = DMTS_tri_testing_decision_speed(managerObj, biasType)
     %     managerObj - an ExpManager object containing BehDat sessions with BpodParser sessions within
     %     biasType - a string indicating if bias should be calculated by performance ('perf') or side preference ('side')
 
+    %biasDiff
     [preferredTimeToChoice, nonPreferredTimeToChoice] = arrayfun(@(x) ...
         DMTS_tri_time_to_choice(x.bpod, biasType), managerObj.sessions);
     [choiceDiff.preferred.mean, choiceDiff.preferred.sem] = calculate_averages(preferredTimeToChoice);
     [choiceDiff.nonPreferred.mean, choiceDiff.nonPreferred.sem] = calculate_averages(nonPreferredTimeToChoice);
+    testingMeans = [choiceDiff.preferred.mean choiceDiff.nonPreferred.mean];
+    testingSEM = [choiceDiff.preferred.sem choiceDiff.nonPreferred.sem];
+    figure
+    bar(testingMeans, 'k', 'FaceAlpha', .6, 'EdgeAlpha', .6)
+    hold on
+    errorbar([1 2], testingMeans, testingSEM, ...
+        'LineStyle', 'none', 'Color', 'k', 'LineWidth', 1.5)
+    clean_DMTS_figs
+    %correctDiff
+
+    [correctTimeToChoice, incorrectTimeToChoice] = arrayfun(@(x) ...
+        DMTS_tri_time_to_choice_correct_diff(x.bpod, biasType), managerObj.sessions);
+    [choiceDiff.preferred.mean, choiceDiff.preferred.sem] = calculate_averages(correctTimeToChoice);
+    [choiceDiff.nonPreferred.mean, choiceDiff.nonPreferred.sem] = calculate_averages(incorrectTimeToChoice);
     testingMeans = [choiceDiff.preferred.mean choiceDiff.nonPreferred.mean];
     testingSEM = [choiceDiff.preferred.sem choiceDiff.nonPreferred.sem];
     figure
