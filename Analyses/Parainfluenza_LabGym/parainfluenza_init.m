@@ -1,4 +1,4 @@
-function subStruct = parainfluenza_init
+function [subStruct, subStructCombined] = parainfluenza_init
 
     prePath = 'F:\LabGym\PARAINFLUENZA PROJECT\analyzed_preinfection_2x';
     postPath = 'F:\LabGym\PARAINFLUENZA PROJECT\analyzed_postinfection_2x';
@@ -25,6 +25,13 @@ function subStruct = parainfluenza_init
     subStruct.set2.wildType = cellfun(@(x) contains(x, 'WT'), subStruct.set2.names);
     subStruct.set2.infection = [0 0 1 1 0 0 1 1 1 1 0 0 1 1 0 0]';
     subStruct = parainfluenza_get_perimeter(subStruct);
+    subStructCombined.names = [subStruct.set1.names; subStruct.set2.names];
+    subStructCombined.prePath = [subStruct.set1.prePath; subStruct.set2.prePath];
+    subStructCombined.postPath = [subStruct.set1.postPath; subStruct.set2.postPath];
+    subStructCombined.wildType = [subStruct.set1.wildType; subStruct.set2.wildType];
+    subStructCombined.infection = [subStruct.set1.infection; subStruct.set2.infection];
+    subStructCombined.prePerim = [subStruct.set1.prePerim; subStruct.set2.prePerim];
+    subStructCombined.postPerim = [subStruct.set1.postPerim; subStruct.set2.postPerim];
 end
 
 function subNames = get_sub_names(setDir)
