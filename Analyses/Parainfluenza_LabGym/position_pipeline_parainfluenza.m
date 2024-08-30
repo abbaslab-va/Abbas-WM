@@ -224,6 +224,8 @@ legend({"Infection", "Mock"})
 title("Combined absolute change")
 clean_DMTS_figs
 
+[~, pAbsWT] = ttest(absInfectedWT, absMockWT)
+[~, pAbsMutant] = ttest(absInfectedMutant, absMockMutant)
 
 function distanceTraveled = parainfluenza_distance_traveled(filePath)
     % myPosition = get_LabGym_centroid(fullfile(filePath, 'Annotated video.avi'));
