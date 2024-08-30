@@ -16,14 +16,14 @@ function subStruct = parainfluenza_init
     subStruct.set1.prePath = arrayfun(@(x) fullfile(x.folder, x.name), preDir, 'uni', 0);
     subStruct.set1.postPath = arrayfun(@(x) fullfile(x.folder, x.name), postDir, 'uni', 0);
     subStruct.set1.wildType = cellfun(@(x) contains(x, 'WT'), subStruct.set1.names);
-    subStruct.set1.infection = [1 1 0 0 1 0 1 0];
+    subStruct.set1.infection = [1 1 0 0 1 0 1 0]';
     subStruct.set2.names = get_sub_names(preDirSet2);
     subStruct.set2.prePath = arrayfun(@(x) fullfile(x.folder, x.name), preDirSet2, 'uni', 0);
     postPathSet2Unordered = arrayfun(@(x) fullfile(x.folder, x.name), postDirSet2, 'uni', 0);
     [~, postPathSet2Idx] = sort(cellfun(@(x) find(cellfun(@(y) contains(x, y), subStruct.set2.names)), postPathSet2Unordered), 'ascend');
     subStruct.set2.postPath = postPathSet2Unordered(postPathSet2Idx);
-    subStruct.set2.genetics = cellfun(@(x) contains(x, 'WT'), subStruct.set2.names);
-    subStruct.set2.infection = [0 0 1 1 0 0 1 1 1 1 0 0 1 1 0 0];
+    subStruct.set2.wildType = cellfun(@(x) contains(x, 'WT'), subStruct.set2.names);
+    subStruct.set2.infection = [0 0 1 1 0 0 1 1 1 1 0 0 1 1 0 0]';
     subStruct = parainfluenza_get_perimeter(subStruct);
 end
 
