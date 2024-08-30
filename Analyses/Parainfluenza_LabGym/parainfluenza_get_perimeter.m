@@ -1,10 +1,24 @@
 function subStruct = parainfluenza_get_perimeter(subStruct)
 
-try
-    load('F:\LabGym\PARAINFLUENZA PROJECT\matlab\perimeterAll.mat');
-catch
+    setNames = fieldnames(subStruct);
+    try
+        load('F:\LabGym\PARAINFLUENZA PROJECT\matlab\perimeterAll.mat');
+        subStruct.set1.prePerim = perimeterAllPreSet1;
+        subStruct.set1.postPerim = perimeterAllPostSet1;
+        subStruct.set2.prePerim = perimeterAllPreSet2;
+        subStruct.set2.postPerim = perimeterAllPostSet2;
+    catch
+        for set = 1:numel(setNames)
+            setName = setNames{set};
+            for subNo = 1:numel(subStruct.(setName).names)
+                prePath = subStruct.(setName).prePath{subNo};
+                postPath = subStruct.(setName).postPath{subNo};
+                subStruct.(setName).prePerim = get_perimeter(prePath);
+                subStruct.(setName).postPerim = get_perimeter(postPath);
+            end
+        end
+    end
 end
-
 
 function innerPerim = get_perimeter(filePath)
 % inner perimeter

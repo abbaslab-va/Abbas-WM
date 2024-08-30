@@ -24,6 +24,7 @@ function subStruct = parainfluenza_init
     subStruct.set2.postPath = postPathSet2Unordered(postPathSet2Idx);
     subStruct.set2.genetics = cellfun(@(x) contains(x, 'WT'), subStruct.set2.names);
     subStruct.set2.infection = [0 0 1 1 0 0 1 1 1 1 0 0 1 1 0 0];
+    subStruct = parainfluenza_get_perimeter(subStruct);
 end
 
 function subNames = get_sub_names(setDir)
