@@ -1,4 +1,4 @@
-function [preferredDiff, nonPreferredDiff] = DMTS_tri_time_to_choice(sessionParser, biasType)
+function [correctDiff, incorrectDiff] = DMTS_tri_time_to_choice_correct_diff(sessionParser, biasType)
 
 % Outputs the difference in time to choice arrival from delay reward for the session's preferred and non-preferred trial type.
 
@@ -14,13 +14,10 @@ delayToChoiceIncorrectLeft = sessionParser.distance_between_states('DelayOn', 'P
 delayToChoiceCorrectRight = sessionParser.distance_between_states('DelayOn', 'ChoiceOn', 'trialType', 'Right', 'outcome', 'Correct');
 delayToChoiceIncorrectRight = sessionParser.distance_between_states('DelayOn', 'Punish', 'trialType', 'Right', 'outcome', 'Incorrect');
 
-leftDiff = mean(delayToChoiceIncorrectLeft) - mean(delayToChoiceCorrectLeft);
-rightDiff = mean(delayToChoiceIncorrectRight) - mean(delayToChoiceCorrectRight);
-
 if sessionBias < 0
-    preferredDiff = leftDiff;
-    nonPreferredDiff = rightDiff;
+    correctDiff = mean(delayToChoiceCorrectLeft) - mean(delayToChoiceCorrectRight);
+    incorrectDiff = mean(delayToChoiceIncorrectLeft) - mean(delayToChoiceIncorrectRight);
 else
-    preferredDiff = rightDiff;
-    nonPreferredDiff = leftDiff;
+    correctDiff = mean(delayToChoiceCorrectRight) - mean(delayToChoiceCorrectLeft);
+    incorrectDiff = mean(delayToChoiceIncorrectRight) - mean(delayToChoiceIncorrectLeft);
 end

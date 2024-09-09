@@ -1,15 +1,19 @@
 function testingPerf = DMTS_tri_testing_performance(managerObj)
 
-% Accepts an ExpManager object to calculate performance
+% Accepts an ExpManager object to calculate performance in testing. 
+% Returns a structure with the given alignment, with means by animal and session.
+
 alignments = struct();
 testingPerf = struct();
 alignments(1).directional = {'Left', 'Right'};
 alignments(1).samplePort = {'Sample1', 'Sample2', 'Sample3'};
 alignments(1).delayPort = {'Delay1', 'Delay2', 'Delay3'};
-alignments(1).delayLength = {[0 3], [3.1 4], [4.1 5], [5.1 6], [6.1 7]};
+% alignments(1).delayLength = {[0 3], [3.1 4], [4.1 5], [5.1 6], [6.1 7]};
+alignments(1).delayLength = {[3.1 5], [5.1 7]};
 subNames = managerObj.metadata.subjects;
 subIdxAll = cellfun(@(x) managerObj.subset('animal', x), subNames, 'uni', 0);
 groupings = fields(alignments);
+numTrials = arrayfun(@(x) x.bpod.session.nTrials, managerObj.sessions);
 % sort through alignments using PresetManager calls
 for al = 1:numel(groupings)
     currentGrouping = groupings{al};

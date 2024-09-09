@@ -1,0 +1,6 @@
+function DMTS_tri_training_scanning(trainingSessions)
+
+scanPunishAll = cellfun(@(x) arrayfun(@(y) ...
+    DMTS_tri_scan_punish(y), x, 'uni', 0), ...
+    trainingSessions, 'uni', 0);
+disp('poop')

@@ -1,4 +1,5 @@
 function repeatData = DMTS_tri_training_repeats(parserArray)
+% Plots trial repeats according to the training era, and returns the data in a structure
 
 repeatedPunishAll = cellfun(@(x) arrayfun(@(y) y.state_times('Punish', 'outcome', 'Repeat'), x, 'uni', 0), parserArray, 'uni', 0);
 % repeatedCorrectAll = cellfun(@(x) arrayfun(@(y) y.state_times('ChoiceOn', 'outcome', 'Repeat'), x, 'uni', 0), parserArray, 'uni', 0);
@@ -20,6 +21,7 @@ figure
 bar(meanByEra, 'k', 'FaceAlpha', .6, 'EdgeAlpha', .6);
 hold on
 errorbar(meanByEra, semByEra, 'LineStyle', 'none', 'Color', 'k', 'LineWidth', 1.5)
+xticklabels({"Early", "Mid", "Late"})
 clean_DMTS_figs
 % repeatCorrectByTrial = cellfun(@(x) numel(x), repeatedCorrectAll);
 % repeatPunishByTrialLeft = cellfun(@(x) numel(x), repeatedPunishLeft);

@@ -1,4 +1,6 @@
 function DMTS_tri_combined_diff(trainingStruct, testingStruct)
+% This generates a panel in figure 4, combining the time to choice diff for preferred against non-preferred
+% through training with the same metric during testing.
 
 meanData = [trainingStruct.preferred.early.mean, trainingStruct.preferred.mid.mean, trainingStruct.preferred.late.mean, testingStruct.preferred.mean; ...
     trainingStruct.nonPreferred.early.mean, trainingStruct.nonPreferred.mid.mean, trainingStruct.nonPreferred.late.mean, testingStruct.nonPreferred.mean]';
@@ -11,4 +13,5 @@ preferredX = meanBar(1).XEndPoints;
 nonPreferredX = meanBar(2).XEndPoints;
 errorX = [preferredX; nonPreferredX]';
 errorbar(errorX, meanData, semData, 'LineStyle', 'none', 'Color', 'k', 'LineWidth', 1.5)
+xticklabels({"Early", "Mid", "Late", "Testing"})
 clean_DMTS_figs
