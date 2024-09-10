@@ -118,9 +118,9 @@ framesCenterPost = cellfun(@(x) sum(~x)/numel(x), ...
 
 %% Velocity distributions
 
-% velocity_histogram(parainfluenzaCombined, 0, 'Combined');
+velocity_histogram(parainfluenzaCombined, 0, 'Combined');
 % velocity_histogram(parainfluenzaSeparated, 1, 'Set 1');
-velocity_histogram(parainfluenzaSeparated, 2, 'Set 2');
+% velocity_histogram(parainfluenzaSeparated, 2, 'Set 2');
 
 %% Periphery comparison
 
@@ -175,6 +175,13 @@ make_grouped_bar_chart([velocityOuterPre, velocityCenterPre, velocityOuterPost, 
 sgtitle('Velocity Sum Combined')
 make_grouped_bar_chart([framesOuterPre, framesCenterPre, framesOuterPost, framesCenterPost], ...
     parainfluenzaCombined, [1 2 1 2], 'epoch', 'mean', 0);
+
+%% TO DO
+
+% Find significance in velocity distribution differences (ks test)
+% Look at thresholded velocity to do a ttest on non-movement activity
+% Decode behavior through LabGym (tabled)
+
 %% Functions 
 
 function coordsByFrame = parainfluenza_position(filePath)

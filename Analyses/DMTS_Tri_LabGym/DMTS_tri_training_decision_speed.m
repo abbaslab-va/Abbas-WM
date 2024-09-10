@@ -1,9 +1,13 @@
-function eraDiff = DMTS_tri_training_decision_speed(parserArray, plotEras, biasType)
+function eraDiff = DMTS_tri_training_decision_speed(parserArray, plotEras, biasType, delayLen)
 % Plots the preferred and non-preferred time to choice throughout the three training eras,
 % and returns the structure with the means and SEM.
 
+if ~exist('delayLen', 'var')
+    delayLen = [0 7];
+end
+
 [preferredTimeToChoice, nonPreferredTimeToChoice] = cellfun(@(x) ...
-    arrayfun(@(y) DMTS_tri_time_to_choice(y, biasType), x), parserArray, 'uni', 0);
+    arrayfun(@(y) DMTS_tri_time_to_choice(y, biasType, delayLen), x), parserArray, 'uni', 0);
 preferredTimeAligned = align_training_data(parserArray, preferredTimeToChoice);
 nonPreferredTimeAligned = align_training_data(parserArray, nonPreferredTimeToChoice);
 % preferredAll = [preferredTimeToChoice{:}];

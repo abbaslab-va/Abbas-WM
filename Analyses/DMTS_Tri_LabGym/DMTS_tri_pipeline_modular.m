@@ -58,17 +58,27 @@ earlyWithdrawalByDelay = DMTS_tri_testing_early_withdrawals(testingSessions, del
 sideBiasRelationship = DMTS_bias_through_training(trainingSessions, 'side', leftColor, rightColor);
 % diffByTrainingEraPerfBias = DMTS_tri_training_decision_speed(trainingSessions, false, 'perf');
 diffByTrainingEraSideBias = DMTS_tri_training_decision_speed(trainingSessions, false, 'side');
+diffByTrainingEraSideBiasShortDelay = DMTS_tri_training_decision_speed(trainingSessions, false, 'side', [3 5]);
+diffByTrainingEraSideBiasLongDelay = DMTS_tri_training_decision_speed(trainingSessions, false, 'side', [5.1 7]);
+diffByTrainingEraSideBiasWarmupDelay = DMTS_tri_training_decision_speed(trainingSessions, false, 'side', [0 3]);
 
 %% Testing bias (figure 4)
 
-% left_vs_right_bias_diff(testingSessions, 'perf', leftColor, rightColor);
+% % left_vs_right_bias_diff(testingSessions, 'perf', leftColor, rightColor);
 left_vs_right_bias_diff(testingSessions, 'side', leftColor, rightColor);
-% choiceDiffPerfBias = DMTS_tri_testing_decision_speed(testingSessions, 'perf');
+% % choiceDiffPerfBias = DMTS_tri_testing_decision_speed(testingSessions, 'perf');
 choiceDiffSideBias = DMTS_tri_testing_decision_speed(testingSessions, 'side');
+
+choiceDiffSideBiasShortDelay = DMTS_tri_testing_decision_speed(testingSessions, 'side', [3 5]);
+choiceDiffSideBiasLongDelay = DMTS_tri_testing_decision_speed(testingSessions, 'side', [5.1 7]);
+choiceDiffSideBiasWarmupDelay = DMTS_tri_testing_decision_speed(testingSessions, 'side', [0 3]);
 %% Combined bias
 
 % DMTS_tri_combined_diff(diffByTrainingEraPerfBias, choiceDiffPerfBias)
 DMTS_tri_combined_diff(diffByTrainingEraSideBias, choiceDiffSideBias)
+DMTS_tri_combined_diff(diffByTrainingEraSideBiasShortDelay, choiceDiffSideBiasShortDelay)
+DMTS_tri_combined_diff(diffByTrainingEraSideBiasLongDelay, choiceDiffSideBiasLongDelay)
+DMTS_tri_combined_diff(diffByTrainingEraSideBiasWarmupDelay, choiceDiffSideBiasWarmupDelay)
 %% Bias metric comparison
 
 % trainingSideBias = DMTS_tri_training_side_bias(trainingSessions);
