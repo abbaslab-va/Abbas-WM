@@ -22,9 +22,18 @@ goodSessionsAnimals(~goodAnimals) = badSessions;
 goodSessionsAll = cat(2, goodSessionsAnimals{:});
 % Trim testing sessions
 testingSessions = labGymSessions;
+testingDates = arrayfun(@(x) datetime(x.bpod.session.Info.SessionDate), labGymSessions.sessions);
+testingDatesByAnimal = cellfun(@(x) testingDates(x), subSessions, 'uni', 0);
+testingDatesByAnimal = testingDatesByAnimal(goodAnimals);
 testingSessions.sessions = testingSessions.sessions(goodSessionsAll);
 testingSessions.metadata.subjects = subNamesUnfiltered(goodAnimals);
-
 % Get training sessions from filtered animals and make BpodParser arrays
 trainingSessions = make_BpodParser_training_array(BehaviorData, taskName, I);
 trainingSessions = trainingSessions(goodAnimals);
+trainingDates = cellfun(@(x) arrayfun(@(y) ...
+    datetime(y.session.Info.SessionDate), x), ...
+    trainingSessions, 'uni', 0);
+% Remove sessions from training data that were recorded for testing
+duplicateSessions = cellfun(@(x, y) ismember(x, y), trainingDates, testingDatesByAnimal', 'uni', 0);
+firstTestingSession = cellfun(@(x) find(x, 1, 'first') - 1, duplicateSessions, 'uni', 0);
+trainingSessions = cellfun(@(x, y) x(1:y), trainingSessions, firstTestingSession, 'uni', 0);

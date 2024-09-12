@@ -29,12 +29,12 @@ set(leftPosition.Children, 'xlim', [60 220], 'ylim', [0 140])
 set(rightPosition.Children, 'xlim', [60 220], 'ylim', [0 140])
 [~, ~, leftBehavior] = testingSessions.plot_combined_behaviors('preset', leftCorrect, 'animal', subName);
 [~, ~, rightBehavior] = testingSessions.plot_combined_behaviors('preset', rightCorrect, 'animal', subName);
-copygraphics(leftPosition, 'ContentType', 'vector')
-disp("Left position copied to clipboard")
-pause
-copygraphics(rightPosition, 'ContentType', 'vector')
-disp("Right position copied to clipboard")
-pause
+% copygraphics(leftPosition, 'ContentType', 'vector')
+% disp("Left position copied to clipboard")
+% pause
+% copygraphics(rightPosition, 'ContentType', 'vector')
+% disp("Right position copied to clipboard")
+% pause
 subNo = num2str(find(strcmp(subName, testingSessions.metadata.subjects)));
 exportgraphics(leftBehavior.Children, fullfile('E:\Papers\DMTS_Tri\Figures\figure4', strcat(subName, '_Left_', subNo, '.png')));
 exportgraphics(rightBehavior.Children, fullfile('E:\Papers\DMTS_Tri\Figures\figure4', strcat(subName, '_Right_', subNo, '.png')));

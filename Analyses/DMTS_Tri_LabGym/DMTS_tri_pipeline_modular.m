@@ -3,8 +3,8 @@
 
 %% Initialize pipeline
 
-% delayBins = {[0 3] [3.1 4] [4.1 5] [5.1 6] [6.1 7]};
-delayBins = {[3.1 5] [5.1 7]};
+delayBins = {[0 3] [3.1 4] [4.1 5] [5.1 6] [6.1 7]};
+delayBins = {[0 3], [3.1 5] [5.1 7]};
 % Create colormap to be used in figures
 behaviorColormap = brewermap(9, 'Set1');
 behaviorColormap = ...
