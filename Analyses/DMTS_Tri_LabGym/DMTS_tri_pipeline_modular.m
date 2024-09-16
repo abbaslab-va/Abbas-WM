@@ -97,3 +97,6 @@ DMTS_tri_training_scanning(trainingSessions)
 
 %% Bias by delay
 
+delayBiasTraining = DMTS_tri_training_bias_by_delay(trainingSessions, delayBins);
+delayBiasTesting = DMTS_tri_testing_bias_by_delay(testingSessions, delayBins);
+DMTS_tri_bias_by_delay_combined(delayBiasTraining, delayBiasTesting)
