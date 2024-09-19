@@ -3,8 +3,8 @@
 
 %% Initialize pipeline
 
-% delayBins = {[0 3] [3.1 4] [4.1 5] [5.1 6] [6.1 7]};
-delayBins = {[3.1 5] [5.1 7]};
+delayBins = {[0 3] [3.01 4] [4.01 5] [5.01 6] [6.01 7]};
+delayBins = {[0 3], [3.01 5] [5.01 7]};
 % Create colormap to be used in figures
 behaviorColormap = brewermap(9, 'Set1');
 behaviorColormap = ...
@@ -94,3 +94,9 @@ combined_behavior_and_position(testingSessions, 7)
 %% Training scan punish
 
 DMTS_tri_training_scanning(trainingSessions)
+
+%% Bias by delay
+
+delayBiasTraining = DMTS_tri_training_bias_by_delay(trainingSessions, delayBins);
+delayBiasTesting = DMTS_tri_testing_bias_by_delay(testingSessions, delayBins);
+DMTS_tri_bias_by_delay_combined(delayBiasTraining, delayBiasTesting)

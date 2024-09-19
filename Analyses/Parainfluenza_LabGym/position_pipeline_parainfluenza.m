@@ -99,7 +99,7 @@ for preSub = 1:numSessionsPreSet2
     sessionPath = fullfile(prePathSet2, sessionName);
     vidPath = dir(fullfile(sessionPath, '*.avi'));
     distPreSet2(idxPreSet2) = parainfluenza_distance_traveled(vidPath.folder);
-    distPreVelSet2(idxpreSet2) = parainfluenza_velocity(vidPath.folder);
+    distPreVelSet2(idxPreSet2) = parainfluenza_velocity(vidPath.folder);
     % perimeterAllPreSet2{preSub} = get_perimeter(vidPath);
 end
 %%
@@ -190,7 +190,7 @@ mutantCombinedMockPost = [distPostSet1(mockMutantSet1); distPostSet2(mockMutantS
 
 
 
-bar_and_error([wtCombinedInfectedPre, wtCombinedInfectedPost, wtCombinedMockPre, wtCombinedMockPost], 2)
+bar_and_error([wtCombinedInfectedPre, wtCombinedInfectedPost, wtCombinedMockPre, wtCombinedMockPost], 2);
 title("Combined wildtype")
 
 xticks([1, 2])
@@ -200,7 +200,7 @@ clean_DMTS_figs
 [~, pIWTCombined] = ttest(wtCombinedInfectedPre, wtCombinedInfectedPost)
 [~, pMWTCombined] = ttest(wtCombinedMockPre, wtCombinedMockPost)
 % Mutant
-bar_and_error([mutantCombinedInfectedPre, mutantCombinedInfectedPost, mutantCombinedMockPre, mutantCombinedMockPost], 2)
+bar_and_error([mutantCombinedInfectedPre, mutantCombinedInfectedPost, mutantCombinedMockPre, mutantCombinedMockPost], 2);
 title("Combined mutant")
 
 xticks([1, 2])
@@ -217,7 +217,7 @@ absMockWT = abs(wtCombinedMockPost - wtCombinedMockPre);
 absInfectedMutant = abs(mutantCombinedInfectedPost - mutantCombinedInfectedPre);
 absMockMutant = abs(mutantCombinedMockPost - mutantCombinedMockPre);
 
-bar_and_error([absInfectedWT, absMockWT, absInfectedMutant, absMockMutant], 2)
+bar_and_error([absInfectedWT, absMockWT, absInfectedMutant, absMockMutant], 2);
 xticks([1, 2])
 xticklabels({"WT", "Mutant"})
 legend({"Infection", "Mock"})
