@@ -1,6 +1,4 @@
-function DMTS_tri_bias_by_delay_combined(trainingData, testingData)
-blueShades = brewermap(5, 'PuBu');
-yellowShades = brewermap(6, 'YlOrBr');
+function DMTS_tri_bias_by_delay_combined(trainingData, testingData, delayColors)
 testingBiasMeans = mean(testingData, 1, 'omitnan');
 testingBiasSEM = std(testingData, 0, 1)./sqrt(size(testingData, 1));
 
@@ -16,19 +14,13 @@ semData = [cellfun(@(x) x.early.sem, trainingData); ...
 
 figure
 meanBar = bar(meanData);
-% meanBar(1).FaceColor = blueShades(3, :);
-% meanBar(2).FaceColor = blueShades(4, :);
-% meanBar(3).FaceColor = blueShades(5, :);
-% meanBar(1).EdgeColor = blueShades(3, :);
-% meanBar(2).EdgeColor = blueShades(4, :);
-% meanBar(3).EdgeColor = blueShades(5, :);
+meanBar(1).FaceColor = delayColors{1};
+meanBar(2).FaceColor = delayColors{2};
+meanBar(3).FaceColor = delayColors{3};
+meanBar(1).EdgeColor = delayColors{1};
+meanBar(2).EdgeColor = delayColors{2};
+meanBar(3).EdgeColor = delayColors{3};
 
-meanBar(1).FaceColor = yellowShades(3, :);
-meanBar(2).FaceColor = yellowShades(4, :);
-meanBar(3).FaceColor = yellowShades(5, :);
-meanBar(1).EdgeColor = yellowShades(3, :);
-meanBar(2).EdgeColor = yellowShades(4, :);
-meanBar(3).EdgeColor = yellowShades(5, :);
 hold on
 zeroDelayX = meanBar(1).XEndPoints;
 shortDelayX = meanBar(2).XEndPoints;

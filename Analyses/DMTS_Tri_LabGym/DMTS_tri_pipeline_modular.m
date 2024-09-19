@@ -3,9 +3,12 @@
 
 %% Initialize pipeline
 
-delayBins = {[0 3] [3.01 4] [4.01 5] [5.01 6] [6.01 7]};
+% delayBins = {[0 3] [3.01 4] [4.01 5] [5.01 6] [6.01 7]};
 delayBins = {[0 3], [3.01 5] [5.01 7]};
 % Create colormap to be used in figures
+
+blueShades = brewermap(5, 'PuBu');
+yellowShades = brewermap(6, 'YlOrBr');
 behaviorColormap = brewermap(9, 'Set1');
 behaviorColormap = ...
     [0 0 0;                  %     [NA - black
@@ -22,6 +25,13 @@ sampleColor = '#33DBFF';
 delayColor = '#BD33FF';
 leftColor = behaviorColormap(4, :);
 rightColor = behaviorColormap(8, :);
+zeroDelayColor = yellowShades(3, :);
+shortDelayColor = yellowShades(4, :);
+longDelayColor = yellowShades(5, :);
+delayColors = {zeroDelayColor, shortDelayColor, longDelayColor};
+% zeroDelayColor = blueShades(3, :);
+% shortDelayColor = blueShades(4, :);
+% longDelayColor = blueShades(5, :);
 % Create class objects by filtering pre-organized data
 [trainingSessions, testingSessions] = DMTS_tri_pipeline_init;
 %% Training performance
@@ -37,7 +47,7 @@ animalPerfFig = DMTS_tri_testing_plot_individual(testingPerformance);
 [sampleAnimalFig, sampleSessionFig] = DMTS_tri_testing_plot(testingPerformance.samplePort, sampleColor);
 [delayAnimalFig, delaySessionFig] = DMTS_tri_testing_plot(testingPerformance.delayPort, delayColor);
 [directionAnimalFig, directionSessionFig] = DMTS_tri_testing_plot(testingPerformance.directional, {leftColor rightColor});
-[delayLengthAnimalFig, delayLengthSessionFig] = DMTS_tri_testing_plot(testingPerformance.delayLength, 'k');
+[delayLengthAnimalFig, delayLengthSessionFig] = DMTS_tri_testing_plot(testingPerformance.delayLength, delayColors);
 
 %% Combined performance
 
@@ -45,8 +55,10 @@ DMTS_tri_combined_performance(trainingPerformance, testingPerformance);
 
 %% Training repeats and Early Withdrawals
 
-trainingRepeats = DMTS_tri_training_repeats(trainingSessions);
-trainingEW = DMTS_tri_training_early_withdrawals(trainingSessions, delayBins);
+trainingRepeats = DMTS_tri_training_repeats(trainingSessions, delayBins, false, delayColors);
+trainingRepeatsTrialized = DMTS_tri_training_repeats(trainingSessions, delayBins, true, delayColors);
+trainingEW = DMTS_tri_training_early_withdrawals(trainingSessions, delayBins, false, delayColors);
+trainingEWTrialized = DMTS_tri_training_early_withdrawals(trainingSessions, delayBins, true, delayColors);
 
 %% Testing early withdrawals
 
@@ -99,4 +111,4 @@ DMTS_tri_training_scanning(trainingSessions)
 
 delayBiasTraining = DMTS_tri_training_bias_by_delay(trainingSessions, delayBins);
 delayBiasTesting = DMTS_tri_testing_bias_by_delay(testingSessions, delayBins);
-DMTS_tri_bias_by_delay_combined(delayBiasTraining, delayBiasTesting)
+DMTS_tri_bias_by_delay_combined(delayBiasTraining, delayBiasTesting, delayColors)
