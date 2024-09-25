@@ -1,8 +1,8 @@
-function ewProportion = DMTS_tri_training_early_withdrawals(trainingSessions, delayBins)
+function ewProportion = DMTS_tri_training_early_withdrawals(trainingSessions, delayBins, trialized, delayColors)
 
 % Number of early withdrawals per training day
 ewCountAll = cellfun(@(x) ...
-    arrayfun(@(y) y.state_times('EarlyWithdrawal', 'trialized', true), ...
+    arrayfun(@(y) y.state_times('EarlyWithdrawal', 'trialized', trialized), ...
     x, 'uni', 0), trainingSessions, 'uni', 0);
 ewByTrial = cellfun(@(x) cellfun(@(y) cellfun(@(z) numel(z), y), x, 'uni', 0), ewCountAll, 'uni', 0);
 ewBySession = cellfun(@(x) cellfun(@(y) sum(y), x), ewByTrial, 'uni', 0);

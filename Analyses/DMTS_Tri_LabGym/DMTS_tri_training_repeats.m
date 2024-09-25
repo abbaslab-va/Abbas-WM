@@ -1,4 +1,4 @@
-function repeatData = DMTS_tri_training_repeats(parserArray, delayBins, trialized)
+function repeatData = DMTS_tri_training_repeats(parserArray, delayBins, trialized, delayColors)
 % Plots trial repeats according to the training era, and returns the data in a structure
 % If trialized is false, it counts multiple repeats within a trial
 % separately. If true, it counts trials that had any number of repeats.

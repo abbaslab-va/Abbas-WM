@@ -4,7 +4,8 @@
 %% Initialize pipeline
 
 % delayBins = {[0 3] [3.01 4] [4.01 5] [5.01 6] [6.01 7]};
-delayBins = {[0 3], [3.01 5] [5.01 7]};
+delayBins = {[0 3], [3.0001 5] [5.0001 7.5]}; %Occasionally trials can be slightly over 7 for some reason
+delayBinsDisc = [3 5 7];
 % Create colormap to be used in figures
 
 blueShades = brewermap(5, 'PuBu');
@@ -37,8 +38,15 @@ delayColors = {zeroDelayColor, shortDelayColor, longDelayColor};
 %% Training performance
 
 trainingPerformance = DMTS_tri_training_performance(trainingSessions);
+trainingPerformanceZero = DMTS_tri_training_performance(trainingSessions, 'delayLength', delayBins{1});
+trainingPerformanceShort = DMTS_tri_training_performance(trainingSessions, 'delayLength', delayBins{2});
+trainingPerformanceLong = DMTS_tri_training_performance(trainingSessions, 'delayLength', delayBins{3});
+
 
 trainingPerfGroupFig = DMTS_tri_training_plot_group(trainingPerformance);
+trainingPerfGroupFig = DMTS_tri_training_plot_group(trainingPerformanceZero);
+trainingPerfGroupFig = DMTS_tri_training_plot_group(trainingPerformanceShort);
+trainingPerfGroupFig = DMTS_tri_training_plot_group(trainingPerformanceLong);
 
 %% Testing performance
 
