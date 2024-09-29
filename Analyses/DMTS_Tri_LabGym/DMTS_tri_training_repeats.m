@@ -44,13 +44,22 @@ repeatByDelayError = ...
     cellfun(@(x) x.late.sem, repeatProportionByEra)];
 figure
 
-figH = bar(repeatByDelayMeans, 'FaceColor', 'k', 'FaceAlpha', 0.6);
+figH = bar(repeatByDelayMeans);
+
+figH(1).FaceColor = delayColors{1};
+figH(2).FaceColor = delayColors{2};
+figH(3).FaceColor = delayColors{3};
+figH(1).EdgeColor = delayColors{1};
+figH(2).EdgeColor = delayColors{2};
+figH(3).EdgeColor = delayColors{3};
+
 hold on
 barX = arrayfun(@(x) x.XEndPoints', figH, 'uni', 0);
 barX = cat(2, barX{:});
 errorbar(barX', repeatByDelayMeans', repeatByDelayError','vertical', 'Color', 'k', 'LineStyle', 'none')
+xticklabels({"Early", "Mid", "Late", "Testing"})
 clean_DMTS_figs
-
+legend({'0-3 sec', '3-5 sec', '5-7 sec'})
 repeatBySession = cellfun(@(x) cellfun(@(y) numel(y), x), repeatedPunishAll, 'uni', 0);
 
 

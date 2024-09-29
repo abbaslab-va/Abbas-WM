@@ -18,13 +18,13 @@ else
 end
 
 animalCells = alignmentStruct.animals;
-animalFigH = bar_and_scatter(animalCells, 'color', color);
+animalFigH = bar_and_scatter(animalCells, 'color', color, 'alpha', 1);
 clean_DMTS_figs
 xticks(1:numAlignments)
 xticklabels(alignmentString)
 
 sessionCells = alignmentStruct.sessions;
-sessionFigH = bar_and_scatter(sessionCells, 'color', color);
+sessionFigH = bar_and_scatter(sessionCells, 'color', color, 'alpha', 1);
 clean_DMTS_figs
 xticks(1:numAlignments)
 xticklabels(alignmentString)

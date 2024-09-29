@@ -35,10 +35,16 @@ ewError = ...
     [cellfun(@(x) x.early.sem, ewProportion); ...
     cellfun(@(x) x.mid.sem, ewProportion); ...
     cellfun(@(x) x.late.sem, ewProportion)];
-figure
-figH = bar(ewMeans, 'FaceColor', 'k', 'FaceAlpha', 0.6);
-hold on
-barX = arrayfun(@(x) x.XEndPoints', figH, 'uni', 0);
-barX = cat(2, barX{:});
-errorbar(barX', ewMeans', ewError','vertical', 'Color', 'k', 'LineStyle', 'none')
-clean_DMTS_figs
+% figure
+% figH = bar(ewMeans);
+% figH(1).FaceColor = delayColors{1};
+% figH(2).FaceColor = delayColors{2};
+% figH(3).FaceColor = delayColors{3};
+% figH(1).EdgeColor = delayColors{1};
+% figH(2).EdgeColor = delayColors{2};
+% figH(3).EdgeColor = delayColors{3};
+% hold on
+% barX = arrayfun(@(x) x.XEndPoints', figH, 'uni', 0);
+% barX = cat(2, barX{:});
+% errorbar(barX', ewMeans', ewError','vertical', 'Color', 'k', 'LineStyle', 'none')
+% clean_DMTS_figs

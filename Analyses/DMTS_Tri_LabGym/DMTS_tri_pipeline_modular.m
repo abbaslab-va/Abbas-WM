@@ -71,7 +71,7 @@ trainingEWTrialized = DMTS_tri_training_early_withdrawals(trainingSessions, dela
 %% Testing early withdrawals
 
 earlyWithdrawalByDelay = DMTS_tri_testing_early_withdrawals(testingSessions, delayBins);
-
+DMTS_tri_combined_early_withdrawal(trainingEW, earlyWithdrawalByDelay, delayColors)
 %% Training bias (figure 4)
 
 % perfBiasRelationship = DMTS_bias_through_training(trainingSessions, 'perf');
