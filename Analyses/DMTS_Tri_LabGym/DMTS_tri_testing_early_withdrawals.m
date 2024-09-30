@@ -1,4 +1,4 @@
-function ewProportion = DMTS_tri_testing_early_withdrawals(testingSessions, delayBins)
+function ewProportion = DMTS_tri_testing_early_withdrawals(testingSessions, delayBins, trialized)
 
 % OUTPUT:
 %     ewProportion - a SxB matrix of early withdrawal proportions, 
@@ -9,7 +9,7 @@ function ewProportion = DMTS_tri_testing_early_withdrawals(testingSessions, dela
 %     delayBins - a cell array of 1x2 delay bin edges
 
 ewCountAll = arrayfun(@(x) ...
-    x.bpod.state_times('EarlyWithdrawal', 'trialized', true), ...
+    x.bpod.state_times('EarlyWithdrawal', 'trialized', trialized), ...
     testingSessions.sessions, 'uni', 0);
 ewByTrial = cellfun(@(x) cellfun(@(y) numel(y), x), ewCountAll, 'uni', 0);
 % ewBySession = cellfun(@(x) cellfun(@(y) sum(y), x), ewByTrial, 'uni', 0);

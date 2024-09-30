@@ -65,13 +65,15 @@ DMTS_tri_combined_performance(trainingPerformance, testingPerformance);
 
 trainingRepeats = DMTS_tri_training_repeats(trainingSessions, delayBins, false, delayColors);
 trainingRepeatsTrialized = DMTS_tri_training_repeats(trainingSessions, delayBins, true, delayColors);
-trainingEW = DMTS_tri_training_early_withdrawals(trainingSessions, delayBins, false, delayColors);
-trainingEWTrialized = DMTS_tri_training_early_withdrawals(trainingSessions, delayBins, true, delayColors);
+trainingEW = DMTS_tri_training_early_withdrawals(trainingSessions, delayBins, false);
+trainingEWTrialized = DMTS_tri_training_early_withdrawals(trainingSessions, delayBins, true);
 
 %% Testing early withdrawals
 
-earlyWithdrawalByDelay = DMTS_tri_testing_early_withdrawals(testingSessions, delayBins);
-DMTS_tri_combined_early_withdrawal(trainingEW, earlyWithdrawalByDelay, delayColors)
+testingEW = DMTS_tri_testing_early_withdrawals(testingSessions, delayBins, false);
+testingEWTrialized = DMTS_tri_testing_early_withdrawals(testingSessions, delayBins, true);
+DMTS_tri_combined_early_withdrawal(trainingEW, testingEW, delayColors)
+DMTS_tri_combined_early_withdrawal(trainingEWTrialized, earlyWithdrawalByDelay, delayColors)
 %% Training bias (figure 4)
 
 % perfBiasRelationship = DMTS_bias_through_training(trainingSessions, 'perf');
