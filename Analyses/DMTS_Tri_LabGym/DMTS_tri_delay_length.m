@@ -41,9 +41,13 @@ delayBins = cellfun(@(x) discretize(delayTimes, x), binRanges, 'uni', 0);
 delayBins = cat(1, delayBins{:}) + rangeIdx';
 delayBins(isnan(delayBins)) = [];
 ewCount = cellfun(@(x) numel(x), ewTimes);
-ewByDelay = cellfun(@(x) sum(ewCount(delayBins == x)), num2cell(1:5));
-if ~strcmp(calcType, 'raw')
-    numDelay = cellfun(@(x) sum(delayBins == x), num2cell(1:5));
+if presets.trialized
+    ewByDelay = cellfun(@(x) any(ewCount(delayBins == x)), num2cell(1:numBins));
+else
+    ewByDelay = cellfun(@(x) sum(ewCount(delayBins == x)), num2cell(1:numBins));
+end
+if strcmp(calcType, 'proportion')
+    numDelay = cellfun(@(x) sum(delayBins == x), num2cell(1:numBins));
     ewByDelay = ewByDelay./numDelay;
 end
 

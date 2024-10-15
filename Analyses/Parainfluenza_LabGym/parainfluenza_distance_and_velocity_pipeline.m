@@ -59,6 +59,9 @@ parainfluenzaCombined.preVelocity = ...
     [parainfluenzaSeparated.set1.preVelocity; parainfluenzaSeparated.set2.preVelocity];
 parainfluenzaCombined.postVelocity = ...
     [parainfluenzaSeparated.set1.postVelocity; parainfluenzaSeparated.set2.postVelocity];
+
+%% Distance Traveled
+distance_bar(parainfluenzaCombined)
 %% Behavior by frame
 
 %% Periphery analysis
@@ -118,9 +121,9 @@ framesCenterPost = cellfun(@(x) sum(~x)/numel(x), ...
 
 %% Velocity distributions
 
-% velocity_histogram(parainfluenzaCombined, 0, 'Combined');
+velocity_histogram(parainfluenzaCombined, 0, 'Combined');
 % velocity_histogram(parainfluenzaSeparated, 1, 'Set 1');
-velocity_histogram(parainfluenzaSeparated, 2, 'Set 2');
+% velocity_histogram(parainfluenzaSeparated, 2, 'Set 2');
 
 %% Periphery comparison
 
@@ -167,21 +170,34 @@ make_grouped_bar_chart([framesOuterPreSet2, framesCenterPreSet2, framesOuterPost
 sgtitle('Frames Set 2')
 
 %% Combined Injection
-make_grouped_bar_chart([velocityOuterPre, velocityCenterPre, velocityOuterPost, velocityCenterPost], ...
-    parainfluenzaCombined, [1 2 1 2], 'epoch', 'mean', 0);
-sgtitle('Velocity Mean Combined')
-make_grouped_bar_chart([velocityOuterPre, velocityCenterPre, velocityOuterPost, velocityCenterPost], ...
-    parainfluenzaCombined, [1 2 1 2], 'epoch', 'sum', 0);
-sgtitle('Velocity Sum Combined')
+% make_grouped_bar_chart([velocityOuterPre, velocityCenterPre, velocityOuterPost, velocityCenterPost], ...
+%     parainfluenzaCombined, [1 2 1 2], 'epoch', 'mean', 0);
+% sgtitle('Velocity Mean Combined')
+% make_grouped_bar_chart([velocityOuterPre, velocityCenterPre, velocityOuterPost, velocityCenterPost], ...
+%     parainfluenzaCombined, [1 2 1 2], 'epoch', 'sum', 0);
+% sgtitle('Velocity Sum Combined')
 make_grouped_bar_chart([framesOuterPre, framesCenterPre, framesOuterPost, framesCenterPost], ...
     parainfluenzaCombined, [1 2 1 2], 'epoch', 'mean', 0);
+sgtitle('Frames Combined')
+
+%% Rest vs Active
+
+rest_vs_active(parainfluenzaCombined, .1)
+%% TO DO
+
+% Find significance in velocity distribution differences (ks test)
+% Look at thresholded velocity to do a ttest on non-movement activity
+% Decode behavior through LabGym (tabled)
+
 %% Functions 
 
 function coordsByFrame = parainfluenza_position(filePath)
     positionCSV = readtable(fullfile(filePath, 'mouse_centers.xlsx'));
     positionString = positionCSV.Var2(2:end);
     positionString = cellfun(@(x) regexprep(x, '[()]', ''), positionString, 'uni', 0);
-    positionCell = cellfun(@(x) str2double(x), positionString, 'uni', 0);
+    positionSplit = cellfun(@(x) strsplit(x, ', '), positionString, 'uni', 0);
+    positionCell = cellfun(@(x) str2double(x), positionSplit, 'uni', 0);
+    positionCell(cellfun(@(x) any(isnan(x)), positionCell)) = deal({[nan nan]});
     positionByFrame = cat(1, positionCell{:});
     missingVals = cellfun(@(x) isempty(x), positionCell);
     numFrames = numel(positionCell);
@@ -238,11 +254,15 @@ function make_grouped_bar_chart(data, subStruct, groupID, label, output, setNo)
         toPlot = dataSum;
     end
     % dataSEM = cellfun(@(x) std(x, 0, 'omitnan')/sqrt(sum(~isnan(x))), data);
-    meanInfectedWT = mean_and_reshape(toPlot, infectedWT, groupIdx);
-    meanMockWT = mean_and_reshape(toPlot, mockWT, groupIdx);
-    meanInfectedMutant = mean_and_reshape(toPlot, infectedMutant, groupIdx);
-    meanMockMutant = mean_and_reshape(toPlot, mockMutant, groupIdx);
-
+    [meanInfectedWT, pInfectedWT] = mean_and_reshape(toPlot, infectedWT, groupIdx);
+    pInfectedWT
+    [meanMockWT, pMockWT] = mean_and_reshape(toPlot, mockWT, groupIdx);
+    pMockWT
+    [meanInfectedMutant, pInfectedMutant] = mean_and_reshape(toPlot, infectedMutant, groupIdx);
+    pInfectedMutant
+    [meanMockMutant, pMockMutant] = mean_and_reshape(toPlot, mockMutant, groupIdx);
+    pMockMutant
+    
     figure
     tiledlayout(2, 2)
     nexttile
@@ -264,7 +284,17 @@ function make_grouped_bar_chart(data, subStruct, groupID, label, output, setNo)
     xticklabels(xLabelString)
 end
 
-function dataOut = mean_and_reshape(dataIn, subIdx, groupIdx)
+function [dataOut, pVal] = mean_and_reshape(dataIn, subIdx, groupIdx)
+    dataSubset = dataIn(subIdx, :);
+    group1 = dataSubset(:, groupIdx{1});
+    g1Pre = group1(:, 1);
+    g1Post = group1(:, 2);
+    [~, pGroup1] = ttest(g1Pre, g1Post);
+    group2 = dataSubset(:, groupIdx{2});
+    g2Pre = group2(:, 1);
+    g2Post = group2(:, 2);
+    [~, pGroup2] = ttest(g2Pre, g2Post);
+    pVal = [pGroup1 pGroup2];
     dataAveraged = mean(dataIn(subIdx, :), 1);
     dataCells = cellfun(@(x) dataAveraged(x), groupIdx, 'uni', 0);
     dataOut = cat(1, dataCells{:});
@@ -319,3 +349,95 @@ function plot_hist_subset(dataPre, dataPost, subset)
     histogram(postVel, 'BinEdges', binEdges, 'Normalization','probability')
 end
 
+function distance_bar(dataStruct)
+    infectedWT = dataStruct.infection & dataStruct.wildType;
+    infectedMutant = dataStruct.infection & ~dataStruct.wildType;
+    mockWT = ~dataStruct.infection & dataStruct.wildType;
+    mockMutant = ~dataStruct.infection & ~dataStruct.wildType;
+    
+    [infectedWTpre, infectedWTpost] = pre_vs_post(dataStruct, infectedWT);
+    [infectedMutantpre, infectedMutantpost] = pre_vs_post(dataStruct, infectedMutant);
+    [mockWTpre, mockWTpost] = pre_vs_post(dataStruct, mockWT);
+    [mockMutantpre, mockMutantpost] = pre_vs_post(dataStruct, mockMutant);
+    tiledlayout(2, 2)
+    sgtitle('Combined Distance Traveled')
+    nexttile
+    bar_and_error([infectedWTpre, infectedWTpost], 2, gcf)
+    title('Infected wildtype')
+    legend({'Pre', 'Post'})
+    nexttile
+    bar_and_error([infectedMutantpre, infectedMutantpost], 2, gcf)
+    title('Infected mutant')
+    nexttile
+    bar_and_error([mockWTpre, mockWTpost], 2, gcf)
+    title('Mock wildtype')
+    nexttile
+    bar_and_error([mockMutantpre, mockMutantpost], 2, gcf)
+    title('Mock mutant')
+end
+
+function [dataPre, dataPost] = pre_vs_post(dataStruct, subIdx)
+    preVel = dataStruct.preVelocity(subIdx);
+    postVel = dataStruct.postVelocity(subIdx);
+    dataPre = cellfun(@(x) sum(x, 'omitnan'), preVel);
+    dataPost = cellfun(@(x) sum(x, 'omitnan'), postVel);
+end
+
+function rest_vs_active(dataStruct, thresh)
+    infectedWT = dataStruct.infection & dataStruct.wildType;
+    infectedMutant = dataStruct.infection & ~dataStruct.wildType;
+    mockWT = ~dataStruct.infection & dataStruct.wildType;
+    mockMutant = ~dataStruct.infection & ~dataStruct.wildType;
+
+    velocityPre = dataStruct.preVelocity;
+    velocityPost = dataStruct.postVelocity;
+
+    restPreInfectedWT = threshold_velocity(velocityPre, infectedWT, thresh);
+    restPostInfectedWT = threshold_velocity(velocityPost, infectedWT, thresh);
+    restPreInfectedMutant = threshold_velocity(velocityPre, infectedMutant, thresh);
+    restPostInfectedMutant = threshold_velocity(velocityPost, infectedMutant, thresh);
+    restPreMockWT = threshold_velocity(velocityPre, mockWT, thresh);
+    restPostMockWT = threshold_velocity(velocityPost, mockWT, thresh);
+    restPreMockMutant = threshold_velocity(velocityPre, mockMutant, thresh);
+    restPostMockMutant = threshold_velocity(velocityPost, mockMutant, thresh);
+    barLabels = {'Pre', 'Post'};
+    tiledlayout(2, 2)
+    sgtitle(strcat("Rest vs Active: Threshold = ", num2str(thresh)));
+    nexttile
+    pRestInfectedWT = two_bar_with_error(restPreInfectedWT, restPostInfectedWT)
+    xticklabels(barLabels)
+    title("Infected WT")
+    ylabel('Proportion of frames resting')
+    nexttile
+    pRestInfectedMutant = two_bar_with_error(restPreInfectedMutant, restPostInfectedMutant)
+    xticklabels(barLabels)
+    title("Infected Mutant")
+    ylabel('Proportion of frames resting')
+    nexttile
+    pRestMockWT = two_bar_with_error(restPreMockWT, restPostMockWT)
+    xticklabels(barLabels)
+    title("Mock WT")
+    ylabel('Proportion of frames resting')
+    nexttile
+    pRestMockMutant = two_bar_with_error(restPreMockMutant, restPostMockMutant)
+    xticklabels(barLabels)
+    title("Mock Mutant")
+    ylabel('Proportion of frames resting')
+end
+
+function restPercentage = threshold_velocity(vel, subset, restThresh)
+    velSubset = vel(subset);
+    restFrames = cellfun(@(x) x < restThresh, velSubset, 'uni', 0);
+    restPercentage = cellfun(@(x) sum(x)/numel(x), restFrames);
+end
+
+function pVal = two_bar_with_error(group1, group2)
+    g1Means = mean(group1);
+    g1SEM = std(group1)/sqrt(numel(group1));
+    g2Means = mean(group2);
+    g2SEM = std(group2)/sqrt(numel(group2));
+    bar([g1Means, g2Means]) 
+    hold on
+    errorbar([1 2], [g1Means, g2Means], [g1SEM g2SEM], 'LineStyle', 'none', 'Color', 'k', 'LineWidth', 1.5);
+    [~, pVal] = ttest(group1, group2);
+end

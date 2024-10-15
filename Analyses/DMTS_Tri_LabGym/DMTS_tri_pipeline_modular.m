@@ -3,9 +3,13 @@
 
 %% Initialize pipeline
 
-% delayBins = {[0 3] [3.1 4] [4.1 5] [5.1 6] [6.1 7]};
-delayBins = {[3.1 5] [5.1 7]};
+% delayBins = {[0 3] [3.01 4] [4.01 5] [5.01 6] [6.01 7]};
+delayBins = {[0 3], [3.0001 5] [5.0001 7.5]}; %Occasionally trials can be slightly over 7 for some reason
+delayBinsDisc = [3 5 7];
 % Create colormap to be used in figures
+
+blueShades = brewermap(5, 'PuBu');
+yellowShades = brewermap(6, 'YlOrBr');
 behaviorColormap = brewermap(9, 'Set1');
 behaviorColormap = ...
     [0 0 0;                  %     [NA - black
@@ -22,13 +26,27 @@ sampleColor = '#33DBFF';
 delayColor = '#BD33FF';
 leftColor = behaviorColormap(4, :);
 rightColor = behaviorColormap(8, :);
+zeroDelayColor = yellowShades(3, :);
+shortDelayColor = yellowShades(4, :);
+longDelayColor = yellowShades(5, :);
+delayColors = {zeroDelayColor, shortDelayColor, longDelayColor};
+% zeroDelayColor = blueShades(3, :);
+% shortDelayColor = blueShades(4, :);
+% longDelayColor = blueShades(5, :);
 % Create class objects by filtering pre-organized data
 [trainingSessions, testingSessions] = DMTS_tri_pipeline_init;
 %% Training performance
 
 trainingPerformance = DMTS_tri_training_performance(trainingSessions);
+trainingPerformanceZero = DMTS_tri_training_performance(trainingSessions, 'delayLength', delayBins{1});
+trainingPerformanceShort = DMTS_tri_training_performance(trainingSessions, 'delayLength', delayBins{2});
+trainingPerformanceLong = DMTS_tri_training_performance(trainingSessions, 'delayLength', delayBins{3});
+
 
 trainingPerfGroupFig = DMTS_tri_training_plot_group(trainingPerformance);
+trainingPerfGroupFig = DMTS_tri_training_plot_group(trainingPerformanceZero);
+trainingPerfGroupFig = DMTS_tri_training_plot_group(trainingPerformanceShort);
+trainingPerfGroupFig = DMTS_tri_training_plot_group(trainingPerformanceLong);
 
 %% Testing performance
 
@@ -37,7 +55,7 @@ animalPerfFig = DMTS_tri_testing_plot_individual(testingPerformance);
 [sampleAnimalFig, sampleSessionFig] = DMTS_tri_testing_plot(testingPerformance.samplePort, sampleColor);
 [delayAnimalFig, delaySessionFig] = DMTS_tri_testing_plot(testingPerformance.delayPort, delayColor);
 [directionAnimalFig, directionSessionFig] = DMTS_tri_testing_plot(testingPerformance.directional, {leftColor rightColor});
-[delayLengthAnimalFig, delayLengthSessionFig] = DMTS_tri_testing_plot(testingPerformance.delayLength, 'k');
+[delayLengthAnimalFig, delayLengthSessionFig] = DMTS_tri_testing_plot(testingPerformance.delayLength, delayColors);
 
 %% Combined performance
 
@@ -45,30 +63,44 @@ DMTS_tri_combined_performance(trainingPerformance, testingPerformance);
 
 %% Training repeats and Early Withdrawals
 
-trainingRepeats = DMTS_tri_training_repeats(trainingSessions);
-trainingEW = DMTS_tri_training_early_withdrawals(trainingSessions, delayBins);
+trainingRepeats = DMTS_tri_training_repeats(trainingSessions, delayBins, false, delayColors);
+trainingRepeatsTrialized = DMTS_tri_training_repeats(trainingSessions, delayBins, true, delayColors);
+trainingEW = DMTS_tri_training_early_withdrawals(trainingSessions, delayBins, false);
+trainingEWTrialized = DMTS_tri_training_early_withdrawals(trainingSessions, delayBins, true);
 
 %% Testing early withdrawals
 
-earlyWithdrawalByDelay = DMTS_tri_testing_early_withdrawals(testingSessions, delayBins);
-
+testingEW = DMTS_tri_testing_early_withdrawals(testingSessions, delayBins, false);
+testingEWTrialized = DMTS_tri_testing_early_withdrawals(testingSessions, delayBins, true);
+DMTS_tri_combined_early_withdrawal(trainingEW, testingEW, delayColors)
+DMTS_tri_combined_early_withdrawal(trainingEWTrialized, earlyWithdrawalByDelay, delayColors)
 %% Training bias (figure 4)
 
 % perfBiasRelationship = DMTS_bias_through_training(trainingSessions, 'perf');
 sideBiasRelationship = DMTS_bias_through_training(trainingSessions, 'side', leftColor, rightColor);
 % diffByTrainingEraPerfBias = DMTS_tri_training_decision_speed(trainingSessions, false, 'perf');
 diffByTrainingEraSideBias = DMTS_tri_training_decision_speed(trainingSessions, false, 'side');
+diffByTrainingEraSideBiasShortDelay = DMTS_tri_training_decision_speed(trainingSessions, false, 'side', [3 5]);
+diffByTrainingEraSideBiasLongDelay = DMTS_tri_training_decision_speed(trainingSessions, false, 'side', [5.1 7]);
+diffByTrainingEraSideBiasWarmupDelay = DMTS_tri_training_decision_speed(trainingSessions, false, 'side', [0 3]);
 
 %% Testing bias (figure 4)
 
-% left_vs_right_bias_diff(testingSessions, 'perf', leftColor, rightColor);
+% % left_vs_right_bias_diff(testingSessions, 'perf', leftColor, rightColor);
 left_vs_right_bias_diff(testingSessions, 'side', leftColor, rightColor);
-% choiceDiffPerfBias = DMTS_tri_testing_decision_speed(testingSessions, 'perf');
+% % choiceDiffPerfBias = DMTS_tri_testing_decision_speed(testingSessions, 'perf');
 choiceDiffSideBias = DMTS_tri_testing_decision_speed(testingSessions, 'side');
+
+choiceDiffSideBiasShortDelay = DMTS_tri_testing_decision_speed(testingSessions, 'side', [3 5]);
+choiceDiffSideBiasLongDelay = DMTS_tri_testing_decision_speed(testingSessions, 'side', [5.1 7]);
+choiceDiffSideBiasWarmupDelay = DMTS_tri_testing_decision_speed(testingSessions, 'side', [0 3]);
 %% Combined bias
 
 % DMTS_tri_combined_diff(diffByTrainingEraPerfBias, choiceDiffPerfBias)
 DMTS_tri_combined_diff(diffByTrainingEraSideBias, choiceDiffSideBias)
+DMTS_tri_combined_diff(diffByTrainingEraSideBiasShortDelay, choiceDiffSideBiasShortDelay)
+DMTS_tri_combined_diff(diffByTrainingEraSideBiasLongDelay, choiceDiffSideBiasLongDelay)
+DMTS_tri_combined_diff(diffByTrainingEraSideBiasWarmupDelay, choiceDiffSideBiasWarmupDelay)
 %% Bias metric comparison
 
 % trainingSideBias = DMTS_tri_training_side_bias(trainingSessions);
@@ -84,3 +116,9 @@ combined_behavior_and_position(testingSessions, 7)
 %% Training scan punish
 
 DMTS_tri_training_scanning(trainingSessions)
+
+%% Bias by delay
+
+delayBiasTraining = DMTS_tri_training_bias_by_delay(trainingSessions, delayBins);
+delayBiasTesting = DMTS_tri_testing_bias_by_delay(testingSessions, delayBins);
+DMTS_tri_bias_by_delay_combined(delayBiasTraining, delayBiasTesting, delayColors)

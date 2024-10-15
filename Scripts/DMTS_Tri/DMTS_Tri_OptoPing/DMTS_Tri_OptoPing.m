@@ -186,8 +186,8 @@ for currentTrial = 1:MaxTrials
             sampleTimerTrig = {};
             sampleStim = {};
             sampleStop = {};
-            delayStim = {'BNC1', 1, 'SoftCode', 1};
-            delayStop = {'SoftCode', 2};
+            delayStim = {'BNC1', 1};%, 'SoftCode', 1};
+            delayStop = {};%'SoftCode', 2};
             currParams = paramMat{1}.ParameterMatrix;
             ProgramPulsePal(currParams);
         % case 3 % Sample Stim 2
