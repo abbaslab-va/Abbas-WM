@@ -35,6 +35,23 @@ delayColors = {zeroDelayColor, shortDelayColor, longDelayColor};
 % longDelayColor = blueShades(5, :);
 % Create class objects by filtering pre-organized data
 [trainingSessions, testingSessions] = DMTS_tri_pipeline_init;
+
+%% Make objects for both groups of mice based on turn to choice strat
+variableTurningSubs = [1,2,4,5,6,8];
+fixedTurningSubs = [3,7];
+variableTurningTraining = trainingSessions(variableTurningSubs);
+fixedTurningTraining = trainingSessions(fixedTurningSubs);
+subNames = testingSessions.metadata.subjects;
+variableTurningSubset = testingSessions.subset('animal', subNames(variableTurningSubs));
+variableTurningTesting = ExpManager(BehDat(), []);
+variableTurningTesting.copy(testingSessions);
+variableTurningTesting.sessions = variableTurningTesting.sessions(variableTurningSubset);
+variableTurningTesting.metadata.subjects = subNames(variableTurningSubs);
+fixedTurningSubset = testingSessions.subset('animal', subNames(fixedTurningSubs));
+fixedTurningTesting = ExpManager(BehDat(), []);
+fixedTurningTesting.copy(testingSessions);
+fixedTurningTesting.sessions = fixedTurningTesting.sessions(fixedTurningSubset);
+fixedTurningTesting.metadata.subjects = subNames(fixedTurningSubs);
 %% Training performance
 
 trainingPerformance = DMTS_tri_training_performance(trainingSessions);
@@ -65,6 +82,11 @@ DMTS_tri_combined_performance(trainingPerformance, testingPerformance);
 
 trainingRepeats = DMTS_tri_training_repeats(trainingSessions, delayBins, false, delayColors);
 trainingRepeatsTrialized = DMTS_tri_training_repeats(trainingSessions, delayBins, true, delayColors);
+
+
+trainingRepeatsVariable = DMTS_tri_training_repeats(variableTurning, delayBins, true, delayColors);
+trainingRepeatsFixed = DMTS_tri_training_repeats(fixedTurning, delayBins, true, delayColors);
+
 trainingEW = DMTS_tri_training_early_withdrawals(trainingSessions, delayBins, false);
 trainingEWTrialized = DMTS_tri_training_early_withdrawals(trainingSessions, delayBins, true);
 
@@ -73,16 +95,18 @@ trainingEWTrialized = DMTS_tri_training_early_withdrawals(trainingSessions, dela
 testingEW = DMTS_tri_testing_early_withdrawals(testingSessions, delayBins, false);
 testingEWTrialized = DMTS_tri_testing_early_withdrawals(testingSessions, delayBins, true);
 DMTS_tri_combined_early_withdrawal(trainingEW, testingEW, delayColors)
-DMTS_tri_combined_early_withdrawal(trainingEWTrialized, earlyWithdrawalByDelay, delayColors)
+DMTS_tri_combined_early_withdrawal(trainingEWTrialized, testingEWTrialized, delayColors)
 %% Training bias (figure 4)
 
 % perfBiasRelationship = DMTS_bias_through_training(trainingSessions, 'perf');
-sideBiasRelationship = DMTS_bias_through_training(trainingSessions, 'side', leftColor, rightColor);
+% sideBiasRelationship = DMTS_bias_through_training(trainingSessions, 'side', leftColor, rightColor);
 % diffByTrainingEraPerfBias = DMTS_tri_training_decision_speed(trainingSessions, false, 'perf');
 diffByTrainingEraSideBias = DMTS_tri_training_decision_speed(trainingSessions, false, 'side');
 diffByTrainingEraSideBiasShortDelay = DMTS_tri_training_decision_speed(trainingSessions, false, 'side', [3 5]);
 diffByTrainingEraSideBiasLongDelay = DMTS_tri_training_decision_speed(trainingSessions, false, 'side', [5.1 7]);
 diffByTrainingEraSideBiasWarmupDelay = DMTS_tri_training_decision_speed(trainingSessions, false, 'side', [0 3]);
+diffByTrainingEraVariable = DMTS_tri_training_decision_speed(variableTurningTraining, false, 'side');
+diffByTrainingEraFixed = DMTS_tri_training_decision_speed(fixedTurningTraining, false, 'side');
 
 %% Testing bias (figure 4)
 
@@ -90,6 +114,8 @@ diffByTrainingEraSideBiasWarmupDelay = DMTS_tri_training_decision_speed(training
 left_vs_right_bias_diff(testingSessions, 'side', leftColor, rightColor);
 % % choiceDiffPerfBias = DMTS_tri_testing_decision_speed(testingSessions, 'perf');
 choiceDiffSideBias = DMTS_tri_testing_decision_speed(testingSessions, 'side');
+choiceDiffTestingVariable = DMTS_tri_testing_decision_speed(variableTurningTesting, 'side');
+choiceDiffTestingFixed = DMTS_tri_testing_decision_speed(fixedTurningTesting, 'side');
 
 choiceDiffSideBiasShortDelay = DMTS_tri_testing_decision_speed(testingSessions, 'side', [3 5]);
 choiceDiffSideBiasLongDelay = DMTS_tri_testing_decision_speed(testingSessions, 'side', [5.1 7]);
@@ -98,9 +124,11 @@ choiceDiffSideBiasWarmupDelay = DMTS_tri_testing_decision_speed(testingSessions,
 
 % DMTS_tri_combined_diff(diffByTrainingEraPerfBias, choiceDiffPerfBias)
 DMTS_tri_combined_diff(diffByTrainingEraSideBias, choiceDiffSideBias)
+DMTS_tri_combined_diff(diffByTrainingEraSideBiasWarmupDelay, choiceDiffSideBiasWarmupDelay)
 DMTS_tri_combined_diff(diffByTrainingEraSideBiasShortDelay, choiceDiffSideBiasShortDelay)
 DMTS_tri_combined_diff(diffByTrainingEraSideBiasLongDelay, choiceDiffSideBiasLongDelay)
-DMTS_tri_combined_diff(diffByTrainingEraSideBiasWarmupDelay, choiceDiffSideBiasWarmupDelay)
+DMTS_tri_combined_diff(diffByTrainingEraVariable, choiceDiffTestingVariable)
+DMTS_tri_combined_diff(diffByTrainingEraFixed, choiceDiffTestingFixed)
 %% Bias metric comparison
 
 % trainingSideBias = DMTS_tri_training_side_bias(trainingSessions);
@@ -122,3 +150,10 @@ DMTS_tri_training_scanning(trainingSessions)
 delayBiasTraining = DMTS_tri_training_bias_by_delay(trainingSessions, delayBins);
 delayBiasTesting = DMTS_tri_testing_bias_by_delay(testingSessions, delayBins);
 DMTS_tri_bias_by_delay_combined(delayBiasTraining, delayBiasTesting, delayColors)
+
+%% Raw time to choice
+
+trainingTimeToChoiceRaw = DMTS_tri_training_time_to_choice(trainingSessions, false, 'side');
+testingTimeToChoiceRaw = DMTS_tri_testing_time_to_choice(testingSessions, false, 'side');
+
+DMTS_tri_combined_raw_time_to_choice(trainingTimeToChoiceRaw, testingTimeToChoiceRaw)
