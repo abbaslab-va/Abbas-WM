@@ -3,7 +3,7 @@ function eraDiff = DMTS_tri_training_decision_speed(parserArray, plotEras, biasT
 % and returns the structure with the means and SEM.
 
 if ~exist('delayLen', 'var')
-    delayLen = [0 7];
+    delayLen = [0 7.5];
 end
 
 [preferredTimeToChoice, nonPreferredTimeToChoice] = cellfun(@(x) ...

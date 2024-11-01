@@ -36,11 +36,16 @@ plot(lftMdl)
 hold on
 scatter(sessionBias, leftDiffMean, 20, leftColor, 'filled')
 clean_DMTS_figs
+legend('hide')
+set(gca, 'XLabel', [])
+set(gca, 'YLabel', [])
+set(gca, 'Title', [])
+
 xlim([-.6 .6])
-xlabel("Bias weight", "FontSize", 24)
-yticks(-6:2:20)
-ylabel("Choice Delta (seconds)", "FontSize", 14)
-legend({"Remove me", "Fit", "95% Confidence Bounds", "Left Trials Averaged"}, "Color", 'w', "TextColor", 'k');
+% xlabel("Bias weight", "FontSize", 24)
+% yticks(-6:2:20)
+% ylabel("Choice Delta (seconds)", "FontSize", 14)
+% legend({"Remove me", "Fit", "95% Confidence Bounds", "Left Trials Averaged"}, "Color", 'w', "TextColor", 'k');
 
 figure
 rightMdl = fitlm(sessionBias, rightDiffMean);
@@ -48,8 +53,13 @@ plot(rightMdl)
 hold on
 scatter(sessionBias, rightDiffMean, 20, rightColor, 'filled')
 clean_DMTS_figs
-xlabel("Bias weight", "FontSize", 24)
+
+legend('hide')
+set(gca, 'XLabel', [])
+set(gca, 'YLabel', [])
+set(gca, 'Title', [])
+% xlabel("Bias weight", "FontSize", 24)
 xlim([-.6 .6])
-yticks(-6:2:10)
-ylabel("Choice Delta (seconds)", "FontSize", 14)
-legend({"Remove me", "Fit", "95% Confidence Bounds", "Right Trials Averaged"}, "Color", 'w', "TextColor", 'k');
+% yticks(-6:2:10)
+% ylabel("Choice Delta (seconds)", "FontSize", 14)
+% legend({"Remove me", "Fit", "95% Confidence Bounds", "Right Trials Averaged"}, "Color", 'w', "TextColor", 'k');

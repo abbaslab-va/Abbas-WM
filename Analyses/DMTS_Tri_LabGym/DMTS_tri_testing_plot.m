@@ -6,9 +6,11 @@ function [animalFigH, sessionFigH] = DMTS_tri_testing_plot(alignmentStruct, colo
 
 numAlignments = numel(alignmentStruct.alignments);
 alignmentField = alignmentStruct.alignments;
+faceAlpha = 0.6;
 if  ~any(cellfun(@(x) any(ischar(x)), alignmentField))
     % alignmentString = {'0-3', '3-4', '4-5', '5-6', '6-7'};
     alignmentString = {'0-3', '3-5', '5-7'};
+    faceAlpha = 1;
 elseif numel(alignmentField) == 3
     alignmentString = cellfun(@(x, y) ...
     [x(1) y], alignmentField, {'1', '2', '3'}, 'uni', 0);
@@ -18,13 +20,13 @@ else
 end
 
 animalCells = alignmentStruct.animals;
-animalFigH = bar_and_scatter(animalCells, 'color', color, 'alpha', 1);
+animalFigH = bar_and_scatter(animalCells, 'color', color, 'alpha', faceAlpha);
 clean_DMTS_figs
 xticks(1:numAlignments)
 xticklabels(alignmentString)
 
 sessionCells = alignmentStruct.sessions;
-sessionFigH = bar_and_scatter(sessionCells, 'color', color, 'alpha', 1);
+sessionFigH = bar_and_scatter(sessionCells, 'color', color, 'alpha', faceAlpha);
 clean_DMTS_figs
 xticks(1:numAlignments)
 xticklabels(alignmentString)
