@@ -170,7 +170,7 @@ for currentTrial = 1:100
     
 end
 
-SendSlackNotification('https://hooks.slack.com/services/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', strcat(BpodSystem.GUIData.SubjectName, {' '}, 'behavior completed'))
+SendSlackNotification('https://hooks.slack.com/services/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', 'Session End')
 
 function UpdateTrialTypeOutcomePlot(TrialTypes, Data)
 

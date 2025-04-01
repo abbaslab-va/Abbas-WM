@@ -15,8 +15,8 @@ if isempty(fieldnames(S))  % If settings file was an empty struct, populate stru
     S.GUI.ITI = 5;             %seconds
     S.GUI.DelayHoldTime = 0;    
     S.GUI.DelayMaxHold = 0;
-    S.GUI.EarlyIncrement = 0.85;
-    S.GUI.TimeIncrement = 0.85; %Start this value at .05 and increase up to 1
+    S.GUI.EarlyIncrement = 1;
+    S.GUI.TimeIncrement = 1; %Start this value at .05 and increase up to 1
     S.GUI.EarlyWithdrawalTimeout = 5;
     S.GUI.PunishTime = 10;
 end
@@ -94,6 +94,8 @@ BpodParameterGUI('init', S); % Initialize parameter GUI plugin
 TotalTrials = MaxTrials;
 RepeatTrial= 0;
 currentTrial = 0;
+final_min_delay = 5; %was 3
+final_max_delay = 7;%was 7
     while currentTrial <TotalTrials
         currentTrial = currentTrial + 1;
         if currentTrial ~= 1
@@ -118,13 +120,13 @@ currentTrial = 0;
 
 % %     repeated = 0;
     % RepeatTrial = doRepeat(TrialTypes(currentTrial));
-    if S.GUI.DelayMaxHold < 7 && S.GUI.DelayMaxHold >= 3
+    if S.GUI.DelayMaxHold < final_max_delay && S.GUI.DelayMaxHold >= final_min_delay
         S.GUI.DelayMaxHold = S.GUI.DelayMaxHold + S.GUI.TimeIncrement;
-    elseif S.GUI.DelayMaxHold < 3
+    elseif S.GUI.DelayMaxHold < final_min_delay
         S.GUI.DelayMaxHold = S.GUI.DelayMaxHold + S.GUI.EarlyIncrement;
     end
-    if S.GUI.DelayMaxHold > 3
-        S.GUI.DelayHoldTime = randsample(3:.1:S.GUI.DelayMaxHold, 1);
+    if S.GUI.DelayMaxHold > final_min_delay
+        S.GUI.DelayHoldTime = randsample(final_min_delay:.1:S.GUI.DelayMaxHold, 1);
     else
         S.GUI.DelayHoldTime = S.GUI.DelayMaxHold;
     end
