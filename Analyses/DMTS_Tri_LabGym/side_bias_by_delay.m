@@ -1,4 +1,4 @@
-function biasIdx = calculate_side_bias(sessionParser)
+function biasIdx = side_bias_by_delay(sessionParser, delayBins)
     % Returns a value from -1:1, indicating the bias towards port visits after delay towards
     % the left choice port (-1 = 100% correct left, 0% correct right) or right choice port
     % (1 = 0% correct left, 100% correct right)
@@ -7,6 +7,10 @@ function biasIdx = calculate_side_bias(sessionParser)
     rightTrials = sessionParser.config.trialTypes.Right;
     leftTrialsIdx = sessionParser.trial_intersection_BpodParser('trialType', 'Left');
     rightTrialsIdx = sessionParser.trial_intersection_BpodParser('trialType', 'Right');
+    delayBinsIdx = cellfun(@(x) ...
+        sessionParser.trial_intersection_BpodParser('delayLength', x), ...
+        delayBins, 'uni', 0);
+  
     choicePort = {'Port1In', 'Port2In', 'Port3In'};
     
     waitForChoiceState = sessionParser.state_times('WaitForChoicePoke', 'returnEnd', true, 'trialized', true);
@@ -32,5 +36,5 @@ function biasIdx = calculate_side_bias(sessionParser)
     if any(leftChosen & rightChosen)
         disp("POOP")
     end
-    biasIdx = mean(rightChosen) - mean(leftChosen);
+    biasIdx = cellfun(@(x) mean(rightChosen & x) - mean(leftChosen & x), delayBinsIdx, 'uni', 0);
 end
