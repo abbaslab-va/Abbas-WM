@@ -22,12 +22,12 @@ function eraPerformance = perf_by_era(parserArray, presets)
     earlyPerformance = cellfun(@(x) percent_correct(x, presets), earlySessions, 'uni', 0);
     midPerformance = cellfun(@(x) percent_correct(x, presets), midSessions, 'uni', 0);
     latePerformance = cellfun(@(x) percent_correct(x, presets), lateSessions, 'uni', 0);
-    earlyMean = mean(cellfun(@(x) mean(x), earlyPerformance));
-    earlySEM = mean(cellfun(@(x) std(x)/sqrt(numel(x)), earlyPerformance));
-    midMean = mean(cellfun(@(x) mean(x), midPerformance));
-    midSEM = mean(cellfun(@(x) std(x)/sqrt(numel(x)), midPerformance));
-    lateMean = mean(cellfun(@(x) mean(x), latePerformance));
-    lateSEM = mean(cellfun(@(x) std(x)/sqrt(numel(x)), latePerformance));
+    earlyMean = mean(cellfun(@(x) mean(x, 'omitnan'), earlyPerformance));
+    earlySEM = mean(cellfun(@(x) std(x, 'omitnan')/sqrt(numel(find(~isnan(x)))), earlyPerformance));
+    midMean = mean(cellfun(@(x) mean(x, 'omitnan'), midPerformance));
+    midSEM = mean(cellfun(@(x) std(x, 'omitnan')/sqrt(numel(find(~isnan(x)))), midPerformance));
+    lateMean = mean(cellfun(@(x) mean(x, 'omitnan'), latePerformance));
+    lateSEM = mean(cellfun(@(x) std(x, 'omitnan')/sqrt(numel(find(~isnan(x)))), latePerformance));
     eraPerformance = struct('means', struct('early', earlyMean, 'mid', midMean, 'late', lateMean), ...
         'sem', struct('early', earlySEM, 'mid', midSEM, 'late', lateSEM));
 end
