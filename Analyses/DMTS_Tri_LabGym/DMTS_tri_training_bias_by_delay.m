@@ -1,4 +1,4 @@
-function biasByEra = DMTS_tri_training_bias_by_delay(trainingSessions, delayBins)
+function [biasByEra, biasAligned] = DMTS_tri_training_bias_by_delay(trainingSessions, delayBins)
 
 biasByAnimal = cellfun(@(x) arrayfun(@(y) ...
     side_bias_by_delay(y, delayBins), x, 'uni', 0), trainingSessions, 'uni', 0);

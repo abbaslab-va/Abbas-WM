@@ -1,15 +1,16 @@
-function ewProportion = DMTS_tri_training_early_withdrawals(trainingSessions, delayBins, trialized)
+function [ewStruct, ewBySessionAligned] = DMTS_tri_training_early_withdrawals(trainingSessions, delayBins, trialized)
 
 % Number of early withdrawals per training day
 ewCountAll = cellfun(@(x) ...
-    arrayfun(@(y) y.state_times('EarlyWithdrawal', 'trialized', trialized), ...
+    arrayfun(@(y) y.state_times('EarlyWithdrawal', 'trialized', true), ...
     x, 'uni', 0), trainingSessions, 'uni', 0);
-% if trialized
-    ewByTrial = cellfun(@(x) cellfun(@(y) cellfun(@(z) numel(z), y), x, 'uni', 0), ewCountAll, 'uni', 0);
-% else
-%     ewByTrial = cellfun(@(x) cellfun(@(y) cellfun(@(z) ~isempty(z), y), x, 'uni', 0), ewCountAll, 'uni', 0);
-% end
-ewBySession = cellfun(@(x) cellfun(@(y) sum(y), x), ewByTrial, 'uni', 0);
+ewByTrial = cellfun(@(x) cellfun(@(y) cellfun(@(z) numel(z), y), x, 'uni', 0), ewCountAll, 'uni', 0);
+if trialized
+    ewBySession = cellfun(@(x) cellfun(@(y) nnz(y), x), ewByTrial, 'uni', 0);
+else
+    ewBySession = cellfun(@(x) cellfun(@(y) sum(y), x), ewByTrial, 'uni', 0);
+end
+% ewBySession = cellfun(@(x) cellfun(@(y) sum(y), x), ewByTrial, 'uni', 0);
 ewBySessionAligned = align_training_data(trainingSessions, ewBySession);
 ewBySessionMeans = mean(ewBySessionAligned, 2, 'omitnan');
 ewBySessionSEM = std(ewBySessionAligned, 0, 2, 'omitnan')./sqrt(sum(~isnan(ewBySessionAligned), 2));
@@ -28,7 +29,7 @@ ewByDelayCells = arrayfun(@(x) ...
 ewByDelayAligned = cellfun(@(x) ...
     align_training_data(trainingSessions, x), ...
     ewByDelayCells, 'uni', 0);
-ewProportion = cellfun(@(x) ...
+ewStruct = cellfun(@(x) ...
     DMTS_tri_results_by_era(x), ...
     ewByDelayAligned, 'uni', 0);
 % ewMeans = ...

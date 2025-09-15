@@ -1,4 +1,4 @@
-function ewProportion = DMTS_tri_testing_early_withdrawals(testingSessions, delayBins, trialized)
+function [ewProportion, ewBySession] = DMTS_tri_testing_early_withdrawals(testingSessions, delayBins, trialized)
 
 % OUTPUT:
 %     ewProportion - a SxB matrix of early withdrawal proportions, 
@@ -9,9 +9,15 @@ function ewProportion = DMTS_tri_testing_early_withdrawals(testingSessions, dela
 %     delayBins - a cell array of 1x2 delay bin edges
 
 ewCountAll = arrayfun(@(x) ...
-    x.bpod.state_times('EarlyWithdrawal', 'trialized', trialized), ...
+    x.bpod.state_times('EarlyWithdrawal', 'trialized', true), ...
     testingSessions.sessions, 'uni', 0);
 ewByTrial = cellfun(@(x) cellfun(@(y) numel(y), x), ewCountAll, 'uni', 0);
+if trialized
+    ewBySession = cellfun(@(x) nnz(x), ewByTrial);
+else
+    ewBySession = cellfun(@(x) sum(x), ewByTrial);
+end
+%     ewBySession = cel
 % ewBySession = cellfun(@(x) cellfun(@(y) sum(y), x), ewByTrial, 'uni', 0);
 % ewBySessionMeans = mean(ewBySessionAligned, 2, 'omitnan');
 % ewBySessionSEM = std(ewBySessionAligned, 0, 2, 'omitnan')./sqrt(sum(~isnan(ewBySessionAligned), 2));
@@ -19,7 +25,7 @@ ewByTrial = cellfun(@(x) cellfun(@(y) numel(y), x), ewCountAll, 'uni', 0);
 % clean_DMTS_figs
 
 [delayTimes, ewByDelay] = arrayfun(@(x) ...
-    DMTS_tri_delay_length(x.bpod, 'binRanges', delayBins), ...
+    DMTS_tri_delay_length(x.bpod, 'binRanges', delayBins, 'trialized', trialized), ...
     testingSessions.sessions, 'uni', 0);
 ewByDelay = cat(1, ewByDelay{:});
 numTrialsByDelay = cellfun(@(x) ...
