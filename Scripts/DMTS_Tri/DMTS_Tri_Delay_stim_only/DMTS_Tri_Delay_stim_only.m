@@ -109,7 +109,7 @@ allTrials = [];
 allCorrect = [];
 
 %% Add task name and subject name into bpod data structure
-BpodSystem.Data.Task_name = coder.mfunctionname;
+BpodSystem.Data.Task_name = 'DMTS_Tri_Delay_stim_only';
 BpodSystem.Data.Subject_name = BpodSystem.GUIData.SubjectName;
 
 
