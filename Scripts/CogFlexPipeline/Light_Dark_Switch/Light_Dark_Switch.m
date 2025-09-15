@@ -1,4 +1,4 @@
-function Chase_V1
+function Light_Dark_Switch
 
 %The training protocol for a 4 port spatial working memory task. This
 %script introduces punishments, extended delay period and early
@@ -6,23 +6,13 @@ function Chase_V1
 
 global BpodSystem
 
-ITI_fixed = 0;
+
 S = BpodSystem.ProtocolSettings; % Load settings chosen in launch manager into current workspace as a struct called S
 if isempty(fieldnames(S))  % If settings file was an empty struct, populate struct with default settings
-    S.GUI.Large_reward_vol = 3;     %μl
-    S.GUI.Small_reward_vol = 3;     %μl  
-    if ITI_fixed
-    ITI = 1;             %seconds
-%     disp('A')
-    else
-        ITI = [1, 4];
-%         disp('B')
-%         disp(S.GUI.ITI)
-    end
+    S.GUI.Large_reward_vol = 7;     %μl
+    S.GUI.Small_reward_vol = 0;     %μl  
+    S.GUI.ITI = 1;             %seconds
 end
-BpodSystem.Data.ITIs =[];
-
-
 
 %% Define trials
 AllPortsIn = {'Port1In', 'Port2In', 'Port3In'};
@@ -47,32 +37,41 @@ sgtitle(replace(BpodSystem.GUIData.SubjectName,'_','  '))
 BpodNotebook('init');
 BpodParameterGUI('init', S); % Initialize parameter GUI plugin
 %% Main trial loop
+
+correctswitches = 0
+count = 0
+TotalCount = 0
+currentblock = randperm(2)-1;
+
+Chase_Light = [{'PWM1', 100}, {'PWM2', 100}, {'PWM3', 100}]
+Chase_Dark = [{'PWM2', 100, 'PWM3', 100}, {'PWM1', 100, 'PWM3', 100}, {'PWM1', 100, 'PWM2', 100}]
+
 for currentTrial = 1:MaxTrials
         
     S = BpodParameterGUI('sync', S);
     currentTT = TrialTypes(currentTrial);
    
-    if ITI_fixed
-        Curr_ITI = ITI;
-    else
-        %Generate values from the uniform distribution on the
-%        interval (a, b).
-% disp(S.GUI.ITI)
-% disp(numel(S.GUI.ITI))
-        Curr_ITI = ITI(1) + (ITI(2)-ITI(1)).*rand(1,1); % Generates rand ITI val for current trial
+    if currentblock == 0
+
+        SampleLight = Chase_Light(currentTT)
+
+    elseif currentblock == 1
+
+        SampleLight = Chase_Dark(currentTT)
+
     end
 
     switch currentTT
         case 1 % Port #1 (Back) - Large reward
-            SampleLight = {'PWM1', 50}; SampleValve = {'Valve1', 1};
+            SampleValve = {'Valve1', 1};
             WhichSampleIn = {'Port1In'}; WhichSampleOut = {'Port1Out'};
             SampleValveTime = GetValveTimes(S.GUI.Large_reward_vol, 1);
         case 2 % Port #2 (Right)
-            SampleLight = {'PWM2', 50}; SampleValve = {'Valve2', 1};
+            SampleValve = {'Valve2', 1};
             WhichSampleIn = {'Port2In'}; WhichSampleOut = {'Port2Out'};
             SampleValveTime = GetValveTimes(S.GUI.Small_reward_vol, 2);
         case 3 % Port #3 (Left)
-            SampleLight = {'PWM3', 50}; SampleValve = {'Valve3', 1};
+            SampleValve = {'Valve3', 1};
             WhichSampleIn = {'Port3In'}; WhichSampleOut = {'Port3Out'};
             SampleValveTime = GetValveTimes(S.GUI.Small_reward_vol, 3);
     end
@@ -80,21 +79,18 @@ for currentTrial = 1:MaxTrials
     
     sma = NewStateMatrix(); % Assemble state matrix
         
-
-    sma = AddState(sma, 'Name', 'ITI', 'Timer', Curr_ITI,...
-    'StateChangeConditions', {'Tup', 'Trial_start_time'},...
-    'OutputActions', {});
-        
-
+    sma = AddState(sma, 'Name', 'ITI', 'Timer', S.GUI.ITI,...
+        'StateChangeConditions', {'Tup', 'Trial_start_time'},...
+        'OutputActions', {});
 
     sma = AddState(sma, 'Name', 'Trial_start_time', 'Timer', 0,...
         'StateChangeConditions', {'Tup', 'WaitForSamplePoke'},...
-        'OutputActions', {'Wire1', 1}); %Trial Start
+        'OutputActions', {'Wire1', 1});
     
 
     sma = AddState(sma, 'Name', 'WaitForSamplePoke', 'Timer', 0,...
         'StateChangeConditions', [WhichSampleIn, 'SampleOnHold'],...
-        'OutputActions', [SampleLight, 'Wire3', 1]); % Sample Light ON
+        'OutputActions', SampleLight);
     
     sma = AddState(sma, 'Name', 'SampleOnHold', 'Timer', .05,...
         'StateChangeConditions', ['Tup', 'SampleReward', WhichSampleOut, 'WaitForSamplePoke'],...
@@ -103,7 +99,7 @@ for currentTrial = 1:MaxTrials
     
     sma = AddState(sma, 'Name', 'SampleReward', 'Timer', SampleValveTime,...
         'StateChangeConditions', {'Tup', 'exit'},...
-        'OutputActions', [SampleLight, SampleValve, 'Wire2', 1]);    % Sample Reward
+        'OutputActions', [SampleLight, SampleValve, 'Wire2', 1]);    
     
     SendStateMatrix(sma);
     
@@ -112,7 +108,6 @@ for currentTrial = 1:MaxTrials
         BpodSystem.Data = AddTrialEvents(BpodSystem.Data,RawEvents); % Computes trial events from raw data
         BpodSystem.Data = BpodNotebook('sync', BpodSystem.Data); % Sync with Bpod notebook plugin
         BpodSystem.Data.TrialTypes(currentTrial) = TrialTypes(currentTrial);
-        BpodSystem.Data.ITIs = [BpodSystem.Data.ITIs; Curr_ITI];
         UpdateTrialTypeOutcomePlot(TrialTypes, BpodSystem.Data);
         SaveBpodSessionData; % Saves the field BpodSystem.Data to the current data file
     end
@@ -121,21 +116,45 @@ for currentTrial = 1:MaxTrials
         return
     end
 
+    if Outcomes(currentTrial) == 1
+    
+        
+        count = count + 1
+        TotalCount = TotalCount + 1
+        correctswitches
+        
+        if count == 7
+
+            currentblock = ~currentblock
+            
+            count = 0
+            correctswitches = correctswitches+1
+                    
+        end  
+        
+    elseif Outcomes(currentTrial) ~= 1
+        
+        count = 0
+        
+    end
+
 end
 
 function UpdateTrialTypeOutcomePlot(TrialTypes, Data)
 global BpodSystem
+global Outcomes
 Outcomes = zeros(1,Data.nTrials);
+
 for x = 1:Data.nTrials
-    Outcomes(x) = Data.RawEvents.Trial{x}.States.SampleReward(1) - Data.RawEvents.Trial{x}.States.ITI(2); % trial length
-    % if ~isnan(Data.RawEvents.Trial{x}.States.ITI(2)) && ~isnan(Data.RawEvents.Trial{x}.States.SampleReward(1))
-    %     Outcomes(x) = 2;
-    % elseif ~isnan(Data.RawEvents.Trial{x}.States.Punish(1))
-    %     Outcomes(x) = 0;
-    % elseif ~isnan(Data.RawEvents.Trial{x}.States.ChoiceOn(1))
-    %     Outcomes(x) = 1;
-    % end
+    
+    if ~isnan(Data.RawEvents.Trial{x}.States.SampleReward(1))
+        Outcomes(x) = 1;
+    else
+        Outcomes(x) = 0;
+    end
+    
 end
+
 BpodSystem.Data.SessionPerformance = Outcomes;
 SaveBpodSessionData;
 hold(BpodSystem.GUIHandles.TrialDurationPlot,'on')
@@ -161,9 +180,3 @@ if exist('t1Scatter', 'var') && exist ('t2Scatter', 'var') && exist('t3Scatter',
 %         BpodSystem.GUIHandles.TrialDurationPlot.YLim(2)= 30;
 %     end
 end
-
-
-        
-    
-    
- 

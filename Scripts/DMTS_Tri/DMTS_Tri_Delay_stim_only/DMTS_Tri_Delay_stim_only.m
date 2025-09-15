@@ -1,4 +1,4 @@
-function DMTS_Tri_OptoPing
+function DMTS_Tri_Delay_stim_only
 
 %The training protocol for a 3 port spatial working memory task. This
 %script introduces punishments, extended delay period and early
@@ -64,6 +64,13 @@ for fill = 1:10 %(outer blocks randomized here) (10 repeats of each trialtype/st
     TrialTypes_shuff = TrialTypes(fill*12-(12-1):fill*12);
     TrialTypes(fill*12-(12-1):fill*12) = TrialTypes_shuff(shuff_idx);
 end
+% adding 5 throw away trials at start to get to a 5s delay
+MaxTrials = MaxTrials + 5;
+TrialTypes = [TrialTypes(end-4:end), TrialTypes]; 
+StimTypes = [zeros(1,5), StimTypes];
+
+nnz(StimTypes)
+numel(StimTypes)
 
 paramMat = cell(1,2);
 disp('Load first opto param file')
@@ -75,6 +82,21 @@ paramMat{1} = load(param_1_filename);
 % disp(['Selected: ', param_2_filename]);
 % paramMat{2} = load(param_2_filename);
 BpodSystem.Data.Laser_params_1 = param_1_filename;
+if strcmp(param_1_filename, 'PingPing.mat') %% CHECK THIS
+    use_softcode = 0;
+else 
+    use_softcode = 1;
+end
+
+if strcmp(param_1_filename, 'Wipe_ping_100hz_then_8Hz.mat') %% CHECK THIS
+    use_softcode = 0;
+    N_pulses = 100+8;
+    PulseTimes= [[1.5:.01:2.49], [ 3.5:0.125:4.375]]
+    Voltages = 5*ones(1,N_pulses);
+    confirmbit = SendCustomPulseTrain(1, PulseTimes, Voltages); 
+    confirmbit = SendCustomPulseTrain(2, PulseTimes, Voltages);
+
+end
 % BpodSystem.Data.Laser_params_2 = param_2_filename;
 BpodSystem.Data.TrialTypes = []; 
 
@@ -94,19 +116,22 @@ BpodSystem.GUIHandles.TrialTypeOutcomePlot = axes('Position', [.075 .3 .89 .6]);
 TrialTypeOutcomePlot(BpodSystem.GUIHandles.TrialTypeOutcomePlot,'init',TrialTypes);
 BpodNotebook('init');
 BpodParameterGUI('init', S); % Initialize parameter GUI plugin
-BpodSystem.SoftCodeHandlerFunction = 'DMTS_Tri_OptoPing_SoftCode';
+BpodSystem.SoftCodeHandlerFunction = 'DMTS_Tri_Delay_stim_only_SoftCode';
 
 %% Main trial loop
+
+final_min_delay = 5; %was 3
+final_max_delay = 7;%was 7
 for currentTrial = 1:MaxTrials
 % %     repeated = 0;
    
-    if S.GUI.DelayMaxHold < 7 && S.GUI.DelayMaxHold >= 3
+    if S.GUI.DelayMaxHold < final_max_delay && S.GUI.DelayMaxHold >= final_min_delay
         S.GUI.DelayMaxHold = S.GUI.DelayMaxHold + S.GUI.TimeIncrement;
-    elseif S.GUI.DelayMaxHold < 3
+    elseif S.GUI.DelayMaxHold < final_min_delay
         S.GUI.DelayMaxHold = S.GUI.DelayMaxHold + S.GUI.EarlyIncrement;
     end
-    if S.GUI.DelayMaxHold > 3
-        S.GUI.DelayHoldTime = randsample(3:.1:S.GUI.DelayMaxHold, 1);
+    if S.GUI.DelayMaxHold > final_min_delay
+        S.GUI.DelayHoldTime = randsample(final_min_delay:.1:S.GUI.DelayMaxHold, 1);
     else
         S.GUI.DelayHoldTime = S.GUI.DelayMaxHold;
     end
@@ -186,8 +211,14 @@ for currentTrial = 1:MaxTrials
             sampleTimerTrig = {};
             sampleStim = {};
             sampleStop = {};
+            if use_softcode ==0
+            delayStim = {'BNC1', 1};%, 'SoftCode', 1};
+            delayStop = {};%'SoftCode', 2};
+            end
+            if use_softcode == 1
             delayStim = {'BNC1', 1, 'SoftCode', 1};
             delayStop = {'SoftCode', 2};
+            end
             currParams = paramMat{1}.ParameterMatrix;
             ProgramPulsePal(currParams);
         % case 3 % Sample Stim 2
